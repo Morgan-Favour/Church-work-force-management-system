@@ -6,16 +6,36 @@ import { redirect } from "next/navigation";
 async function createAdmin(formData: FormData) {
   "use server";
 
-  const fullName = formData.get("fullName") as string;
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
+  const fullName = formData.get("fullName")?.toString().trim();
+  const email = formData.get("email")?.toString().trim().toLowerCase();
+  const password = formData.get("password")?.toString();
 
-  const existing = await prisma.user.findUnique({
-    where: { email },
+  if (!fullName || !email || !password) {
+    throw new Error("All fields are required.");
+  }
+
+  if (password.length < 8) {
+    throw new Error("Password must be at least 8 characters.");
+  }
+
+  const adminCount = await prisma.user.count({
+    where: {
+      role: UserRole.ADMIN,
+    },
   });
 
-  if (existing) {
-    throw new Error("User already exists");
+  if (adminCount > 0) {
+    throw new Error("An admin account already exists.");
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (existingUser) {
+    throw new Error("Email already exists.");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,24 +54,50 @@ async function createAdmin(formData: FormData) {
 
 export default function RegisterAdminPage() {
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Create Admin Account</h1>
+    <main style={{ padding: "2rem", maxWidth: "500px" }}>
+      <h1>Create First Admin</h1>
 
-      {/* 👇 THIS IS THE KEY FIX */}
       <form action={createAdmin}>
-        <input placeholder="Full Name" name="fullName" />
-        <br /><br />
+        <div>
+          <label>Full Name</label>
+          <br />
+          <input
+            name="fullName"
+            type="text"
+            required
+          />
+        </div>
 
-        <input placeholder="Email" name="email" type="email" />
-        <br /><br />
+        <br />
 
-        <input placeholder="Password" name="password" type="password" />
-        <br /><br />
+        <div>
+          <label>Email</label>
+          <br />
+          <input
+            name="email"
+            type="email"
+            required
+          />
+        </div>
+
+        <br />
+
+        <div>
+          <label>Password</label>
+          <br />
+          <input
+            name="password"
+            type="password"
+            required
+          />
+        </div>
+
+        <br />
 
         <button type="submit">
           Create Admin
         </button>
       </form>
-    </div>
+    </main>
   );
 }
