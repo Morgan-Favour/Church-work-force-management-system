@@ -1,39 +1,51 @@
+import { prisma } from "@/lib/prisma";
 import { Building2, ClipboardCheck, Users, UserRoundCheck } from "lucide-react";
 
-const stats = [
-  {
-    label: "Total Workers",
-    value: "0",
-    icon: Users,
-  },
-  {
-    label: "Departments",
-    value: "0",
-    icon: Building2,
-  },
-  {
-    label: "Attendance Today",
-    value: "0",
-    icon: ClipboardCheck,
-  },
-  {
-    label: "Leaders",
-    value: "0",
-    icon: UserRoundCheck,
-  },
-];
+export default async function DashboardPage() {
+  const departmentCount = await prisma.department.count();
+  const workerCount = await prisma.worker.count();
+  const attendanceCount = await prisma.attendance.count();
+  const leaderCount = await prisma.user.count({
+    where: {
+      role: "DEPARTMENT_LEADER",
+    },
+  });
 
-export default function DashboardPage() {
+  const stats = [
+    {
+      label: "Total Workers",
+      value: workerCount,
+      icon: Users,
+    },
+    {
+      label: "Departments",
+      value: departmentCount,
+      icon: Building2,
+    },
+    {
+      label: "Attendance Records",
+      value: attendanceCount,
+      icon: ClipboardCheck,
+    },
+    {
+      label: "Leaders",
+      value: leaderCount,
+      icon: UserRoundCheck,
+    },
+  ];
+
   return (
     <div className="space-y-8">
       <section className="rounded-3xl bg-[#0e2d33] p-8 text-white shadow-xl shadow-slate-300/40">
         <p className="text-sm font-medium text-[#d4af37]">
           GIC Egbelu Workforce
         </p>
+
         <h1 className="mt-3 max-w-2xl text-3xl font-bold tracking-tight">
           Manage departments, workers, attendance, and accountability from one
           place.
         </h1>
+
         <p className="mt-3 max-w-xl text-sm text-white/65">
           Start by creating departments, adding workers, and recording service
           attendance.
@@ -72,6 +84,7 @@ export default function DashboardPage() {
           <h3 className="text-lg font-bold text-slate-900">
             Recent Activity
           </h3>
+
           <p className="mt-2 text-sm text-slate-500">
             No activity yet. Activities will appear here after departments,
             workers, and attendance records are created.
@@ -82,15 +95,26 @@ export default function DashboardPage() {
           <h3 className="text-lg font-bold text-slate-900">Quick Actions</h3>
 
           <div className="mt-5 space-y-3">
-            <button className="w-full rounded-xl bg-[#0e2d33] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#123940]">
+            <a
+              href="/departments"
+              className="block w-full rounded-xl bg-[#0e2d33] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#123940]"
+            >
               Add Department
-            </button>
-            <button className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            </a>
+
+            <a
+              href="/workers"
+              className="block w-full rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
               Add Worker
-            </button>
-            <button className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            </a>
+
+            <a
+              href="/attendance"
+              className="block w-full rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
               Mark Attendance
-            </button>
+            </a>
           </div>
         </div>
       </section>

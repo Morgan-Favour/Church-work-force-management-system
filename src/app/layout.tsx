@@ -1,5 +1,13 @@
-import "./globals.css";
+import "../globals.css";
 import Providers from "./providers";
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "GIC Egbelu Workforce",
+  description: "Church workforce management system",
+};
 
 export default function RootLayout({
   children,
@@ -8,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>
     </html>

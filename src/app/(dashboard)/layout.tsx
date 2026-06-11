@@ -3,25 +3,36 @@ import {
   LayoutDashboard,
   Building2,
   Users,
+  UserCog,
   ClipboardCheck,
   BarChart3,
   Settings,
 } from "lucide-react";
 
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
+
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Departments", href: "/departments", icon: Building2 },
   { label: "Workers", href: "/workers", icon: Users },
+  { label: "Leaders", href: "/leaders", icon: UserCog },
   { label: "Attendance", href: "/attendance", icon: ClipboardCheck },
   { label: "Reports", href: "/reports", icon: BarChart3 },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/login");
+  }
   return (
     <div className="flex min-h-screen bg-slate-100">
       <aside className="w-72 shrink-0 bg-[#0e2d33] text-white">
