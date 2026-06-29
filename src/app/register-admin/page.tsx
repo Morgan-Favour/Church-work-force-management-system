@@ -8,10 +8,10 @@ async function createAdmin(formData: FormData) {
   "use server";
 
   const fullName = formData.get("fullName")?.toString().trim();
-  const email = formData.get("email")?.toString().trim().toLowerCase();
+  const username = formData.get("username")?.toString().trim().toLowerCase();
   const password = formData.get("password")?.toString();
 
-  if (!fullName || !email || !password) {
+  if (!fullName || !username || !password) {
     return;
   }
 
@@ -31,7 +31,7 @@ async function createAdmin(formData: FormData) {
 
   const existingUser = await prisma.user.findUnique({
     where: {
-      email,
+      username,
     },
   });
 
@@ -44,7 +44,7 @@ async function createAdmin(formData: FormData) {
   await prisma.user.create({
     data: {
       fullName,
-      email,
+      username,
       password: hashedPassword,
       role: UserRole.ADMIN,
     },
@@ -97,11 +97,11 @@ export default async function RegisterAdminPage() {
 
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">
-              Email Address
+              username Address
             </label>
             <input
-              name="email"
-              type="email"
+              name="username"
+              type="username"
               required
               className="block w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
               placeholder="admin@gic.org"
@@ -131,6 +131,9 @@ export default async function RegisterAdminPage() {
           >
             Create Admin Account
           </button>
+          <p className="mt-4 text-sm text-slate-500">
+          Already have an account? <a href="/login" className="text-[#0e2d33] hover:underline">Login</a>
+        </p>
         </form>
 
         <p className="mt-8 text-center text-xs text-slate-400">

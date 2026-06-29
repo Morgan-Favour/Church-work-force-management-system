@@ -1,122 +1,217 @@
 import { prisma } from "@/lib/prisma";
-import { Building2, ClipboardCheck, Users, UserRoundCheck } from "lucide-react";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { Building2, Users, UserRoundCheck } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatCard } from "@/components/ui/stat-card";
+import { QuickActionsCard } from "@/components/dashboard/quick-actions-card";
+import { RecentActivityCard } from "@/components/dashboard/recent-activity-card";
 
 export default async function DashboardPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  const isAdmin = session.user.role === "ADMIN";
+
+  const recentActivities = await prisma.activityLog.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 5,
+  });
+
+  if (!isAdmin) {
+    const department = session.user.departmentId
+      ? await prisma.department.findUnique({
+          where: {
+            id: session.user.departmentId,
+          },
+        })
+      : null;
+
+    const departmentWorkerCount = await prisma.worker.count({
+      where: {
+        departments: {
+          some: {
+            departmentId: session.user.departmentId || "",
+          },
+        },
+      },
+    });
+
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          label="Department Leader"
+          title={`Welcome, ${session.user.name}`}
+          description={`You are managing ${
+            department?.name || "your department"
+          }.`}
+        />
+
+        <section className="grid gap-4 sm:grid-cols-2">
+          <StatCard
+            label="My Department"
+            value={department?.name || "Not assigned"}
+            icon={Building2}
+            href={department?.id ? `/departments/${department.id}` : "/dashboard"}
+          />
+
+          <StatCard
+            label="Department Workers"
+            value={departmentWorkerCount}
+            icon={Users}
+            href="/workers"
+          />
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-3">
+          <RecentActivityCard activities={recentActivities} />
+
+          <QuickActionsCard
+            actions={[
+              {
+                label: "View Workers",
+                href: "/workers",
+                primary: true,
+              },
+              {
+                label: "Mark Attendance",
+                href: "/attendance",
+              },
+            ]}
+          />
+        </section>
+      </div>
+    );
+  }
+
   const departmentCount = await prisma.department.count();
   const workerCount = await prisma.worker.count();
-  const attendanceCount = await prisma.attendance.count();
   const leaderCount = await prisma.user.count({
     where: {
       role: "DEPARTMENT_LEADER",
     },
   });
 
-  const stats = [
-    {
-      label: "Total Workers",
-      value: workerCount,
-      icon: Users,
+  const departments = await prisma.department.findMany({
+    include: {
+      attendance: true,
     },
-    {
-      label: "Departments",
-      value: departmentCount,
-      icon: Building2,
+  });
+
+  const workers = await prisma.worker.findMany({
+    include: {
+      attendance: true,
     },
-    {
-      label: "Attendance Records",
-      value: attendanceCount,
-      icon: ClipboardCheck,
-    },
-    {
-      label: "Leaders",
-      value: leaderCount,
-      icon: UserRoundCheck,
-    },
-  ];
+  });
+
+  const departmentAnalytics = departments.map((department) => {
+    const total = department.attendance.length;
+
+    const positive = department.attendance.filter(
+      (attendance) =>
+        attendance.status === "PRESENT" || attendance.status === "LATE"
+    ).length;
+
+    return {
+      id: department.id,
+      name: department.name,
+      rate: total > 0 ? Math.round((positive / total) * 100) : 0,
+    };
+  });
+
+  const workerAnalytics = workers.map((worker) => {
+    const total = worker.attendance.length;
+
+    const positive = worker.attendance.filter(
+      (attendance) =>
+        attendance.status === "PRESENT" || attendance.status === "LATE"
+    ).length;
+
+    return {
+      id: worker.id,
+      name: worker.fullName,
+      rate: total > 0 ? Math.round((positive / total) * 100) : 0,
+    };
+  });
+
+  const bestDepartment = departmentAnalytics.sort((a, b) => b.rate - a.rate)[0];
+  const topWorker = workerAnalytics.sort((a, b) => b.rate - a.rate)[0];
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-3xl bg-[#0e2d33] p-8 text-white shadow-xl shadow-slate-300/40">
-        <p className="text-sm font-medium text-[#d4af37]">
-          GIC Egbelu Workforce
-        </p>
+    <div className="space-y-6">
+      <PageHeader
+        label="GIC Egbelu Workforce"
+        title="Workforce Dashboard"
+        description="Manage departments, workers, leaders, attendance, and accountability from one place."
+      />
 
-        <h1 className="mt-3 max-w-2xl text-3xl font-bold tracking-tight">
-          Manage departments, workers, attendance, and accountability from one
-          place.
-        </h1>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <StatCard
+          label="Total Workers"
+          value={workerCount}
+          icon={Users}
+          href="/workers"
+        />
 
-        <p className="mt-3 max-w-xl text-sm text-white/65">
-          Start by creating departments, adding workers, and recording service
-          attendance.
-        </p>
+        <StatCard
+          label="Departments"
+          value={departmentCount}
+          icon={Building2}
+          href="/departments"
+        />
+
+        <StatCard
+          label="Leaders"
+          value={leaderCount}
+          icon={UserRoundCheck}
+          href="/leaders"
+        />
       </section>
 
-      <section className="grid grid-cols-4 gap-5">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
+      <section className="grid gap-4 lg:grid-cols-2">
+        <StatCard
+          label="Best Performing Department"
+          value={bestDepartment?.name || "N/A"}
+          helper={`Attendance Rate: ${bestDepartment?.rate || 0}%`}
+          icon={Building2}
+          href={bestDepartment?.id ? `/departments/${bestDepartment.id}` : "/departments"}
+        />
 
-          return (
-            <div
-              key={stat.label}
-              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-            >
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-slate-500">
-                  {stat.label}
-                </p>
-
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0e2d33]/10 text-[#0e2d33]">
-                  <Icon size={21} />
-                </div>
-              </div>
-
-              <h2 className="mt-5 text-4xl font-bold text-slate-900">
-                {stat.value}
-              </h2>
-            </div>
-          );
-        })}
+        <StatCard
+          label="Most Active Worker"
+          value={topWorker?.name || "N/A"}
+          helper={`Attendance Rate: ${topWorker?.rate || 0}%`}
+          icon={Users}
+          href={topWorker?.id ? `/workers/${topWorker.id}` : "/workers"}
+        />
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
-          <h3 className="text-lg font-bold text-slate-900">
-            Recent Activity
-          </h3>
+      <section className="grid gap-4 lg:grid-cols-3">
+        <RecentActivityCard activities={recentActivities} />
 
-          <p className="mt-2 text-sm text-slate-500">
-            No activity yet. Activities will appear here after departments,
-            workers, and attendance records are created.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900">Quick Actions</h3>
-
-          <div className="mt-5 space-y-3">
-            <a
-              href="/departments"
-              className="block w-full rounded-xl bg-[#0e2d33] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#123940]"
-            >
-              Add Department
-            </a>
-
-            <a
-              href="/workers"
-              className="block w-full rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Add Worker
-            </a>
-
-            <a
-              href="/attendance"
-              className="block w-full rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Mark Attendance
-            </a>
-          </div>
-        </div>
+        <QuickActionsCard
+          actions={[
+            {
+              label: "Add Department",
+              href: "/departments",
+              primary: true,
+            },
+            {
+              label: "Add Worker",
+              href: "/workers",
+            },
+            {
+              label: "Mark Attendance",
+              href: "/attendance",
+            },
+          ]}
+        />
       </section>
     </div>
   );

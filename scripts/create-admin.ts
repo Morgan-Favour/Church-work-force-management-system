@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   const existingAdmin = await prisma.user.findUnique({
     where: {
-      email: "admin@church.com",
+      username: "admin@church.com",
     },
   });
 
@@ -20,13 +20,13 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       fullName: "Super Admin",
-      email: "admin@church.com",
+      username: "admin@church.com",
       password: hashedPassword,
       role: UserRole.SUPER_ADMIN,
     },
   });
 
-  console.log("Admin created:", admin.email);
+  console.log("Admin created:", admin.username);
 }
 
 main()

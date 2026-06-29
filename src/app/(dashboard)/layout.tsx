@@ -1,27 +1,9 @@
-import Link from "next/link";
-import {
-  LayoutDashboard,
-  Building2,
-  Users,
-  UserCog,
-  ClipboardCheck,
-  BarChart3,
-  Settings,
-} from "lucide-react";
-
+import Image from "next/image";
+import { Menu } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-
-const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Departments", href: "/departments", icon: Building2 },
-  { label: "Workers", href: "/workers", icon: Users },
-  { label: "Leaders", href: "/leaders", icon: UserCog },
-  { label: "Attendance", href: "/attendance", icon: ClipboardCheck },
-  { label: "Reports", href: "/reports", icon: BarChart3 },
-  { label: "Settings", href: "/settings", icon: Settings },
-];
+import { DashboardNavLink } from "@/components/layout/dashboard-nav-link";
 
 export default async function DashboardLayout({
   children,
@@ -33,38 +15,103 @@ export default async function DashboardLayout({
   if (!session) {
     redirect("/login");
   }
+
+  const isAdmin = session.user.role === "ADMIN";
+
+  const navItems = isAdmin
+    ? [
+        { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
+        { label: "Departments", href: "/departments", icon: "departments" as const },
+        { label: "Workers", href: "/workers", icon: "workers" as const },
+        { label: "Leaders", href: "/leaders", icon: "leaders" as const },
+        { label: "Attendance", href: "/attendance", icon: "attendance" as const },
+        { label: "Activity", href: "/activity", icon: "activity" as const },
+        { label: "Reports", href: "/reports", icon: "reports" as const },
+        { label: "Settings", href: "/settings", icon: "settings" as const },
+      ]
+    : [
+        { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
+        { label: "My Department", href: "/my-department", icon: "departments" as const },
+        { label: "Workers", href: "/workers", icon: "workers" as const },
+        { label: "Attendance", href: "/attendance", icon: "attendance" as const },
+        { label: "Reports", href: "/reports", icon: "reports" as const },
+      ];
+
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      <aside className="w-72 shrink-0 bg-[#0e2d33] text-white">
-        <div className="px-6 py-7">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-xl font-bold text-[#d4af37]">
-            G
+    <div className="min-h-screen bg-slate-100">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0e2d33] px-4 py-4 lg:hidden">
+        <div className="flex items-center justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10">
+              <Image src="/logo.png" alt="Logo" width={40} height={40} />
+            </div>
+
+            <div className="min-w-0">
+              <h1 className="truncate text-sm font-bold text-white">
+                GIC Egbelu
+              </h1>
+              <p className="truncate text-xs text-white/70">
+                Workforce System
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="rounded-xl border border-white/20 p-2 text-white"
+          >
+            <Menu size={20} />
+          </button>
+        </div>
+
+        <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
+          {navItems.map((item) => (
+            <DashboardNavLink
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              icon={item.icon}
+              mobile
+            />
+          ))}
+        </nav>
+      </header>
+
+      <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-[#0e2d33] text-white lg:flex">
+        <div className="shrink-0 px-6 py-6">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+            <Image src="/logo.png" alt="Logo" width={44} height={44} />
           </div>
 
           <h1 className="mt-4 text-xl font-bold">GIC Egbelu</h1>
           <p className="text-sm text-white/60">Workforce System</p>
         </div>
 
-        <nav className="space-y-1 px-4">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-white/75 transition hover:bg-white/10 hover:text-white"
-              >
-                <Icon size={19} />
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 space-y-1 overflow-y-auto px-4 pb-4">
+          {navItems.map((item) => (
+            <DashboardNavLink
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              icon={item.icon}
+            />
+          ))}
         </nav>
+
+        <div className="shrink-0 border-t border-white/10 p-4">
+          <div className="rounded-2xl bg-white/10 p-4">
+            <p className="truncate text-sm font-semibold text-white">
+              {session.user.name}
+            </p>
+            <p className="mt-1 truncate text-xs text-white/60">
+              {isAdmin ? "Administrator" : "Department Leader"}
+            </p>
+          </div>
+        </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-20 items-center justify-between border-b border-slate-200 bg-white px-8">
+      <div className="lg:pl-72">
+        <header className="hidden h-20 items-center justify-between border-b border-slate-200 bg-white px-8 lg:flex">
           <div>
             <p className="text-sm text-slate-500">Welcome back</p>
             <h2 className="text-xl font-bold text-slate-900">
@@ -72,12 +119,17 @@ export default async function DashboardLayout({
             </h2>
           </div>
 
-          <button className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-            Logout
-          </button>
+          <div className="text-right">
+            <p className="text-sm font-semibold text-slate-900">
+              {session.user.name}
+            </p>
+            <p className="text-xs text-slate-500">
+              {isAdmin ? "Administrator" : "Department Leader"}
+            </p>
+          </div>
         </header>
 
-        <main className="flex-1 p-8">{children}</main>
+        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

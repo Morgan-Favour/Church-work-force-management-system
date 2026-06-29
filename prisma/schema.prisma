@@ -7,25 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  DEPARTMENT_LEADER
-}
-
-enum AttendanceStatus {
-  PRESENT
-  LATE
-  ABSENT
-  EXCUSED
-}
-
 model User {
   id           String   @id @default(cuid())
   fullName     String
-  email        String   @unique
+  username     String   @unique
   password     String
   role         UserRole
   departmentId String?
+  workerId     String?
+
+  worker       Worker?  @relation(fields: [workerId], references: [id])
 
   isActive     Boolean  @default(true)
 
@@ -40,39 +31,92 @@ model Department {
 
   isActive    Boolean  @default(true)
 
+  workers     WorkerDepartment[]
+  attendance  Attendance[]
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model Worker {
-  id           String   @id @default(cuid())
-  fullName     String
-  phone        String?
-  gender       String?
+  id          String   @id @default(cuid())
+  fullName    String
+  phone       String?  @unique
+  gender      String?
+
+  isActive    Boolean  @default(true)
+  joinedAt    DateTime @default(now())
+
+  departments WorkerDepartment[]
+  attendance  Attendance[]
+  users       User[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WorkerDepartment {
+  id           String @id @default(cuid())
+  workerId     String
   departmentId String
 
-  isActive     Boolean  @default(true)
-  joinedAt     DateTime @default(now())
+  worker       Worker     @relation(fields: [workerId], references: [id])
+  department   Department @relation(fields: [departmentId], references: [id])
 
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+
+  @@unique([workerId, departmentId])
 }
 
 model Service {
-  id        String   @id @default(cuid())
-  title     String
-  date      DateTime
+  id         String   @id @default(cuid())
+  title      String
+  date       DateTime
 
-  createdAt DateTime @default(now())
+  attendance Attendance[]
+
+  createdAt  DateTime @default(now())
+
+  @@unique([title, date])
 }
 
 model Attendance {
-  id        String           @id @default(cuid())
-  status    AttendanceStatus
+  id           String @id @default(cuid())
 
-  workerId  String
-  serviceId String
-  markedBy  String?
+  workerId     String
+  serviceId    String
+  departmentId String
 
-  createdAt DateTime @default(now())
-} 
+  status       AttendanceStatus
+  markedBy     String?
+
+  worker       Worker     @relation(fields: [workerId], references: [id])
+  service      Service    @relation(fields: [serviceId], references: [id])
+  department   Department @relation(fields: [departmentId], references: [id])
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([workerId, serviceId, departmentId])
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  action      String
+  description String
+  actorId     String?
+
+  createdAt   DateTime @default(now())
+}
+
+enum UserRole {
+  ADMIN
+  DEPARTMENT_LEADER
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+  EXCUSED
+}

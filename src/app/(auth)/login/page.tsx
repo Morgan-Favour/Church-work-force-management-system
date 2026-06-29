@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { AlertCircle, ArrowRight, LockKeyhole } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,33 +15,39 @@ export default function LoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+
     setError("");
 
-    if (!email.trim() || !password.trim()) {
-      setError("Please enter your email and password.");
+    if (!username.trim() || !password.trim()) {
+      setError("Please enter your username and password.");
       return;
     }
 
     setLoading(true);
 
-    const res = await signIn("credentials", {
-      email: email.trim().toLowerCase(),
-      password,
-      redirect: false,
-    });
+    try {
+      const res = await signIn("credentials", {
+        username: username.trim().toLowerCase(),
+        password,
+        redirect: false,
+      });
 
-    setLoading(false);
+      if (res?.ok) {
+        router.replace("/dashboard");
+        router.refresh();
+        return;
+      }
 
-    if (res?.ok) {
-      router.replace("/dashboard");
-      router.refresh();
-    } else {
-      setError("Invalid email or password.");
+      setError("Username or password is incorrect.");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <section className="grid w-full overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-2xl shadow-slate-300/50 lg:grid-cols-[1fr_430px]">
+    <section className="grid w-full overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-2xl shadow-slate-300/50 lg:grid-cols-[1fr_430px]">
       <div className="hidden bg-[#0e2d33] p-10 text-white lg:flex lg:flex-col lg:justify-between">
         <div>
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-xl font-bold text-[#d4af37]">
@@ -84,8 +90,8 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="mb-5 flex gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle size={18} />
+          <div className="mb-5 flex gap-3 rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-semibold text-red-700 shadow-sm">
+            <AlertCircle className="mt-0.5 shrink-0" size={18} />
             <p>{error}</p>
           </div>
         )}
@@ -93,14 +99,15 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
-              Email address
+              Username
             </label>
             <input
-              type="email"
+              type="text"
+              autoComplete="username"
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-[#0e2d33] focus:bg-white focus:ring-4 focus:ring-[#0e2d33]/10"
-              placeholder="admin@gic.org"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </div>
 
@@ -110,6 +117,7 @@ export default function LoginPage() {
             </label>
             <input
               type="password"
+              autoComplete="current-password"
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-[#0e2d33] focus:bg-white focus:ring-4 focus:ring-[#0e2d33]/10"
               placeholder="Enter password"
               value={password}
@@ -118,6 +126,7 @@ export default function LoginPage() {
           </div>
 
           <button
+            type="submit"
             disabled={loading}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0e2d33] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-[#0e2d33]/20 transition hover:bg-[#123940] disabled:opacity-70"
           >
