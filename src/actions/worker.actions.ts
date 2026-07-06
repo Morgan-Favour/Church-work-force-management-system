@@ -18,6 +18,11 @@ export async function createWorker(formData: FormData) {
     : null;
 
   if (existingWorker) {
+    await prisma.worker.update({
+      where: { id: existingWorker.id },
+      data: { isActive: true },
+    });
+
     await prisma.workerDepartment.createMany({
       data: departmentIds.map((departmentId) => ({
         workerId: existingWorker.id,
@@ -55,5 +60,48 @@ export async function createWorker(formData: FormData) {
   }
 
   revalidatePath("/workers");
+  revalidatePath("/dashboard");
+}
+
+export async function deactivateWorker(formData: FormData) {
+  const workerId = formData.get("workerId")?.toString();
+
+  if (!workerId) return;
+
+  const worker = await prisma.worker.update({
+    where: { id: workerId },
+    data: { isActive: false },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "DEACTIVATE_WORKER",
+      description: `${worker.fullName} was deactivated as a worker.`,
+    },
+  });
+
+  revalidatePath("/workers");
+  revalidatePath("/dashboard");
+}
+
+export async function reactivateWorker(formData: FormData) {
+  const workerId = formData.get("workerId")?.toString();
+
+  if (!workerId) return;
+
+  const worker = await prisma.worker.update({
+    where: { id: workerId },
+    data: { isActive: true },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "REACTIVATE_WORKER",
+      description: `${worker.fullName} was reactivated as a worker.`,
+    },
+  });
+
+  revalidatePath("/workers");
+  revalidatePath(`/workers/${workerId}`);
   revalidatePath("/dashboard");
 }

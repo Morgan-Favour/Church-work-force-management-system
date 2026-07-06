@@ -20,8 +20,6 @@ type Props = {
   selectedDepartmentId?: string;
   selectedDepartmentName?: string;
 
-  isAdmin: boolean;
-
   attendanceStatus: string;
   attendanceStatusClass: string;
 
@@ -35,7 +33,6 @@ export default function AttendanceContextSelector({
   selectedServiceId,
   selectedDepartmentId,
   selectedDepartmentName,
-  isAdmin,
   attendanceStatus,
   attendanceStatusClass,
   markedCount,
@@ -93,31 +90,25 @@ export default function AttendanceContextSelector({
           )}
         </select>
 
-        {isAdmin ? (
-          <select
-            value={departmentId}
-            onChange={(e) => {
-              const nextDepartmentId = e.target.value;
-              setDepartmentId(nextDepartmentId);
-              updatePage(serviceId, nextDepartmentId);
-            }}
-            className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
-          >
-            {departments.length === 0 ? (
-              <option value="">No department created</option>
-            ) : (
-              departments.map((department) => (
-                <option key={department.id} value={department.id}>
-                  {department.name}
-                </option>
-              ))
-            )}
-          </select>
-        ) : (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-            {selectedDepartmentName || "No department assigned"}
-          </div>
-        )}
+        <select
+          value={departmentId}
+          onChange={(e) => {
+            const nextDepartmentId = e.target.value;
+            setDepartmentId(nextDepartmentId);
+            updatePage(serviceId, nextDepartmentId);
+          }}
+          className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+        >
+          {departments.length === 0 ? (
+            <option value="">No department available</option>
+          ) : (
+            departments.map((department) => (
+              <option key={department.id} value={department.id}>
+                {department.name}
+              </option>
+            ))
+          )}
+        </select>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">

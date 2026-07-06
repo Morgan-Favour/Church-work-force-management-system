@@ -20,9 +20,11 @@ export async function createService(formData: FormData) {
     },
   });
 
-  if (existingService) return;
+  if (existingService) {
+    redirect(`/attendance?serviceId=${existingService.id}&message=gathering-exists`);
+  }
 
-  await prisma.service.create({
+  const service = await prisma.service.create({
     data: {
       title,
       date: serviceDate,
@@ -38,6 +40,8 @@ export async function createService(formData: FormData) {
 
   revalidatePath("/attendance");
   revalidatePath("/dashboard");
+
+  redirect(`/attendance?serviceId=${service.id}&message=gathering-created`);
 }
 
 export async function markAttendance(formData: FormData) {
@@ -78,15 +82,11 @@ export async function markAttendance(formData: FormData) {
   }
 
   const service = await prisma.service.findUnique({
-    where: {
-      id: serviceId,
-    },
+    where: { id: serviceId },
   });
 
   const department = await prisma.department.findUnique({
-    where: {
-      id: departmentId,
-    },
+    where: { id: departmentId },
   });
 
   await prisma.activityLog.create({

@@ -22,7 +22,7 @@ async function main() {
       fullName: "Super Admin",
       username: "admin@church.com",
       password: hashedPassword,
-      role: UserRole.SUPER_ADMIN,
+      role: UserRole.ADMIN,
     },
   });
 

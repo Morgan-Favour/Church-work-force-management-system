@@ -18,6 +18,8 @@ model User {
 
   worker       Worker?  @relation(fields: [workerId], references: [id])
 
+  leaderDepartments LeaderDepartment[]
+
   isActive     Boolean  @default(true)
 
   createdAt    DateTime @default(now())
@@ -32,6 +34,7 @@ model Department {
   isActive    Boolean  @default(true)
 
   workers     WorkerDepartment[]
+  leaders     LeaderDepartment[]
   attendance  Attendance[]
 
   createdAt   DateTime @default(now())
@@ -66,6 +69,19 @@ model WorkerDepartment {
   createdAt    DateTime @default(now())
 
   @@unique([workerId, departmentId])
+}
+
+model LeaderDepartment {
+  id           String @id @default(cuid())
+  userId       String
+  departmentId String
+
+  user         User       @relation(fields: [userId], references: [id])
+  department   Department @relation(fields: [departmentId], references: [id])
+
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, departmentId])
 }
 
 model Service {

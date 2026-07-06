@@ -38,7 +38,7 @@ export default function LoginPage() {
         return;
       }
 
-      setError("Username or password is incorrect.");
+      setError("Username or password is incorrect, or this account is no longer active.");
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

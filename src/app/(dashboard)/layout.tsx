@@ -1,9 +1,10 @@
 import Image from "next/image";
-import { Menu } from "lucide-react";
+import { Menu, AlertTriangle } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { DashboardNavLink } from "@/components/layout/dashboard-nav-link";
+import { prisma } from "@/lib/prisma";
 
 export default async function DashboardLayout({
   children,
@@ -17,6 +18,18 @@ export default async function DashboardLayout({
   }
 
   const isAdmin = session.user.role === "ADMIN";
+
+  const leaderDepartment =
+    !isAdmin && session.user.departmentId
+      ? await prisma.department.findUnique({
+          where: {
+            id: session.user.departmentId,
+          },
+        })
+      : null;
+
+  const isLeaderDepartmentInactive =
+    !isAdmin && leaderDepartment && !leaderDepartment.isActive;
 
   const navItems = isAdmin
     ? [
@@ -36,6 +49,28 @@ export default async function DashboardLayout({
         { label: "Attendance", href: "/attendance", icon: "attendance" as const },
         { label: "Reports", href: "/reports", icon: "reports" as const },
       ];
+
+  const blockedContent = (
+    <main className="flex min-h-[calc(100vh-5rem)] items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-xl rounded-3xl border border-amber-200 bg-white p-6 text-center shadow-sm sm:p-8">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+          <AlertTriangle size={28} />
+        </div>
+
+        <h1 className="mt-5 text-2xl font-bold text-slate-900">
+          Department Access Disabled
+        </h1>
+
+        <p className="mt-3 text-sm leading-6 text-slate-500">
+          Your department,{" "}
+          <span className="font-semibold text-slate-700">
+            {leaderDepartment?.name || "your assigned department"}
+          </span>
+          , is no longer active. Please contact the administrator for access.
+        </p>
+      </div>
+    </main>
+  );
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -64,17 +99,19 @@ export default async function DashboardLayout({
           </button>
         </div>
 
-        <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
-          {navItems.map((item) => (
-            <DashboardNavLink
-              key={item.href}
-              href={item.href}
-              label={item.label}
-              icon={item.icon}
-              mobile
-            />
-          ))}
-        </nav>
+        {!isLeaderDepartmentInactive && (
+          <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
+            {navItems.map((item) => (
+              <DashboardNavLink
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                mobile
+              />
+            ))}
+          </nav>
+        )}
       </header>
 
       <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-[#0e2d33] text-white lg:flex">
@@ -87,16 +124,18 @@ export default async function DashboardLayout({
           <p className="text-sm text-white/60">Workforce System</p>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto px-4 pb-4">
-          {navItems.map((item) => (
-            <DashboardNavLink
-              key={item.href}
-              href={item.href}
-              label={item.label}
-              icon={item.icon}
-            />
-          ))}
-        </nav>
+        {!isLeaderDepartmentInactive && (
+          <nav className="flex-1 space-y-1 overflow-y-auto px-4 pb-4">
+            {navItems.map((item) => (
+              <DashboardNavLink
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+              />
+            ))}
+          </nav>
+        )}
 
         <div className="shrink-0 border-t border-white/10 p-4">
           <div className="rounded-2xl bg-white/10 p-4">
@@ -129,7 +168,11 @@ export default async function DashboardLayout({
           </div>
         </header>
 
-        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+        {isLeaderDepartmentInactive ? (
+          blockedContent
+        ) : (
+          <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+        )}
       </div>
     </div>
   );

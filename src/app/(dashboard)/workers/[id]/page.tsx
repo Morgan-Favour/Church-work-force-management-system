@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
 import { getServerSession } from "next-auth";
+import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { ArrowLeft, UserRound } from "lucide-react";
 
@@ -75,13 +76,13 @@ export default async function WorkerDetailsPage({
 
   return (
     <div className="space-y-8">
-      <a
+      <Link
         href="/workers"
         className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#0e2d33]"
       >
         <ArrowLeft size={17} />
         Back to Workers
-      </a>
+      </Link>
 
       <section className="rounded-3xl bg-[#0e2d33] p-8 text-white shadow-xl shadow-slate-300/40">
         <div className="flex items-center gap-5">
@@ -100,6 +101,16 @@ export default async function WorkerDetailsPage({
               {worker.phone || "No phone number"} ·{" "}
               {worker.gender || "Gender not specified"}
             </p>
+
+            <span
+              className={
+                worker.isActive
+                  ? "mt-4 inline-flex rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200"
+                  : "mt-4 inline-flex rounded-full bg-red-400/15 px-3 py-1 text-xs font-bold text-red-200"
+              }
+            >
+              {worker.isActive ? "Active Worker" : "Inactive Worker"}
+            </span>
           </div>
         </div>
       </section>

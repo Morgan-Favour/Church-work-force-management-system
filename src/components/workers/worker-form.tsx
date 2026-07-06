@@ -62,9 +62,6 @@ export function WorkerForm({
             className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
             placeholder="080..."
           />
-          <p className="mt-2 text-xs text-slate-400">
-            Phone number is used to prevent duplicate worker records.
-          </p>
         </div>
 
         <div>

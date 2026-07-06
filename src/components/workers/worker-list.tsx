@@ -1,8 +1,16 @@
+import Link from "next/link";
+import {
+  deactivateWorker,
+  reactivateWorker,
+} from "@/actions/worker.actions";
+
 type WorkerListProps = {
+  isAdmin: boolean;
   workers: {
     id: string;
     fullName: string;
     phone: string | null;
+    isActive: boolean;
     departments: {
       id: string;
       department: {
@@ -12,7 +20,7 @@ type WorkerListProps = {
   }[];
 };
 
-export function WorkerList({ workers }: WorkerListProps) {
+export function WorkerList({ workers, isAdmin }: WorkerListProps) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="mb-6">
@@ -34,12 +42,11 @@ export function WorkerList({ workers }: WorkerListProps) {
       ) : (
         <div className="space-y-3">
           {workers.map((worker) => (
-            <a
+            <div
               key={worker.id}
-              href={`/workers/${worker.id}`}
-              className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-4 transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div>
+              <Link href={`/workers/${worker.id}`} className="min-w-0 flex-1">
                 <h3 className="font-bold text-slate-900">
                   {worker.fullName}
                 </h3>
@@ -58,12 +65,44 @@ export function WorkerList({ workers }: WorkerListProps) {
                     </span>
                   ))}
                 </div>
-              </div>
+              </Link>
 
-              <span className="w-fit rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                Active
-              </span>
-            </a>
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={
+                    worker.isActive
+                      ? "w-fit rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
+                      : "w-fit rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700"
+                  }
+                >
+                  {worker.isActive ? "Active" : "Inactive"}
+                </span>
+
+                {isAdmin && worker.isActive && (
+                  <form action={deactivateWorker}>
+                    <input type="hidden" name="workerId" value={worker.id} />
+                    <button
+                      type="submit"
+                      className="rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50"
+                    >
+                      Deactivate
+                    </button>
+                  </form>
+                )}
+
+                {isAdmin && !worker.isActive && (
+                  <form action={reactivateWorker}>
+                    <input type="hidden" name="workerId" value={worker.id} />
+                    <button
+                      type="submit"
+                      className="rounded-full border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
+                    >
+                      Reactivate
+                    </button>
+                  </form>
+                )}
+              </div>
+            </div>
           ))}
         </div>
       )}

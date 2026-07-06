@@ -1,7 +1,26 @@
 import { ClipboardCheck } from "lucide-react";
 import { createService } from "@/actions/attendance.actions";
 
-export function CreateGatheringForm() {
+type CreateGatheringFormProps = {
+  message?: string;
+};
+
+export function CreateGatheringForm({ message }: CreateGatheringFormProps) {
+  const feedback =
+    message === "gathering-exists"
+      ? {
+          title: "Gathering already exists",
+          text: "A gathering with this same name and date already exists.",
+          className: "border-amber-200 bg-amber-50 text-amber-700",
+        }
+      : message === "gathering-created"
+      ? {
+          title: "Gathering created",
+          text: "The new gathering is now selected.",
+          className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        }
+      : null;
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="mb-5 flex items-center gap-3">
@@ -19,6 +38,13 @@ export function CreateGatheringForm() {
           </p>
         </div>
       </div>
+
+      {feedback && (
+        <div className={`mb-5 rounded-2xl border p-4 ${feedback.className}`}>
+          <p className="text-sm font-bold">{feedback.title}</p>
+          <p className="mt-1 text-sm">{feedback.text}</p>
+        </div>
+      )}
 
       <form action={createService} className="grid gap-4 md:grid-cols-3">
         <input

@@ -26,14 +26,14 @@ export default async function ActivityPage({
   }
 
   const currentPage = Number(params.page || "1");
-  const safePage = Number.isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
+  const page = Number.isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
 
   const [activities, totalActivities] = await Promise.all([
     prisma.activityLog.findMany({
       orderBy: {
         createdAt: "desc",
       },
-      skip: (safePage - 1) * PAGE_SIZE,
+      skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
 
@@ -82,24 +82,22 @@ export default async function ActivityPage({
         {totalPages > 1 && (
           <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-200 pt-5">
             <a
-              href={`/activity?page=${safePage - 1}`}
+              href={`/activity?page=${page - 1}`}
               className={`rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 ${
-                safePage <= 1
-                  ? "pointer-events-none opacity-40"
-                  : "hover:bg-slate-50"
+                page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-slate-50"
               }`}
             >
               Previous
             </a>
 
             <p className="text-sm text-slate-500">
-              Page {safePage} of {totalPages}
+              Page {page} of {totalPages}
             </p>
 
             <a
-              href={`/activity?page=${safePage + 1}`}
+              href={`/activity?page=${page + 1}`}
               className={`rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 ${
-                safePage >= totalPages
+                page >= totalPages
                   ? "pointer-events-none opacity-40"
                   : "hover:bg-slate-50"
               }`}

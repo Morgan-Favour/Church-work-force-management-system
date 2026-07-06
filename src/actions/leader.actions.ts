@@ -12,67 +12,163 @@ export async function createLeader(formData: FormData) {
   const password = formData.get("password")?.toString();
   const departmentId = formData.get("departmentId")?.toString();
 
-  if (!fullName || !username || !password || !departmentId) return;
+  if (!fullName || !phone || !departmentId) return;
 
-  if (password.length < 8) return;
-
-  const existingUser = await prisma.user.findUnique({
-    where: { username },
+  let worker = await prisma.worker.findUnique({
+    where: { phone },
   });
 
-  if (existingUser) return;
+  if (!worker) {
+    if (!username || !password || password.length < 8) return;
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  let worker = phone
-    ? await prisma.worker.findUnique({
-        where: { phone },
-      })
-    : null;
-
-  if (worker) {
-    await prisma.workerDepartment.createMany({
-      data: [
-        {
-          workerId: worker.id,
-          departmentId,
-        },
-      ],
-      skipDuplicates: true,
-    });
-  } else {
     worker = await prisma.worker.create({
       data: {
         fullName,
-        phone: phone || null,
+        phone,
         departments: {
-          create: {
-            departmentId,
-          },
+          create: { departmentId },
         },
+      },
+    });
+  } else {
+    await prisma.worker.update({
+      where: { id: worker.id },
+      data: {
+        isActive: true,
+        fullName,
+      },
+    });
+
+    await prisma.workerDepartment.createMany({
+      data: [{ workerId: worker.id, departmentId }],
+      skipDuplicates: true,
+    });
+  }
+
+  let user = await prisma.user.findFirst({
+    where: {
+      role: UserRole.DEPARTMENT_LEADER,
+      workerId: worker.id,
+    },
+  });
+
+  if (!user) {
+    if (!username || !password || password.length < 8) return;
+
+    const existingUsername = await prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (existingUsername) return;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user = await prisma.user.create({
+      data: {
+        fullName,
+        username,
+        password: hashedPassword,
+        role: UserRole.DEPARTMENT_LEADER,
+        departmentId,
+        workerId: worker.id,
+      },
+    });
+  } else {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isActive: true,
+        fullName,
+        departmentId: user.departmentId || departmentId,
       },
     });
   }
 
-  await prisma.user.create({
-    data: {
-      fullName,
-      username,
-      password: hashedPassword,
-      role: UserRole.DEPARTMENT_LEADER,
-      departmentId,
-      workerId: worker.id,
-    },
+  await prisma.leaderDepartment.createMany({
+    data: [{ userId: user.id, departmentId }],
+    skipDuplicates: true,
   });
 
   await prisma.activityLog.create({
     data: {
       action: "CREATE_LEADER",
-      description: `${fullName} was created as a department leader and linked as a worker.`,
+      description: `${fullName} was added as a leader.`,
     },
   });
 
   revalidatePath("/leaders");
   revalidatePath("/workers");
   revalidatePath("/dashboard");
+}
+
+export async function deactivateLeader(formData: FormData) {
+  const leaderId = formData.get("leaderId")?.toString();
+
+  if (!leaderId) return;
+
+  const leader = await prisma.user.update({
+    where: { id: leaderId },
+    data: { isActive: false },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "DEACTIVATE_LEADER",
+      description: `${leader.fullName} was deactivated as a leader.`,
+    },
+  });
+
+  revalidatePath("/leaders");
+  revalidatePath(`/leaders/${leaderId}`);
+  revalidatePath("/dashboard");
+}
+
+export async function reactivateLeader(formData: FormData) {
+  const leaderId = formData.get("leaderId")?.toString();
+
+  if (!leaderId) return;
+
+  const leader = await prisma.user.update({
+    where: { id: leaderId },
+    data: { isActive: true },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "REACTIVATE_LEADER",
+      description: `${leader.fullName} was reactivated as a leader.`,
+    },
+  });
+
+  revalidatePath("/leaders");
+  revalidatePath(`/leaders/${leaderId}`);
+  revalidatePath("/dashboard");
+}
+
+export async function resetLeaderPassword(formData: FormData) {
+  const leaderId = formData.get("leaderId")?.toString();
+  const password = formData.get("password")?.toString();
+  const confirmPassword = formData.get("confirmPassword")?.toString();
+
+  if (!leaderId || !password || !confirmPassword) return;
+  if (password !== confirmPassword) return;
+  if (password.length < 8) return;
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const leader = await prisma.user.update({
+    where: { id: leaderId },
+    data: {
+      password: hashedPassword,
+    },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "RESET_LEADER_PASSWORD",
+      description: `${leader.fullName}'s password was reset.`,
+    },
+  });
+
+  revalidatePath(`/leaders/${leaderId}`);
 }

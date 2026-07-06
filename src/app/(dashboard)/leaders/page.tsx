@@ -31,12 +31,12 @@ export default async function LeadersPage() {
     where: {
       role: UserRole.DEPARTMENT_LEADER,
     },
-    select: {
-      id: true,
-      fullName: true,
-      username: true,
-      departmentId: true,
-      workerId: true,
+    include: {
+      leaderDepartments: {
+        include: {
+          department: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -54,7 +54,7 @@ export default async function LeadersPage() {
       <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
         <LeaderForm departments={departments} />
 
-        <LeaderList leaders={leaders} departments={departments} />
+       <LeaderList leaders={leaders} />
       </section>
     </div>
   );

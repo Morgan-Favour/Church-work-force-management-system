@@ -5,95 +5,102 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
-    providers: [
-        CredentialsProvider({
-            name: "Credentials",
-            credentials: {
-                username: { label: "username", type: "text" },
-                password: { label: "Password", type: "password" },
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+
+      async authorize(credentials) {
+        try {
+          const username = credentials?.username?.trim().toLowerCase();
+          const password = credentials?.password;
+
+          if (!username || !password) {
+            throw new Error("Please enter both username and password.");
+          }
+
+          const user = await prisma.user.findUnique({
+            where: { username },
+            include: {
+              leaderDepartments: true,
             },
+          });
 
-            async authorize(credentials) {
-                try {
-                    const username = credentials?.username?.trim().toLowerCase();
-                    const password = credentials?.password;
+          if (!user) {
+            throw new Error("Username or password is incorrect.");
+          }
 
-                    if (!username || !password) {
-                        throw new Error("Please enter both username and password.");
-                    }
+          const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-                    const user = await prisma.user.findUnique({
-                        where: {
-                            username,
-                        },
-                    });
+          if (!isPasswordCorrect) {
+            throw new Error("Username or password is incorrect.");
+          }
 
-                    if (!user) {
-                        throw new Error("User not found.");
-                    }
+          if (!user.isActive) {
+            return null;
+          }
 
-                    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+          const departmentIds =
+            user.role === UserRole.DEPARTMENT_LEADER
+              ? user.leaderDepartments.map((item) => item.departmentId)
+              : [];
 
-                    if (!isPasswordCorrect) {
-                        throw new Error("Username or password is incorrect.");
-                    }
-
-                    if (!user.isActive) {
-                        throw new Error("This account has been disabled. Please contact the administrator.");
-                    }
-
-                    return {
-                        id: user.id,
-                        name: user.fullName,
-                        username: user.username,
-                        role: user.role,
-                        departmentId: user.departmentId,
-                    };
-                } catch (error) {
-                    if (error instanceof Error) {
-                        if (
-                            error.message === "Please enter both username and password." ||
-                            error.message === "User not found." ||
-                            error.message === "Username or password is incorrect." ||
-                            error.message === "This account has been disabled. Please contact the administrator."
-                        ) {
-                            throw error;
-                        }
-                    }
-
-                    throw new Error("Something went wrong. Please try again.");
-                }
-            },
-        }),
-    ],
-
-    session: {
-        strategy: "jwt",
-    },
-
-    callbacks: {
-        async jwt({ token, user }) {
-            if (user) {
-                token.id = user.id;
-                token.role = user.role;
-                token.departmentId = user.departmentId;
+          return {
+            id: user.id,
+            name: user.fullName,
+            username: user.username,
+            role: user.role,
+            departmentId: user.departmentId,
+            departmentIds,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            if (
+              error.message === "Please enter both username and password." ||
+              error.message === "Username or password is incorrect."
+            ) {
+              throw error;
             }
+          }
 
-            return token;
-        },
+          throw new Error("Something went wrong. Please try again.");
+        }
+      },
+    }),
+  ],
 
-        async session({ session, token }) {
-            if (session.user) {
-                session.user.id = token.id as string;
-                session.user.role = token.role as UserRole;
-                session.user.departmentId = token.departmentId as string | null;
-            }
+  session: {
+    strategy: "jwt",
+  },
 
-            return session;
-        },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.departmentId = user.departmentId;
+        token.departmentIds = user.departmentIds;
+      }
+
+      return token;
     },
 
-    pages: {
-        signIn: "/login",
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as UserRole;
+        session.user.departmentId = token.departmentId as string | null;
+        session.user.departmentIds = token.departmentIds as string[];
+      }
+
+      return session;
     },
+  },
+
+  pages: {
+    signIn: "/login",
+  },
 };

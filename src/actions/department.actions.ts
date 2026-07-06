@@ -32,3 +32,45 @@ export async function createDepartment(formData: FormData) {
   revalidatePath("/departments");
   revalidatePath("/dashboard");
 }
+
+export async function deactivateDepartment(formData: FormData) {
+  const departmentId = formData.get("departmentId")?.toString();
+
+  if (!departmentId) return;
+
+  const department = await prisma.department.update({
+    where: { id: departmentId },
+    data: { isActive: false },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "DEACTIVATE_DEPARTMENT",
+      description: `${department.name} department was deactivated.`,
+    },
+  });
+
+  revalidatePath("/departments");
+  revalidatePath("/dashboard");
+}
+
+export async function reactivateDepartment(formData: FormData) {
+  const departmentId = formData.get("departmentId")?.toString();
+
+  if (!departmentId) return;
+
+  const department = await prisma.department.update({
+    where: { id: departmentId },
+    data: { isActive: true },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "REACTIVATE_DEPARTMENT",
+      description: `${department.name} department was reactivated.`,
+    },
+  });
+
+  revalidatePath("/departments");
+  revalidatePath("/dashboard");
+}

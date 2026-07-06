@@ -16,14 +16,22 @@ export default async function WorkersPage() {
 
   const isAdmin = session.user.role === UserRole.ADMIN;
 
+  const leaderDepartmentIds = session.user.departmentIds || [];
+
   const departments = await prisma.department.findMany({
     where: isAdmin
-      ? { isActive: true }
+      ? {
+          isActive: true,
+        }
       : {
-          id: session.user.departmentId || "",
+          id: {
+            in: leaderDepartmentIds,
+          },
           isActive: true,
         },
-    orderBy: { name: "asc" },
+    orderBy: {
+      name: "asc",
+    },
   });
 
   const workers = await prisma.worker.findMany({
@@ -32,7 +40,9 @@ export default async function WorkersPage() {
       : {
           departments: {
             some: {
-              departmentId: session.user.departmentId || "",
+              departmentId: {
+                in: leaderDepartmentIds,
+              },
             },
           },
         },
@@ -43,7 +53,9 @@ export default async function WorkersPage() {
         },
       },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   const leaderDepartment = departments[0];
@@ -56,7 +68,7 @@ export default async function WorkersPage() {
         description={
           isAdmin
             ? "Add workers and assign them to one or more departments."
-            : "Add and manage workers in your department."
+            : "Add and manage workers in the departments you lead."
         }
       />
 
@@ -65,10 +77,10 @@ export default async function WorkersPage() {
           isAdmin={isAdmin}
           departments={departments}
           leaderDepartment={leaderDepartment}
-          leaderDepartmentId={session.user.departmentId}
+          leaderDepartmentId={leaderDepartment?.id}
         />
 
-        <WorkerList workers={workers} />
+        <WorkerList workers={workers} isAdmin={isAdmin} />
       </section>
     </div>
   );

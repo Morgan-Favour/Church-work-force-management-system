@@ -5,39 +5,44 @@ import { redirect } from "next/navigation";
 import { Building2, Users, UserRoundCheck } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { QuickActionsCard } from "@/components/dashboard/quick-actions-card";
 import { RecentActivityCard } from "@/components/dashboard/recent-activity-card";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect("/login");
-  }
+  if (!session) redirect("/login");
 
   const isAdmin = session.user.role === "ADMIN";
 
   const recentActivities = await prisma.activityLog.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
     take: 5,
   });
 
   if (!isAdmin) {
-    const department = session.user.departmentId
-      ? await prisma.department.findUnique({
-          where: {
-            id: session.user.departmentId,
-          },
-        })
-      : null;
+    const departmentIds = session.user.departmentIds || [];
 
-    const departmentWorkerCount = await prisma.worker.count({
+    const departments = await prisma.department.findMany({
       where: {
+        id: { in: departmentIds },
+        isActive: true,
+      },
+      include: {
+        workers: true,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    const workerCount = await prisma.worker.count({
+      where: {
+        isActive: true,
         departments: {
           some: {
-            departmentId: session.user.departmentId || "",
+            departmentId: {
+              in: departmentIds,
+            },
           },
         },
       },
@@ -48,41 +53,60 @@ export default async function DashboardPage() {
         <PageHeader
           label="Department Leader"
           title={`Welcome, ${session.user.name}`}
-          description={`You are managing ${
-            department?.name || "your department"
-          }.`}
+          description="You can manage all departments assigned to your leadership account."
         />
 
         <section className="grid gap-4 sm:grid-cols-2">
           <StatCard
-            label="My Department"
-            value={department?.name || "Not assigned"}
+            label="Departments Led"
+            value={departments.length}
             icon={Building2}
-            href={department?.id ? `/departments/${department.id}` : "/dashboard"}
+            href="/my-department"
           />
 
           <StatCard
-            label="Department Workers"
-            value={departmentWorkerCount}
+            label="Total Workers"
+            value={workerCount}
             icon={Users}
             href="/workers"
           />
         </section>
+
+        <SectionCard
+          title="My Departments"
+          description="Departments currently assigned to you as a leader."
+        >
+          {departments.length === 0 ? (
+            <p className="text-sm text-slate-500">
+              No active department assigned.
+            </p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {departments.map((department) => (
+                <div
+                  key={department.id}
+                  className="rounded-2xl border border-slate-200 p-4"
+                >
+                  <h3 className="font-bold text-slate-900">
+                    {department.name}
+                  </h3>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    {department.workers.length} worker(s)
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </SectionCard>
 
         <section className="grid gap-4 lg:grid-cols-3">
           <RecentActivityCard activities={recentActivities} />
 
           <QuickActionsCard
             actions={[
-              {
-                label: "View Workers",
-                href: "/workers",
-                primary: true,
-              },
-              {
-                label: "Mark Attendance",
-                href: "/attendance",
-              },
+              { label: "View Workers", href: "/workers", primary: true },
+              { label: "Mark Attendance", href: "/attendance" },
             ]}
           />
         </section>
@@ -93,26 +117,19 @@ export default async function DashboardPage() {
   const departmentCount = await prisma.department.count();
   const workerCount = await prisma.worker.count();
   const leaderCount = await prisma.user.count({
-    where: {
-      role: "DEPARTMENT_LEADER",
-    },
+    where: { role: "DEPARTMENT_LEADER" },
   });
 
   const departments = await prisma.department.findMany({
-    include: {
-      attendance: true,
-    },
+    include: { attendance: true },
   });
 
   const workers = await prisma.worker.findMany({
-    include: {
-      attendance: true,
-    },
+    include: { attendance: true },
   });
 
   const departmentAnalytics = departments.map((department) => {
     const total = department.attendance.length;
-
     const positive = department.attendance.filter(
       (attendance) =>
         attendance.status === "PRESENT" || attendance.status === "LATE"
@@ -127,7 +144,6 @@ export default async function DashboardPage() {
 
   const workerAnalytics = workers.map((worker) => {
     const total = worker.attendance.length;
-
     const positive = worker.attendance.filter(
       (attendance) =>
         attendance.status === "PRESENT" || attendance.status === "LATE"
@@ -152,26 +168,9 @@ export default async function DashboardPage() {
       />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard
-          label="Total Workers"
-          value={workerCount}
-          icon={Users}
-          href="/workers"
-        />
-
-        <StatCard
-          label="Departments"
-          value={departmentCount}
-          icon={Building2}
-          href="/departments"
-        />
-
-        <StatCard
-          label="Leaders"
-          value={leaderCount}
-          icon={UserRoundCheck}
-          href="/leaders"
-        />
+        <StatCard label="Total Workers" value={workerCount} icon={Users} href="/workers" />
+        <StatCard label="Departments" value={departmentCount} icon={Building2} href="/departments" />
+        <StatCard label="Leaders" value={leaderCount} icon={UserRoundCheck} href="/leaders" />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
@@ -197,19 +196,9 @@ export default async function DashboardPage() {
 
         <QuickActionsCard
           actions={[
-            {
-              label: "Add Department",
-              href: "/departments",
-              primary: true,
-            },
-            {
-              label: "Add Worker",
-              href: "/workers",
-            },
-            {
-              label: "Mark Attendance",
-              href: "/attendance",
-            },
+            { label: "Add Department", href: "/departments", primary: true },
+            { label: "Add Worker", href: "/workers" },
+            { label: "Mark Attendance", href: "/attendance" },
           ]}
         />
       </section>

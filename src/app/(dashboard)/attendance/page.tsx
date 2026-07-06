@@ -14,10 +14,10 @@ export default async function AttendancePage({
   searchParams: Promise<{
     serviceId?: string;
     departmentId?: string;
+    message?: string;
   }>;
 }) {
   const params = await searchParams;
-
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -25,30 +25,28 @@ export default async function AttendancePage({
   }
 
   const isAdmin = session.user.role === UserRole.ADMIN;
+  const leaderDepartmentIds = session.user.departmentIds || [];
 
   const services = await prisma.service.findMany({
-    orderBy: {
-      date: "desc",
-    },
+    orderBy: { date: "desc" },
   });
 
   const departments = await prisma.department.findMany({
     where: isAdmin
       ? { isActive: true }
       : {
-          id: session.user.departmentId || "",
+          id: { in: leaderDepartmentIds },
           isActive: true,
         },
-    orderBy: {
-      name: "asc",
-    },
+    orderBy: { name: "asc" },
   });
 
   const selectedServiceId = params.serviceId || services[0]?.id;
+  const selectedDepartmentId = params.departmentId || departments[0]?.id;
 
-  const selectedDepartmentId =
-    params.departmentId ||
-    (isAdmin ? departments[0]?.id : session.user.departmentId);
+  const selectedDepartment = departments.find(
+    (department) => department.id === selectedDepartmentId
+  );
 
   const workers = selectedDepartmentId
     ? await prisma.worker.findMany({
@@ -60,9 +58,7 @@ export default async function AttendancePage({
             },
           },
         },
-        orderBy: {
-          fullName: "asc",
-        },
+        orderBy: { fullName: "asc" },
       })
     : [];
 
@@ -79,10 +75,6 @@ export default async function AttendancePage({
           },
         })
       : [];
-
-  const selectedDepartment = departments.find(
-    (department) => department.id === selectedDepartmentId
-  );
 
   const markedCount = existingAttendance.length;
   const totalWorkers = workers.length;
@@ -110,7 +102,11 @@ export default async function AttendancePage({
       <PageHeader
         label="Attendance"
         title="Mark Attendance"
-        description="Create gatherings and mark worker attendance by department."
+        description={
+          isAdmin
+            ? "Create gatherings and mark worker attendance by department."
+            : "Mark attendance for the departments you lead."
+        }
         action={
           <a
             href="/attendance/history"
@@ -121,7 +117,7 @@ export default async function AttendancePage({
         }
       />
 
-      {isAdmin && <CreateGatheringForm />}
+      {isAdmin && <CreateGatheringForm message={params.message} />}
 
       <AttendanceContextSelector
         services={services.map((service) => ({
@@ -136,7 +132,6 @@ export default async function AttendancePage({
         selectedServiceId={selectedServiceId}
         selectedDepartmentId={selectedDepartmentId || ""}
         selectedDepartmentName={selectedDepartment?.name}
-        isAdmin={isAdmin}
         attendanceStatus={attendanceStatus}
         attendanceStatusClass={attendanceStatusClass}
         markedCount={markedCount}
