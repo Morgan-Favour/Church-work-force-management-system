@@ -21,14 +21,14 @@ export default async function WorkersPage() {
   const departments = await prisma.department.findMany({
     where: isAdmin
       ? {
-          isActive: true,
-        }
+        isActive: true,
+      }
       : {
-          id: {
-            in: leaderDepartmentIds,
-          },
-          isActive: true,
+        id: {
+          in: leaderDepartmentIds,
         },
+        isActive: true,
+      },
     orderBy: {
       name: "asc",
     },
@@ -38,14 +38,14 @@ export default async function WorkersPage() {
     where: isAdmin
       ? {}
       : {
-          departments: {
-            some: {
-              departmentId: {
-                in: leaderDepartmentIds,
-              },
+        departments: {
+          some: {
+            departmentId: {
+              in: leaderDepartmentIds,
             },
           },
         },
+      },
     include: {
       departments: {
         include: {
@@ -58,7 +58,6 @@ export default async function WorkersPage() {
     },
   });
 
-  const leaderDepartment = departments[0];
 
   return (
     <div className="space-y-6">
@@ -76,11 +75,13 @@ export default async function WorkersPage() {
         <WorkerForm
           isAdmin={isAdmin}
           departments={departments}
-          leaderDepartment={leaderDepartment}
-          leaderDepartmentId={leaderDepartment?.id}
         />
 
-        <WorkerList workers={workers} isAdmin={isAdmin} />
+        <WorkerList
+          workers={workers}
+          isAdmin={isAdmin}
+          visibleDepartmentIds={isAdmin ? undefined : leaderDepartmentIds}
+        />
       </section>
     </div>
   );

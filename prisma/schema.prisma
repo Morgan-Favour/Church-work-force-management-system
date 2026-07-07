@@ -74,7 +74,7 @@ model WorkerDepartment {
 model LeaderDepartment {
   id           String @id @default(cuid())
   userId       String
-  departmentId String
+  departmentId String @unique
 
   user         User       @relation(fields: [userId], references: [id])
   department   Department @relation(fields: [departmentId], references: [id])

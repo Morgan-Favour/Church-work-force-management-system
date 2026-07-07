@@ -39,7 +39,7 @@ export default async function AttendanceHistoryPage({
       ...(isAdmin
         ? {}
         : {
-          departmentId: session.user.departmentId || "",
+          departmentId: session.user.departmentIds || "",
         }),
       ...dateFilter,
     },

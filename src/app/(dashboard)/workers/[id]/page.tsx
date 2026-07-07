@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { ArrowLeft, UserRound } from "lucide-react";
-
+import { EditWorkerModal } from "@/components/workers/edit-worker-modal";
 export default async function WorkerDetailsPage({
   params,
 }: {
@@ -41,13 +41,29 @@ export default async function WorkerDetailsPage({
     },
   });
 
+  const availableDepartments = await prisma.department.findMany({
+    where: isAdmin
+      ? {
+        isActive: true,
+      }
+      : {
+        id: {
+          in: session.user.departmentIds || [],
+        },
+        isActive: true,
+      },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
   if (!worker) {
     notFound();
   }
 
   if (!isAdmin) {
-    const belongsToLeaderDepartment = worker.departments.some(
-      (item) => item.departmentId === session.user.departmentId
+    const belongsToLeaderDepartment = worker.departments.some((item) =>
+      session.user.departmentIds.includes(item.departmentId)
     );
 
     if (!belongsToLeaderDepartment) {
@@ -85,34 +101,38 @@ export default async function WorkerDetailsPage({
       </Link>
 
       <section className="rounded-3xl bg-[#0e2d33] p-8 text-white shadow-xl shadow-slate-300/40">
-        <div className="flex items-center gap-5">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-[#d4af37]">
-            <UserRound size={32} />
-          </div>
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-5">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-[#d4af37]">
+              <UserRound size={32} />
+            </div>
 
-          <div>
-            <p className="text-sm font-medium text-[#d4af37]">
-              Worker Profile
-            </p>
-            <h1 className="mt-1 text-3xl font-bold tracking-tight">
-              {worker.fullName}
-            </h1>
-            <p className="mt-2 text-sm text-white/65">
-              {worker.phone || "No phone number"} ·{" "}
-              {worker.gender || "Gender not specified"}
-            </p>
+            <div>
+              <p className="text-sm font-medium text-[#d4af37]">
+                Worker Profile
+              </p>
+              <h1 className="mt-1 text-3xl font-bold tracking-tight">
+                {worker.fullName}
+              </h1>
+              <p className="mt-2 text-sm text-white/65">
+                {worker.phone || "No phone number"} ·{" "}
+                {worker.gender || "Gender not specified"}
+              </p>
 
-            <span
-              className={
-                worker.isActive
-                  ? "mt-4 inline-flex rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200"
-                  : "mt-4 inline-flex rounded-full bg-red-400/15 px-3 py-1 text-xs font-bold text-red-200"
-              }
-            >
-              {worker.isActive ? "Active Worker" : "Inactive Worker"}
-            </span>
+              <span
+                className={
+                  worker.isActive
+                    ? "mt-4 inline-flex rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200"
+                    : "mt-4 inline-flex rounded-full bg-red-400/15 px-3 py-1 text-xs font-bold text-red-200"
+                }
+              >
+                {worker.isActive ? "Active Worker" : "Inactive Worker"}
+              </span>
+              </div>
+            </div>
+            <EditWorkerModal worker={worker} departments={availableDepartments} />
           </div>
-        </div>
+          
       </section>
 
       <section className="grid grid-cols-4 gap-5">
@@ -221,6 +241,7 @@ export default async function WorkerDetailsPage({
       <p className="text-sm text-slate-400">
         Joined: {worker.joinedAt.toDateString()}
       </p>
+
     </div>
   );
 }

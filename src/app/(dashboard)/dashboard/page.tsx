@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   });
 
   if (!isAdmin) {
-    const departmentIds = session.user.departmentIds || [];
+    const departmentIds = session.user.departmentIds|| [];
 
     const departments = await prisma.department.findMany({
       where: {

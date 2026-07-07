@@ -2,10 +2,14 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { UserRole } from "@prisma/client";
 
 export async function createWorker(formData: FormData) {
   const fullName = formData.get("fullName")?.toString().trim();
   const phone = formData.get("phone")?.toString().trim();
+  if (phone && !/^\d{7,15}$/.test(phone)) return;
   const gender = formData.get("gender")?.toString();
   const departmentIds = formData.getAll("departmentIds").map(String);
 
@@ -98,6 +102,80 @@ export async function reactivateWorker(formData: FormData) {
     data: {
       action: "REACTIVATE_WORKER",
       description: `${worker.fullName} was reactivated as a worker.`,
+    },
+  });
+
+  revalidatePath("/workers");
+  revalidatePath(`/workers/${workerId}`);
+  revalidatePath("/dashboard");
+}
+
+export async function updateWorker(formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) return;
+
+  const workerId = formData.get("workerId")?.toString();
+  const fullName = formData.get("fullName")?.toString().trim();
+  const phone = formData.get("phone")?.toString().trim();
+  if (phone && !/^\d{7,15}$/.test(phone)) return;
+  const gender = formData.get("gender")?.toString();
+  const departmentIds = formData.getAll("departmentIds").map(String);
+
+  if (!workerId || !fullName || departmentIds.length === 0) return;
+
+  const isAdmin = session.user.role === UserRole.ADMIN;
+
+  if (!isAdmin) {
+    const allowedDepartmentIds = session.user.departmentIds || [];
+
+    const isTryingInvalidDepartment = departmentIds.some(
+      (id) => !allowedDepartmentIds.includes(id)
+    );
+
+    if (isTryingInvalidDepartment) return;
+  }
+
+  const worker = await prisma.worker.update({
+    where: {
+      id: workerId,
+    },
+    data: {
+      fullName,
+      phone: phone || null,
+      gender: gender || null,
+    },
+  });
+
+  if (isAdmin) {
+    await prisma.workerDepartment.deleteMany({
+      where: {
+        workerId,
+      },
+    });
+  } else {
+    await prisma.workerDepartment.deleteMany({
+      where: {
+        workerId,
+        departmentId: {
+          in: session.user.departmentIds || [],
+        },
+      },
+    });
+  }
+
+  await prisma.workerDepartment.createMany({
+    data: departmentIds.map((departmentId) => ({
+      workerId,
+      departmentId,
+    })),
+    skipDuplicates: true,
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "UPDATE_WORKER",
+      description: `${worker.fullName}'s profile was updated.`,
     },
   });
 

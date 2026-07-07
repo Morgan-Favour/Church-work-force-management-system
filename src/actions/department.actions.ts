@@ -34,12 +34,12 @@ export async function createDepartment(formData: FormData) {
 }
 
 export async function deactivateDepartment(formData: FormData) {
-  const departmentId = formData.get("departmentId")?.toString();
+  const departmentIds = formData.get("departmentId")?.toString();
 
-  if (!departmentId) return;
+  if (!departmentIds)return;
 
   const department = await prisma.department.update({
-    where: { id: departmentId },
+    where: { id: departmentIds },
     data: { isActive: false },
   });
 
@@ -55,12 +55,12 @@ export async function deactivateDepartment(formData: FormData) {
 }
 
 export async function reactivateDepartment(formData: FormData) {
-  const departmentId = formData.get("departmentId")?.toString();
+  const departmentIds = formData.get("departmentId")?.toString();
 
-  if (!departmentId) return;
+  if (!departmentIds) return;
 
   const department = await prisma.department.update({
-    where: { id: departmentId },
+    where: { id: departmentIds },
     data: { isActive: true },
   });
 

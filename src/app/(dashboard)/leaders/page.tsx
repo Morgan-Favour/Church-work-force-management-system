@@ -18,6 +18,7 @@ export default async function LeadersPage() {
     redirect("/dashboard");
   }
 
+  
   const departments = await prisma.department.findMany({
     where: {
       isActive: true,

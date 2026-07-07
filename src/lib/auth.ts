@@ -53,7 +53,6 @@ export const authOptions: NextAuthOptions = {
             name: user.fullName,
             username: user.username,
             role: user.role,
-            departmentId: user.departmentId,
             departmentIds,
           };
         } catch (error) {
@@ -81,7 +80,6 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        token.departmentId = user.departmentId;
         token.departmentIds = user.departmentIds;
       }
 
@@ -92,7 +90,6 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as UserRole;
-        session.user.departmentId = token.departmentId as string | null;
         session.user.departmentIds = token.departmentIds as string[];
       }
 

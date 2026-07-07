@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CheckCircle2, AlertTriangle, CircleMinus } from "lucide-react";
 
+type DepartmentStatus = "Marked" | "Partial" | "Pending" | "No workers";
+
 type Props = {
   services: {
     id: string;
@@ -14,6 +16,7 @@ type Props = {
   departments: {
     id: string;
     name: string;
+    status: DepartmentStatus;
   }[];
 
   selectedServiceId?: string;
@@ -58,6 +61,13 @@ export default function AttendanceContextSelector({
       : attendanceStatus === "Partially marked"
       ? AlertTriangle
       : CircleMinus;
+
+  function getStatusEmoji(status: DepartmentStatus) {
+    if (status === "Marked") return "🟢";
+    if (status === "Partial") return "🟡";
+    if (status === "Pending") return "🔴";
+    return "⚪";
+  }
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -104,7 +114,8 @@ export default function AttendanceContextSelector({
           ) : (
             departments.map((department) => (
               <option key={department.id} value={department.id}>
-                {department.name}
+                {getStatusEmoji(department.status)} {department.name} —{" "}
+                {department.status}
               </option>
             ))
           )}

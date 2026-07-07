@@ -65,11 +65,32 @@ export function AttendanceTable({
             );
 
             return (
-              <AttendanceRow
+              <div
                 key={worker.id}
-                worker={worker}
-                savedStatus={saved?.status}
-              />
+                className={
+                  saved
+                    ? "rounded-2xl border border-emerald-200 bg-emerald-50/40 p-3"
+                    : "rounded-2xl border border-red-200 bg-red-50/40 p-3"
+                }
+              >
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-sm font-bold text-slate-900">
+                    {worker.fullName}
+                  </p>
+
+                  <span
+                    className={
+                      saved
+                        ? "rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700"
+                        : "rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700"
+                    }
+                  >
+                    {saved ? saved.status : "Not marked"}
+                  </span>
+                </div>
+
+                <AttendanceRow worker={worker} savedStatus={saved?.status} />
+              </div>
             );
           })}
 
