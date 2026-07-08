@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 10;
 
 export default async function ActivityPage({
   searchParams,

@@ -16,13 +16,24 @@ export default async function DashboardPage() {
 
   const isAdmin = session.user.role === "ADMIN";
 
-  const recentActivities = await prisma.activityLog.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 5,
-  });
+const recentActivities = await prisma.activityLog.findMany({
+  where: isAdmin
+    ? {}
+    : {
+        departmentId: {
+          in: session.user.departmentIds,
+        },
+      },
+
+  orderBy: {
+    createdAt: "desc",
+  },
+
+  take: 5,
+});
 
   if (!isAdmin) {
-    const departmentIds = session.user.departmentIds|| [];
+    const departmentIds = session.user.departmentIds || [];
 
     const departments = await prisma.department.findMany({
       where: {

@@ -6,38 +6,41 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { WorkerForm } from "@/components/workers/worker-form";
 import { WorkerList } from "@/components/workers/worker-list";
+import { Pagination } from "@/components/ui/pagination";
 
-export default async function WorkersPage() {
+const PAGE_SIZE = 10;
+
+export default async function WorkersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+
   const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect("/login");
-  }
+  if (!session) redirect("/login");
 
   const isAdmin = session.user.role === UserRole.ADMIN;
-
   const leaderDepartmentIds = session.user.departmentIds || [];
+
+  const currentPage = Number(params.page || "1");
+  const page = Number.isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
+  const skip = (page - 1) * PAGE_SIZE;
 
   const departments = await prisma.department.findMany({
     where: isAdmin
-      ? {
-        isActive: true,
-      }
+      ? { isActive: true }
       : {
-        id: {
-          in: leaderDepartmentIds,
+          id: { in: leaderDepartmentIds },
+          isActive: true,
         },
-        isActive: true,
-      },
-    orderBy: {
-      name: "asc",
-    },
+    orderBy: { name: "asc" },
   });
 
-  const workers = await prisma.worker.findMany({
-    where: isAdmin
-      ? {}
-      : {
+  const workerWhere = isAdmin
+    ? {}
+    : {
         departments: {
           some: {
             departmentId: {
@@ -45,19 +48,31 @@ export default async function WorkersPage() {
             },
           },
         },
-      },
-    include: {
-      departments: {
-        include: {
-          department: true,
+      };
+
+  const [workers, totalWorkers] = await Promise.all([
+    prisma.worker.findMany({
+      where: workerWhere,
+      include: {
+        departments: {
+          include: {
+            department: true,
+          },
         },
       },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: PAGE_SIZE,
+    }),
 
+    prisma.worker.count({
+      where: workerWhere,
+    }),
+  ]);
+
+  const totalPages = Math.ceil(totalWorkers / PAGE_SIZE);
 
   return (
     <div className="space-y-6">
@@ -72,16 +87,21 @@ export default async function WorkersPage() {
       />
 
       <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
-        <WorkerForm
-          isAdmin={isAdmin}
-          departments={departments}
-        />
+        <WorkerForm isAdmin={isAdmin} departments={departments} />
 
-        <WorkerList
-          workers={workers}
-          isAdmin={isAdmin}
-          visibleDepartmentIds={isAdmin ? undefined : leaderDepartmentIds}
-        />
+        <div>
+          <WorkerList
+            workers={workers}
+            isAdmin={isAdmin}
+            visibleDepartmentIds={isAdmin ? undefined : leaderDepartmentIds}
+          />
+
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            basePath="/workers"
+          />
+        </div>
       </section>
     </div>
   );

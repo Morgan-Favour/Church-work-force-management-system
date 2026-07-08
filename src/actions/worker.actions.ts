@@ -6,51 +6,47 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
 
-export async function createWorker(formData: FormData) {
+type ActionResult = {
+  error?: string;
+  success?: string;
+};
+
+export async function createWorker(formData: FormData): Promise<ActionResult> {
   const fullName = formData.get("fullName")?.toString().trim();
   const phone = formData.get("phone")?.toString().trim();
-  if (phone && !/^\d{7,15}$/.test(phone)) return;
   const gender = formData.get("gender")?.toString();
   const departmentIds = formData.getAll("departmentIds").map(String);
 
-  if (!fullName || departmentIds.length === 0) return;
+  if (!fullName || !phone || departmentIds.length === 0) {
+    return {
+      error: "Please enter worker name, phone number, and select at least one department.",
+    };
+  }
 
-  const existingWorker = phone
-    ? await prisma.worker.findUnique({
-        where: { phone },
-      })
-    : null;
+  if (!/^\d{7,15}$/.test(phone)) {
+    return {
+      error: "Phone number must contain only numbers and must be 7 to 15 digits.",
+    };
+  }
 
-  if (existingWorker) {
-    await prisma.worker.update({
-      where: { id: existingWorker.id },
-      data: { isActive: true },
+  try {
+    const existingWorker = await prisma.worker.findUnique({
+      where: { phone },
     });
 
-    await prisma.workerDepartment.createMany({
-      data: departmentIds.map((departmentId) => ({
-        workerId: existingWorker.id,
-        departmentId,
-      })),
-      skipDuplicates: true,
-    });
+    if (existingWorker) {
+      return {
+        error: `${existingWorker.fullName} already exists with this phone number. Open their profile to edit or assign departments.`,
+      };
+    }
 
-    await prisma.activityLog.create({
-      data: {
-        action: "UPDATE_WORKER_DEPARTMENTS",
-        description: `${existingWorker.fullName} was assigned to another department.`,
-      },
-    });
-  } else {
     await prisma.worker.create({
       data: {
         fullName,
-        phone: phone || null,
+        phone,
         gender: gender || null,
         departments: {
-          create: departmentIds.map((departmentId) => ({
-            departmentId,
-          })),
+          create: departmentIds.map((departmentId) => ({ departmentId })),
         },
       },
     });
@@ -59,17 +55,23 @@ export async function createWorker(formData: FormData) {
       data: {
         action: "CREATE_WORKER",
         description: `${fullName} was added as a worker.`,
+        departmentId: departmentIds[0],
       },
     });
-  }
 
-  revalidatePath("/workers");
-  revalidatePath("/dashboard");
+    revalidatePath("/workers");
+    revalidatePath("/dashboard");
+
+    return { success: "Worker added successfully." };
+  } catch {
+    return {
+      error: "Could not save worker. Please check your internet connection and try again.",
+    };
+  }
 }
 
 export async function deactivateWorker(formData: FormData) {
   const workerId = formData.get("workerId")?.toString();
-
   if (!workerId) return;
 
   const worker = await prisma.worker.update({
@@ -90,7 +92,6 @@ export async function deactivateWorker(formData: FormData) {
 
 export async function reactivateWorker(formData: FormData) {
   const workerId = formData.get("workerId")?.toString();
-
   if (!workerId) return;
 
   const worker = await prisma.worker.update({
@@ -110,19 +111,28 @@ export async function reactivateWorker(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
-export async function updateWorker(formData: FormData) {
+export async function updateWorker(formData: FormData): Promise<ActionResult> {
   const session = await getServerSession(authOptions);
 
-  if (!session) return;
+  if (!session) {
+    return { error: "You must be logged in to update a worker." };
+  }
 
   const workerId = formData.get("workerId")?.toString();
   const fullName = formData.get("fullName")?.toString().trim();
   const phone = formData.get("phone")?.toString().trim();
-  if (phone && !/^\d{7,15}$/.test(phone)) return;
   const gender = formData.get("gender")?.toString();
   const departmentIds = formData.getAll("departmentIds").map(String);
 
-  if (!workerId || !fullName || departmentIds.length === 0) return;
+  if (!workerId || !fullName || !phone || departmentIds.length === 0) {
+    return { error: "Please fill in all required fields." };
+  }
+
+  if (!/^\d{7,15}$/.test(phone)) {
+    return {
+      error: "Phone number must contain only numbers and must be 7 to 15 digits.",
+    };
+  }
 
   const isAdmin = session.user.role === UserRole.ADMIN;
 
@@ -133,53 +143,66 @@ export async function updateWorker(formData: FormData) {
       (id) => !allowedDepartmentIds.includes(id)
     );
 
-    if (isTryingInvalidDepartment) return;
+    if (isTryingInvalidDepartment) {
+      return { error: "You can only assign workers to departments you lead." };
+    }
   }
 
-  const worker = await prisma.worker.update({
-    where: {
-      id: workerId,
-    },
-    data: {
-      fullName,
-      phone: phone || null,
-      gender: gender || null,
-    },
-  });
+  try {
+    const existingPhoneOwner = await prisma.worker.findUnique({
+      where: { phone },
+    });
 
-  if (isAdmin) {
-    await prisma.workerDepartment.deleteMany({
-      where: {
-        workerId,
+    if (existingPhoneOwner && existingPhoneOwner.id !== workerId) {
+      return {
+        error: `${existingPhoneOwner.fullName} already uses this phone number.`,
+      };
+    }
+
+    const worker = await prisma.worker.update({
+      where: { id: workerId },
+      data: {
+        fullName,
+        phone,
+        gender: gender || null,
       },
     });
-  } else {
+
     await prisma.workerDepartment.deleteMany({
-      where: {
+      where: isAdmin
+        ? { workerId }
+        : {
+            workerId,
+            departmentId: {
+              in: session.user.departmentIds || [],
+            },
+          },
+    });
+
+    await prisma.workerDepartment.createMany({
+      data: departmentIds.map((departmentId) => ({
         workerId,
-        departmentId: {
-          in: session.user.departmentIds || [],
-        },
+        departmentId,
+      })),
+      skipDuplicates: true,
+    });
+
+    await prisma.activityLog.create({
+      data: {
+        action: "UPDATE_WORKER",
+        description: `${worker.fullName}'s profile was updated.`,
+        departmentId: departmentIds[0],
       },
     });
+
+    revalidatePath("/workers");
+    revalidatePath(`/workers/${workerId}`);
+    revalidatePath("/dashboard");
+
+    return { success: "Worker updated successfully." };
+  } catch {
+    return {
+      error: "Could not update worker. Please check your internet connection and try again.",
+    };
   }
-
-  await prisma.workerDepartment.createMany({
-    data: departmentIds.map((departmentId) => ({
-      workerId,
-      departmentId,
-    })),
-    skipDuplicates: true,
-  });
-
-  await prisma.activityLog.create({
-    data: {
-      action: "UPDATE_WORKER",
-      description: `${worker.fullName}'s profile was updated.`,
-    },
-  });
-
-  revalidatePath("/workers");
-  revalidatePath(`/workers/${workerId}`);
-  revalidatePath("/dashboard");
 }

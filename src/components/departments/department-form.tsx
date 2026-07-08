@@ -1,7 +1,35 @@
+"use client";
+
+import { useState, useTransition } from "react";
 import { Building2 } from "lucide-react";
 import { createDepartment } from "@/actions/department.actions";
 
+type ActionState = {
+  error?: string;
+  success?: string;
+};
+
 export function DepartmentForm() {
+  const [state, setState] = useState<ActionState | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function action(formData: FormData) {
+    setState(null);
+
+    startTransition(async () => {
+      const result = await createDepartment(formData);
+
+      if (result?.error) {
+        setState({ error: result.error });
+        return;
+      }
+
+      setState({
+        success: result?.success || "Department created successfully.",
+      });
+    });
+  }
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="mb-6 flex items-center gap-3">
@@ -19,7 +47,7 @@ export function DepartmentForm() {
         </div>
       </div>
 
-      <form action={createDepartment} className="space-y-5">
+      <form action={action} className="space-y-5">
         <div>
           <label className="mb-2 block text-sm font-semibold text-slate-700">
             Department Name
@@ -27,8 +55,8 @@ export function DepartmentForm() {
           <input
             name="name"
             required
-            className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
             placeholder="Choir"
+            className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
           />
         </div>
 
@@ -39,16 +67,29 @@ export function DepartmentForm() {
           <textarea
             name="description"
             rows={4}
-            className="block w-full resize-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
             placeholder="Short description of this department"
+            className="block w-full resize-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
           />
         </div>
 
+        {state?.error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+            {state.error}
+          </div>
+        )}
+
+        {state?.success && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+            {state.success}
+          </div>
+        )}
+
         <button
           type="submit"
-          className="w-full rounded-xl bg-[#0e2d33] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#123940]"
+          disabled={pending}
+          className="w-full rounded-xl bg-[#0e2d33] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#123940] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Create Department
+          {pending ? "Creating..." : "Create Department"}
         </button>
       </form>
     </div>

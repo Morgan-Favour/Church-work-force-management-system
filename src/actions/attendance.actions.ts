@@ -9,39 +9,47 @@ export async function createService(formData: FormData) {
   const title = formData.get("title")?.toString().trim();
   const date = formData.get("date")?.toString();
 
-  if (!title || !date) return;
-
-  const serviceDate = new Date(date);
-
-  const existingService = await prisma.service.findFirst({
-    where: {
-      title,
-      date: serviceDate,
-    },
-  });
-
-  if (existingService) {
-    redirect(`/attendance?serviceId=${existingService.id}&message=gathering-exists`);
+  if (!title || !date) {
+    redirect("/attendance?message=gathering-missing-fields");
   }
 
-  const service = await prisma.service.create({
-    data: {
-      title,
-      date: serviceDate,
-    },
-  });
+  try {
+    const serviceDate = new Date(date);
 
-  await prisma.activityLog.create({
-    data: {
-      action: "CREATE_GATHERING",
-      description: `${title} gathering was created.`,
-    },
-  });
+    const existingService = await prisma.service.findFirst({
+      where: {
+        title,
+        date: serviceDate,
+      },
+    });
 
-  revalidatePath("/attendance");
-  revalidatePath("/dashboard");
+    if (existingService) {
+      redirect(
+        `/attendance?serviceId=${existingService.id}&message=gathering-exists`
+      );
+    }
 
-  redirect(`/attendance?serviceId=${service.id}&message=gathering-created`);
+    const service = await prisma.service.create({
+      data: {
+        title,
+        date: serviceDate,
+      },
+    });
+
+    await prisma.activityLog.create({
+      data: {
+        action: "CREATE_GATHERING",
+        description: `${title} gathering was created.`,
+      },
+    });
+
+    revalidatePath("/attendance");
+    revalidatePath("/dashboard");
+
+    redirect(`/attendance?serviceId=${service.id}&message=gathering-created`);
+  } catch {
+    redirect("/attendance?message=connection-error");
+  }
 }
 
 export async function markAttendance(formData: FormData) {
@@ -50,58 +58,68 @@ export async function markAttendance(formData: FormData) {
   const markedBy = formData.get("markedBy")?.toString();
   const workerIds = formData.getAll("workerIds").map(String);
 
-  if (!serviceId || !departmentId || workerIds.length === 0) return;
+  if (!serviceId || !departmentId || workerIds.length === 0) {
+    redirect("/attendance?message=attendance-missing-fields");
+  }
 
-  for (const workerId of workerIds) {
-    const status = formData.get(`status-${workerId}`)?.toString() as
-      | AttendanceStatus
-      | undefined;
+  try {
+    for (const workerId of workerIds) {
+      const status = formData.get(`status-${workerId}`)?.toString() as
+        | AttendanceStatus
+        | undefined;
 
-    if (!status) continue;
+      if (!status) continue;
 
-    await prisma.attendance.upsert({
-      where: {
-        workerId_serviceId_departmentId: {
+      await prisma.attendance.upsert({
+        where: {
+          workerId_serviceId_departmentId: {
+            workerId,
+            serviceId,
+            departmentId,
+          },
+        },
+        update: {
+          status,
+          markedBy: markedBy || null,
+        },
+        create: {
           workerId,
           serviceId,
           departmentId,
+          status,
+          markedBy: markedBy || null,
         },
-      },
-      update: {
-        status,
-        markedBy: markedBy || null,
-      },
-      create: {
-        workerId,
-        serviceId,
-        departmentId,
-        status,
-        markedBy: markedBy || null,
+      });
+    }
+
+    const service = await prisma.service.findUnique({
+      where: { id: serviceId },
+    });
+
+    const department = await prisma.department.findUnique({
+      where: { id: departmentId },
+    });
+
+    await prisma.activityLog.create({
+      data: {
+        action: "MARK_ATTENDANCE",
+        description: `Attendance marked for ${department?.name || "a department"
+          } during ${service?.title || "a gathering"}.`,
+        actorId: markedBy || null,
+            departmentId,
+
       },
     });
+
+    revalidatePath("/attendance");
+    revalidatePath("/attendance/history");
+    revalidatePath("/dashboard");
+
+    redirect(`/attendance?serviceId=${serviceId}&departmentId=${departmentId}`);
+  } catch {
+    redirect(
+      `/attendance?serviceId=${serviceId || ""}&departmentId=${departmentId || ""
+      }&message=connection-error`
+    );
   }
-
-  const service = await prisma.service.findUnique({
-    where: { id: serviceId },
-  });
-
-  const department = await prisma.department.findUnique({
-    where: { id: departmentId },
-  });
-
-  await prisma.activityLog.create({
-    data: {
-      action: "MARK_ATTENDANCE",
-      description: `Attendance marked for ${
-        department?.name || "a department"
-      } during ${service?.title || "a gathering"}.`,
-      actorId: markedBy || null,
-    },
-  });
-
-  revalidatePath("/attendance");
-  revalidatePath("/attendance/history");
-  revalidatePath("/dashboard");
-
-  redirect(`/attendance?serviceId=${serviceId}&departmentId=${departmentId}`);
 }

@@ -7,7 +7,7 @@ import {
   reactivateWorker,
 } from "@/actions/worker.actions";
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 10;
 
 type Worker = {
   id: string;

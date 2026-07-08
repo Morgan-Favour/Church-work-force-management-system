@@ -23,15 +23,15 @@ export default async function DashboardLayout({
   const leaderDepartments =
     !isAdmin && session.user.departmentIds?.length
       ? await prisma.department.findMany({
-          where: {
-            id: {
-              in: session.user.departmentIds,
-            },
+        where: {
+          id: {
+            in: session.user.departmentIds,
           },
-          orderBy: {
-            name: "asc",
-          },
-        })
+        },
+        orderBy: {
+          name: "asc",
+        },
+      })
       : [];
 
   const inactiveLeaderDepartments = leaderDepartments.filter(
@@ -43,35 +43,36 @@ export default async function DashboardLayout({
 
   const navItems = isAdmin
     ? [
-        { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
-        {
-          label: "Departments",
-          href: "/departments",
-          icon: "departments" as const,
-        },
-        { label: "Workers", href: "/workers", icon: "workers" as const },
-        { label: "Leaders", href: "/leaders", icon: "leaders" as const },
-        {
-          label: "Attendance",
-          href: "/attendance",
-          icon: "attendance" as const,
-        },
-        { label: "Activity", href: "/activity", icon: "activity" as const },
-      ]
+      { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
+      {
+        label: "Departments",
+        href: "/departments",
+        icon: "departments" as const,
+      },
+      { label: "Workers", href: "/workers", icon: "workers" as const },
+      { label: "Leaders", href: "/leaders", icon: "leaders" as const },
+      {
+        label: "Attendance",
+        href: "/attendance",
+        icon: "attendance" as const,
+      },
+      { label: "Activity", href: "/activity", icon: "activity" as const },
+    ]
     : [
-        { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
-        {
-          label: "My Departments",
-          href: "/my-department",
-          icon: "departments" as const,
-        },
-        { label: "Workers", href: "/workers", icon: "workers" as const },
-        {
-          label: "Attendance",
-          href: "/attendance",
-          icon: "attendance" as const,
-        },
-      ];
+      { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
+      {
+        label: "My Departments",
+        href: "/my-department",
+        icon: "departments" as const,
+      },
+      { label: "Workers", href: "/workers", icon: "workers" as const },
+      {
+        label: "Attendance",
+        href: "/attendance",
+        icon: "attendance" as const,
+      },
+      { label: "Activity", href: "/activity", icon: "activity" as const },
+    ];
 
   const blockedContent = (
     <main className="flex min-h-[calc(100vh-5rem)] items-center justify-center p-4 sm:p-6 lg:p-8">

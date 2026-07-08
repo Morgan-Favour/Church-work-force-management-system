@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { X, UserRound } from "lucide-react";
 import { updateWorker } from "@/actions/worker.actions";
 import { DepartmentCheckboxDropdown } from "@/components/workers/department-checkbox-dropdown";
@@ -20,6 +20,11 @@ type Worker = {
   }[];
 };
 
+type ActionState = {
+  error?: string;
+  success?: string;
+};
+
 export function EditWorkerModal({
   worker,
   departments,
@@ -28,10 +33,27 @@ export function EditWorkerModal({
   departments: Department[];
 }) {
   const [open, setOpen] = useState(false);
+  const [state, setState] = useState<ActionState | null>(null);
+  const [pending, startTransition] = useTransition();
 
   const workerDepartmentIds = worker.departments.map(
     (item) => item.departmentId
   );
+
+  function action(formData: FormData) {
+    setState(null);
+
+    startTransition(async () => {
+      const result = await updateWorker(formData);
+
+      if (result?.error) {
+        setState({ error: result.error });
+        return;
+      }
+
+      setState({ success: result?.success || "Worker updated successfully." });
+    });
+  }
 
   return (
     <>
@@ -74,7 +96,7 @@ export function EditWorkerModal({
               </button>
             </div>
 
-            <form action={updateWorker} className="space-y-5 p-5 sm:p-6">
+            <form action={action} className="space-y-5 p-5 sm:p-6">
               <input type="hidden" name="workerId" defaultValue={worker.id} />
 
               <div>
@@ -96,13 +118,14 @@ export function EditWorkerModal({
                 </label>
                 <input
                   name="phone"
+                  type="tel"
+                  required
+                  inputMode="numeric"
+                  pattern="[0-9]{7,15}"
                   defaultValue={worker.phone || ""}
                   placeholder="08012345678"
                   className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
                 />
-                <p className="mt-2 text-xs text-slate-400">
-                  Used to identify and prevent duplicate worker profiles.
-                </p>
               </div>
 
               <div>
@@ -137,6 +160,18 @@ export function EditWorkerModal({
                 )}
               </div>
 
+              {state?.error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                  {state.error}
+                </div>
+              )}
+
+              {state?.success && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+                  {state.success}
+                </div>
+              )}
+
               <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
                 <button
                   type="button"
@@ -148,9 +183,10 @@ export function EditWorkerModal({
 
                 <button
                   type="submit"
-                  className="rounded-xl bg-[#0e2d33] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#123940]"
+                  disabled={pending}
+                  className="rounded-xl bg-[#0e2d33] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#123940] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Save Changes
+                  {pending ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </form>

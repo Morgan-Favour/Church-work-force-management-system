@@ -3,43 +3,62 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function createDepartment(formData: FormData) {
+type ActionResult = {
+  error?: string;
+  success?: string;
+};
+
+export async function createDepartment(
+  formData: FormData
+): Promise<ActionResult> {
   const name = formData.get("name")?.toString().trim();
   const description = formData.get("description")?.toString().trim();
 
-  if (!name) return;
+  if (!name) {
+    return { error: "Department name is required." };
+  }
 
-  const existingDepartment = await prisma.department.findFirst({
-    where: { name },
-  });
+  try {
+    const existingDepartment = await prisma.department.findFirst({
+      where: { name },
+    });
 
-  if (existingDepartment) return;
+    if (existingDepartment) {
+      return { error: "This department already exists." };
+    }
 
-  await prisma.department.create({
-    data: {
-      name,
-      description: description || null,
-    },
-  });
+    await prisma.department.create({
+      data: {
+        name,
+        description: description || null,
+      },
+    });
 
-  await prisma.activityLog.create({
-    data: {
-      action: "CREATE_DEPARTMENT",
-      description: `${name} department was created.`,
-    },
-  });
+    await prisma.activityLog.create({
+      data: {
+        action: "CREATE_DEPARTMENT",
+        description: `${name} department was created.`,
+      },
+    });
 
-  revalidatePath("/departments");
-  revalidatePath("/dashboard");
+    revalidatePath("/departments");
+    revalidatePath("/dashboard");
+
+    return { success: "Department created successfully." };
+  } catch {
+    return {
+      error:
+        "Could not connect to the database. Please check your internet connection and try again.",
+    };
+  }
 }
 
 export async function deactivateDepartment(formData: FormData) {
-  const departmentIds = formData.get("departmentId")?.toString();
-
-  if (!departmentIds)return;
+  const departmentId = formData.get("departmentId")?.toString();
+  if (!departmentId) return;
 
   const department = await prisma.department.update({
-    where: { id: departmentIds },
+    where: { id: departmentId },
     data: { isActive: false },
   });
 
@@ -55,12 +74,11 @@ export async function deactivateDepartment(formData: FormData) {
 }
 
 export async function reactivateDepartment(formData: FormData) {
-  const departmentIds = formData.get("departmentId")?.toString();
-
-  if (!departmentIds) return;
+  const departmentId = formData.get("departmentId")?.toString();
+  if (!departmentId) return;
 
   const department = await prisma.department.update({
-    where: { id: departmentIds },
+    where: { id: departmentId },
     data: { isActive: true },
   });
 

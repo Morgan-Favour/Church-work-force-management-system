@@ -117,12 +117,15 @@ model Attendance {
 }
 
 model ActivityLog {
-  id          String   @id @default(cuid())
-  action      String
-  description String
-  actorId     String?
+  id           String   @id @default(cuid())
 
-  createdAt   DateTime @default(now())
+  action       String
+  description  String
+
+  actorId      String?
+  departmentId String?
+
+  createdAt    DateTime @default(now())
 }
 
 enum UserRole {

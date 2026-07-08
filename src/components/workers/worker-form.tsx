@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useTransition } from "react";
 import { Users } from "lucide-react";
 import { createWorker } from "@/actions/worker.actions";
 import { DepartmentCheckboxDropdown } from "@/components/workers/department-checkbox-dropdown";
@@ -12,7 +15,30 @@ type WorkerFormProps = {
   departments: Department[];
 };
 
+type ActionState = {
+  error?: string;
+  success?: string;
+};
+
 export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
+  const [state, setState] = useState<ActionState | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function action(formData: FormData) {
+    setState(null);
+
+    startTransition(async () => {
+      const result = await createWorker(formData);
+
+      if (result?.error) {
+        setState({ error: result.error });
+        return;
+      }
+
+      setState({ success: result?.success || "Worker added successfully." });
+    });
+  }
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="mb-6 flex items-center gap-3">
@@ -33,7 +59,7 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
         </div>
       </div>
 
-      <form action={createWorker} className="space-y-5">
+      <form action={action} className="space-y-5">
         <div>
           <label className="mb-2 block text-sm font-semibold text-slate-700">
             Full Name
@@ -59,6 +85,9 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
             placeholder="08012345678"
             className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
           />
+          <p className="mt-2 text-xs text-slate-400">
+            Phone number must be unique for each worker.
+          </p>
         </div>
 
         <div>
@@ -67,7 +96,7 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
           </label>
           <select
             name="gender"
-            className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+            className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
           >
             <option value="">Select gender</option>
             <option value="MALE">Male</option>
@@ -89,12 +118,24 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
           )}
         </div>
 
+        {state?.error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+            {state.error}
+          </div>
+        )}
+
+        {state?.success && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+            {state.success}
+          </div>
+        )}
+
         <button
           type="submit"
-          disabled={departments.length === 0}
+          disabled={pending || departments.length === 0}
           className="w-full rounded-xl bg-[#0e2d33] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#123940] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Add Worker
+          {pending ? "Adding..." : "Add Worker"}
         </button>
       </form>
     </div>

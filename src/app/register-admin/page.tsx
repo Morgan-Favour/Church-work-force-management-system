@@ -60,6 +60,12 @@ export default async function RegisterAdminPage() {
     },
   });
 
+  const userCount = await prisma.user.count();
+
+  if (userCount > 0) {
+    redirect("/login");
+  }
+
   if (adminCount > 0) {
     redirect("/login");
   }
@@ -132,8 +138,8 @@ export default async function RegisterAdminPage() {
             Create Admin Account
           </button>
           <p className="mt-4 text-sm text-slate-500">
-          Already have an account? <a href="/login" className="text-[#0e2d33] hover:underline">Login</a>
-        </p>
+            Already have an account? <a href="/login" className="text-[#0e2d33] hover:underline">Login</a>
+          </p>
         </form>
 
         <p className="mt-8 text-center text-xs text-slate-400">
