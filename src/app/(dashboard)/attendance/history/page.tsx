@@ -8,67 +8,49 @@ import { PageHeader } from "@/components/ui/page-header";
 export default async function AttendanceHistoryPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    date?: string;
-  }>;
+  searchParams: Promise<{ date?: string }>;
 }) {
   const params = await searchParams;
-
   const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect("/login");
-  }
+  if (!session) redirect("/login");
 
   const isAdmin = session.user.role === UserRole.ADMIN;
   const selectedDate = params.date;
 
-  const dateFilter = selectedDate
-    ? {
-      service: {
-        date: {
-          gte: new Date(`${selectedDate}T00:00:00.000Z`),
-          lt: new Date(`${selectedDate}T23:59:59.999Z`),
-        },
-      },
-    }
-    : {};
+  const where = {
+    ...(isAdmin
+      ? {}
+      : {
+          departmentId: {
+            in: session.user.departmentIds || [],
+          },
+        }),
+
+    ...(selectedDate
+      ? {
+          service: {
+            date: {
+              gte: new Date(`${selectedDate}T00:00:00.000Z`),
+              lt: new Date(`${selectedDate}T23:59:59.999Z`),
+            },
+          },
+        }
+      : {}),
+  };
 
   const records = await prisma.attendance.findMany({
-    where: {
-      ...(isAdmin
-        ? {}
-        : {
-          departmentId: session.user.departmentIds || "",
-        }),
-      ...dateFilter,
-    },
+    where,
     include: {
       worker: true,
       department: true,
       service: true,
     },
     orderBy: [
-      {
-        service: {
-          date: "desc",
-        },
-      },
-      {
-        service: {
-          title: "asc",
-        },
-      },
-      {
-        department: {
-          name: "asc",
-        },
-      },
-      {
-        worker: {
-          fullName: "asc",
-        },
-      },
+      { service: { date: "desc" } },
+      { service: { title: "asc" } },
+      { department: { name: "asc" } },
+      { worker: { fullName: "asc" } },
     ],
   });
 
@@ -76,9 +58,7 @@ export default async function AttendanceHistoryPage({
     const dateKey = record.service.date.toDateString();
     const gatheringKey = `${record.service.title}__${record.department.name}`;
 
-    if (!groups[dateKey]) {
-      groups[dateKey] = {};
-    }
+    if (!groups[dateKey]) groups[dateKey] = {};
 
     if (!groups[dateKey][gatheringKey]) {
       groups[dateKey][gatheringKey] = {
@@ -89,7 +69,6 @@ export default async function AttendanceHistoryPage({
     }
 
     groups[dateKey][gatheringKey].records.push(record);
-
     return groups;
   }, {} as Record<string, Record<string, {
     serviceTitle: string;
@@ -97,26 +76,20 @@ export default async function AttendanceHistoryPage({
     records: typeof records;
   }>>);
 
-
   return (
     <div className="space-y-8">
-      <section>
-        <PageHeader
-          label="Attendance History"
-          title="View Attendance Records"
-          description={
-            isAdmin
-              ? "View attendance records across all departments, grouped by date and gathering."
-              : "View attendance records for your department, grouped by date and gathering."
-          }
-        />
-
-      </section>
+      <PageHeader
+        label="Attendance History"
+        title="View Attendance Records"
+        description={
+          isAdmin
+            ? "View attendance records across all departments, grouped by date and gathering."
+            : "View attendance records for your departments, grouped by date and gathering."
+        }
+      />
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-slate-900">
-          Search Attendance
-        </h2>
+        <h2 className="text-lg font-bold text-slate-900">Search Attendance</h2>
 
         <form
           method="GET"
@@ -163,7 +136,6 @@ export default async function AttendanceHistoryPage({
             <p className="font-semibold text-slate-700">
               No attendance records found
             </p>
-
             <p className="mt-1 text-sm text-slate-500">
               Try another date or mark attendance first.
             </p>
@@ -186,7 +158,6 @@ export default async function AttendanceHistoryPage({
                         <h4 className="font-bold text-slate-900">
                           {group.serviceTitle}
                         </h4>
-
                         <p className="text-sm text-slate-500">
                           {group.departmentName} Department
                         </p>

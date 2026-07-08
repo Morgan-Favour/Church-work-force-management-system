@@ -15,29 +15,26 @@ export default async function DashboardPage() {
   if (!session) redirect("/login");
 
   const isAdmin = session.user.role === "ADMIN";
+  const leaderDepartmentIds = session.user.departmentIds || [];
 
-const recentActivities = await prisma.activityLog.findMany({
-  where: isAdmin
-    ? {}
-    : {
-        departmentId: {
-          in: session.user.departmentIds,
+  const recentActivities = await prisma.activityLog.findMany({
+    where: isAdmin
+      ? {}
+      : {
+          departmentId: {
+            in: leaderDepartmentIds,
+          },
         },
-      },
-
-  orderBy: {
-    createdAt: "desc",
-  },
-
-  take: 5,
-});
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 5,
+  });
 
   if (!isAdmin) {
-    const departmentIds = session.user.departmentIds || [];
-
     const departments = await prisma.department.findMany({
       where: {
-        id: { in: departmentIds },
+        id: { in: leaderDepartmentIds },
         isActive: true,
       },
       include: {
@@ -52,7 +49,7 @@ const recentActivities = await prisma.activityLog.findMany({
         departments: {
           some: {
             departmentId: {
-              in: departmentIds,
+              in: leaderDepartmentIds,
             },
           },
         },
@@ -101,7 +98,6 @@ const recentActivities = await prisma.activityLog.findMany({
                   <h3 className="font-bold text-slate-900">
                     {department.name}
                   </h3>
-
                   <p className="mt-1 text-sm text-slate-500">
                     {department.workers.length} worker(s)
                   </p>
@@ -141,6 +137,7 @@ const recentActivities = await prisma.activityLog.findMany({
 
   const departmentAnalytics = departments.map((department) => {
     const total = department.attendance.length;
+
     const positive = department.attendance.filter(
       (attendance) =>
         attendance.status === "PRESENT" || attendance.status === "LATE"
@@ -155,6 +152,7 @@ const recentActivities = await prisma.activityLog.findMany({
 
   const workerAnalytics = workers.map((worker) => {
     const total = worker.attendance.length;
+
     const positive = worker.attendance.filter(
       (attendance) =>
         attendance.status === "PRESENT" || attendance.status === "LATE"
@@ -179,9 +177,26 @@ const recentActivities = await prisma.activityLog.findMany({
       />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard label="Total Workers" value={workerCount} icon={Users} href="/workers" />
-        <StatCard label="Departments" value={departmentCount} icon={Building2} href="/departments" />
-        <StatCard label="Leaders" value={leaderCount} icon={UserRoundCheck} href="/leaders" />
+        <StatCard
+          label="Total Workers"
+          value={workerCount}
+          icon={Users}
+          href="/workers"
+        />
+
+        <StatCard
+          label="Departments"
+          value={departmentCount}
+          icon={Building2}
+          href="/departments"
+        />
+
+        <StatCard
+          label="Leaders"
+          value={leaderCount}
+          icon={UserRoundCheck}
+          href="/leaders"
+        />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
@@ -190,7 +205,11 @@ const recentActivities = await prisma.activityLog.findMany({
           value={bestDepartment?.name || "N/A"}
           helper={`Attendance Rate: ${bestDepartment?.rate || 0}%`}
           icon={Building2}
-          href={bestDepartment?.id ? `/departments/${bestDepartment.id}` : "/departments"}
+          href={
+            bestDepartment?.id
+              ? `/departments/${bestDepartment.id}`
+              : "/departments"
+          }
         />
 
         <StatCard
