@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { UserCog } from "lucide-react";
 import { createLeader } from "@/actions/leader.actions";
+import { PasswordInput } from "../ui/password-ui";
 
 type Department = {
   id: string;
@@ -103,16 +104,14 @@ export function LeaderForm({ departments }: { departments: Department[] }) {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
-            Password
-          </label>
 
-          <input
+          <PasswordInput
             name="password"
-            type="password"
+            label="Password"
+            required
             minLength={8}
             placeholder="Minimum 8 characters"
-            className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+            autoComplete="new-password"
           />
 
           <p className="mt-2 text-xs text-slate-400">

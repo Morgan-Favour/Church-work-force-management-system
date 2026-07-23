@@ -4,9 +4,9 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, ArrowRight, LockKeyhole } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password-ui";
 
-
-export function LoginForm(){
+export function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -114,15 +114,14 @@ export function LoginForm(){
 
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
-              Password
             </label>
-            <input
-              type="password"
-              autoComplete="current-password"
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-[#0e2d33] focus:bg-white focus:ring-4 focus:ring-[#0e2d33]/10"
-              placeholder="Enter password"
+            <PasswordInput
+              name="password"
+              label="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              placeholder="Enter password"
             />
           </div>
 

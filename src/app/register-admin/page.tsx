@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { UserRole } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password-ui";
 
 async function createAdmin(formData: FormData) {
   "use server";
@@ -116,15 +117,14 @@ export default async function RegisterAdminPage() {
 
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">
-              Password
             </label>
-            <input
+            <PasswordInput
               name="password"
-              type="password"
+              label="Password"
               required
               minLength={8}
-              className="block w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
               placeholder="Minimum 8 characters"
+              autoComplete="new-password"
             />
             <p className="mt-2 text-xs text-slate-400">
               Password must be at least 8 characters.

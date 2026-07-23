@@ -2,11 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, KeyRound, ShieldCheck, UserRound } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password-ui";
+
 import {
   deactivateLeader,
   reactivateLeader,
   resetLeaderPassword,
 } from "@/actions/leader.actions";
+
 
 export default async function LeaderDetailsPage({
   params,
@@ -14,6 +17,7 @@ export default async function LeaderDetailsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+
 
   const leader = await prisma.user.findUnique({
     where: { id },
@@ -139,22 +143,22 @@ export default async function LeaderDetailsPage({
         >
           <input type="hidden" name="leaderId" defaultValue={leader.id} />
 
-          <input
+          <PasswordInput
             name="password"
-            type="password"
+            label="Password"
             required
             minLength={8}
-            placeholder="New password"
-            className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+            placeholder="Minimum 8 characters"
+            autoComplete="new-password"
           />
 
-          <input
+          <PasswordInput
             name="confirmPassword"
-            type="password"
+            label="Confirm Password"
             required
             minLength={8}
             placeholder="Confirm password"
-            className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+            autoComplete="new-password"
           />
 
           <button
