@@ -31,10 +31,16 @@ export function LoginForm() {
         username: username.trim().toLowerCase(),
         password,
         redirect: false,
+        callbackUrl: "/dashboard",
       });
 
-      if (res?.ok) {
-        router.replace("/dashboard");
+      if (res?.error) {
+        setError("Username or password is incorrect, or this account is no longer active.");
+        return;
+      }
+
+      if (res?.url) {
+        router.push(res.url);
         router.refresh();
         return;
       }

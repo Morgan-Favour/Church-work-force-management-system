@@ -1,15 +1,10 @@
 import { withAuth } from "next-auth/middleware";
 
-export default withAuth(
-  function middleware(req) {
-    // Optional: Add custom logic here
+export default withAuth({
+  callbacks: {
+    authorized: ({ token }) => !!token,
   },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
-  }
-);
+});
 
 export const config = {
   matcher: [

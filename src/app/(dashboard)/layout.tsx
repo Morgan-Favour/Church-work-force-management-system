@@ -118,7 +118,7 @@ export default async function DashboardLayout({
       <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-[#0e2d33] text-white lg:flex">
         <div className="shrink-0 px-6 py-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
-            <Image src="/logo.png" alt="Logo" width={44} height={44} />
+            <Image src="/logo.png" alt="Logo" width={44} height={44} style={{ width: "auto", height: "auto" }} />
           </div>
 
           <h1 className="mt-4 text-xl font-bold">GIC Egbelu</h1>
