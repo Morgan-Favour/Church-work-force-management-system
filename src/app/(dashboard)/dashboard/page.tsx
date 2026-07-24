@@ -59,7 +59,6 @@ export default async function DashboardPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          label="Department Leader"
           title={`Welcome, ${session.user.name}`}
           description="You can manage all departments assigned to your leadership account."
         />
@@ -171,8 +170,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        label=""
-        title=""
+        title="Workforce Dashboard"
         description="Manage departments, workers, leaders, attendance, and accountability from one place."
       />
 

@@ -77,7 +77,6 @@ export default async function WorkersPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        label="Workers"
         title="Manage Church Workers"
         description={
           isAdmin

@@ -45,7 +45,6 @@ export default async function ActivityPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        label="Activity"
         title="Activity Log"
         description="View important actions performed across the workforce system."
       />

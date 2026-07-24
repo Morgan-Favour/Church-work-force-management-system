@@ -147,7 +147,6 @@ export default async function AttendancePage({
   return (
     <div className="space-y-6">
       <PageHeader
-        label="Attendance"
         title="Mark Attendance"
         description={
           isAdmin

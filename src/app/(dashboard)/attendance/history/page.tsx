@@ -79,7 +79,6 @@ export default async function AttendanceHistoryPage({
   return (
     <div className="space-y-8">
       <PageHeader
-        label="Attendance History"
         title="View Attendance Records"
         description={
           isAdmin

@@ -47,7 +47,6 @@ export default async function DepartmentsPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        label="Departments"
         title="Manage Church Departments"
         description="Create and manage the workforce departments in GIC Egbelu."
       />

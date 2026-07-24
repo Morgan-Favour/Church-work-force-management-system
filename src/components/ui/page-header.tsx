@@ -1,12 +1,10 @@
 type PageHeaderProps = {
-  label?: string;
   title: string;
   description?: string;
   action?: React.ReactNode;
 };
 
 export function PageHeader({
-  label,
   title,
   description,
   action,
@@ -14,18 +12,12 @@ export function PageHeader({
   return (
     <section className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        {label && (
-          <p className="text-xs font-semibold uppercase tracking-wide text-[#0e2d33] sm:text-sm">
-            {label}
-          </p>
-        )}
-
         <h1 className="mt-1 text-lg font-bold tracking-tight text-slate-900 sm:text-2xl">
           {title}
         </h1>
 
         {description && (
-          <p className="mt-2 max-w-1xl text-sm leading-6 text-slate-500">
+          <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
             {description}
           </p>
         )}

@@ -38,7 +38,6 @@ export default async function MyDepartmentsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        label="My Departments"
         title="Departments I Lead"
         description="View all departments assigned to your leadership account."
       />

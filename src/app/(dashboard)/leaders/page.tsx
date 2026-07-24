@@ -71,7 +71,6 @@ export default async function LeadersPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        label="Leaders"
         title="Manage Church Leaders"
         description="Create login accounts for department leaders and automatically add them as workers."
       />
