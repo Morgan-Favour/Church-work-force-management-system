@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -57,8 +57,13 @@ export function LoginForm() {
     <section className="grid w-full overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-2xl shadow-slate-300/50 lg:grid-cols-[1fr_430px]">
       <div className="hidden bg-[#0e2d33] p-10 text-white lg:flex lg:flex-col lg:justify-between">
         <div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-xl font-bold text-[#d4af37]">
-            G
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+            <Image
+              src="/logo.png"
+              alt="GIC Egbelu Workforce"
+              width={120}
+              height={120}
+            />
           </div>
 
           <h1 className="mt-10 max-w-md text-4xl font-bold leading-tight">

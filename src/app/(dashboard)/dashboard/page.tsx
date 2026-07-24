@@ -171,8 +171,8 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        label="GIC Egbelu Workforce"
-        title="Workforce Dashboard"
+        label=""
+        title=""
         description="Manage departments, workers, leaders, attendance, and accountability from one place."
       />
 
