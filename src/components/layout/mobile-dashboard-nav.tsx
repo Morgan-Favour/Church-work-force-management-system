@@ -6,18 +6,20 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { DashboardNavLink } from "@/components/layout/dashboard-nav-link";
 
-type NavItem = {
+// wherever NavItem is defined
+export type NavItem = {
   label: string;
   href: string;
   icon:
-    | "dashboard"
     | "departments"
+    | "attendance"
     | "workers"
     | "leaders"
-    | "attendance"
+    | "dashboard"
     | "activity"
     | "reports"
-    | "settings";
+    | "settings"
+    | "approvals";
 };
 
 type Props = {

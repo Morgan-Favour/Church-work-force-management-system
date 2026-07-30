@@ -4,6 +4,11 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { Prisma, UserRole } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { generateInviteToken, generateExpiryDate } from "@/lib/invite";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import {approveLeaderService, rejectLeaderService, registerLeaderService, createLeaderInviteService } from "@/services/leader";
 
 type ActionResult = {
   error?: string;
@@ -119,12 +124,12 @@ export async function createLeader(formData: FormData): Promise<ActionResult> {
         },
       });
 
-      await tx.activityLog.create({
-        data: {
-          action: "CREATE_LEADER",
-          description: `${fullName} was added as leader.`,
-        },
-      });
+      // await tx.activityLog.create({
+      //   data: {
+      //     action: "CREATE_LEADER",
+      //     description: `${fullName} was added as leader.`,
+      //   },
+      // });
 
       return { success: "Leader added successfully." };
     });
@@ -135,19 +140,24 @@ export async function createLeader(formData: FormData): Promise<ActionResult> {
 
     return result;
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      return {
-        error: "This department already has a leader assigned.",
-      };
-    }
+  console.error(error);
 
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  ) {
     return {
-      error: "Something went wrong while adding leader.",
+      error: "This department already has a leader assigned.",
     };
   }
+
+  return {
+    error:
+      error instanceof Error
+        ? error.message
+        : "Something went wrong while adding leader.",
+  };
+}
 }
 
 export async function deactivateLeader(formData: FormData) {
@@ -218,4 +228,88 @@ export async function resetLeaderPassword(formData: FormData) {
   });
 
   revalidatePath(`/leaders/${leaderId}`);
+}
+
+export async function createLeaderInvite(formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || session.user.role !== UserRole.ADMIN) {
+    return {
+      error: "Unauthorized",
+    };
+  }
+
+  const departmentIds = formData.getAll("departmentIds").map(String);
+
+  if (departmentIds.length === 0) {
+    return {
+      error: "Select at least one department.",
+    };
+  }
+
+  console.log(session.user);
+  
+  return await createLeaderInviteService({
+    createdById: session.user.id,
+    departmentIds,
+  });
+}
+
+export async function completeLeaderRegistration(formData: FormData) {
+  const token = formData.get("token")?.toString() ?? "";
+  const fullName = formData.get("fullName")?.toString() ?? "";
+  const username = formData.get("username")?.toString() ?? "";
+  const phone = formData.get("phone")?.toString() ?? "";
+  const password = formData.get("password")?.toString() ?? "";
+
+  await registerLeaderService({
+    token,
+    fullName,
+    username,
+    phone,
+    password,
+  });
+
+  revalidatePath("/approvals");
+
+  redirect("/invite/leader/success");
+}
+
+export async function approveLeader(formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || session.user.role !== UserRole.ADMIN) {
+    throw new Error("Unauthorized");
+  }
+
+  const pendingLeaderId = formData.get("pendingLeaderId")?.toString();
+
+  if (!pendingLeaderId) {
+    throw new Error("Missing pendingLeaderId");
+  }
+
+  await approveLeaderService(pendingLeaderId);
+
+  revalidatePath("/leaders");
+  revalidatePath("/approvals");
+  revalidatePath("/workers");
+  revalidatePath("/dashboard");
+}
+
+export async function rejectLeader(formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || session.user.role !== UserRole.ADMIN) {
+    throw new Error("Unauthorized");
+  }
+
+  const pendingLeaderId = formData.get("pendingLeaderId")?.toString();
+
+  if (!pendingLeaderId) {
+    throw new Error("Missing pendingLeaderId");
+  }
+
+  await rejectLeaderService(pendingLeaderId);
+
+  revalidatePath("/approvals");
 }

@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -15,10 +16,12 @@ model User {
   role         UserRole
   departmentId String?
   workerId     String?
+ 
 
   worker       Worker?  @relation(fields: [workerId], references: [id])
 
   leaderDepartments LeaderDepartment[]
+   createdInvites Invite[]
 
   isActive     Boolean  @default(true)
 
@@ -37,6 +40,10 @@ model Department {
   leaders     LeaderDepartment[]
   attendance  Attendance[]
   activities  ActivityLog[]
+  inviteDepartments InviteDepartment[]
+  pendingLeaderDepartments PendingLeaderDepartment[]
+
+pendingWorkerDepartments PendingWorkerDepartment[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -74,10 +81,11 @@ model WorkerDepartment {
 
 model LeaderDepartment {
   id           String @id @default(cuid())
-  userId       String
-  departmentId String @unique
 
-  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  departmentId String
+
+  user         User @relation(fields: [userId], references: [id])
   department   Department @relation(fields: [departmentId], references: [id])
 
   createdAt    DateTime @default(now())
@@ -129,6 +137,106 @@ model ActivityLog {
   createdAt    DateTime @default(now())
 }
 
+model Invite {
+  id            String   @id @default(cuid())
+
+  token         String   @unique
+
+  type          InviteType
+
+  createdById   String?
+
+  createdBy      User?   @relation(fields: [createdById], references: [id])
+
+  expiresAt     DateTime?
+
+  used          Boolean  @default(false)
+
+  departments   InviteDepartment[]
+
+  pendingLeader PendingLeader?
+
+  pendingWorker PendingWorker?
+
+  createdAt     DateTime @default(now())
+}
+
+model InviteDepartment {
+  id String @id @default(cuid())
+
+  inviteId String
+  invite Invite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+
+  departmentId String
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([inviteId, departmentId])
+}
+
+model PendingLeader {
+  id         String @id @default(cuid())
+
+  fullName   String
+  username   String
+  phone      String?
+  password   String?
+
+  status     ApprovalStatus @default(PENDING)
+
+  inviteId   String @unique
+  invite     Invite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+
+  departments PendingLeaderDepartment[]
+
+  createdAt DateTime @default(now())
+}
+
+model PendingLeaderDepartment {
+  id String @id @default(cuid())
+
+  pendingLeaderId String
+
+  pendingLeader PendingLeader @relation(fields: [pendingLeaderId], references: [id], onDelete: Cascade)
+
+  departmentId String
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([pendingLeaderId, departmentId])
+}
+
+model PendingWorker {
+  id         String @id @default(cuid())
+
+  fullName   String
+  phone      String?
+  gender     String?
+
+  status     ApprovalStatus @default(PENDING)
+
+  inviteId   String @unique
+  invite     Invite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+
+  departments PendingWorkerDepartment[]
+
+  createdAt DateTime @default(now())
+}
+
+model PendingWorkerDepartment {
+  id String @id @default(cuid())
+
+  pendingWorkerId String
+
+  pendingWorker PendingWorker @relation(fields: [pendingWorkerId], references: [id], onDelete: Cascade)
+
+  departmentId String
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([pendingWorkerId, departmentId])
+}
+
+
 enum UserRole {
   ADMIN
   DEPARTMENT_LEADER
@@ -139,4 +247,14 @@ enum AttendanceStatus {
   LATE
   ABSENT
   EXCUSED
+}
+enum InviteType {
+  LEADER
+  WORKER
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

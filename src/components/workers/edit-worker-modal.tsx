@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { X, UserRound } from "lucide-react";
 import { updateWorker } from "@/actions/worker.actions";
-import { DepartmentCheckboxDropdown } from "@/components/workers/department-checkbox-dropdown";
+import DepartmentCheckboxDropdown  from "@/components/workers/department-checkbox-dropdown";
 
 type Department = {
   id: string;
@@ -155,7 +155,7 @@ export function EditWorkerModal({
                 ) : (
                   <DepartmentCheckboxDropdown
                     departments={departments}
-                    defaultSelectedIds={workerDepartmentIds}
+                    selected={workerDepartmentIds}
                   />
                 )}
               </div>

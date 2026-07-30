@@ -4,9 +4,9 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { authOptions } from "@/lib/auth";
-import { LeaderForm } from "@/components/leaders/leader-form";
 import { LeaderList } from "@/components/leaders/leader-list";
 import { Pagination } from "@/components/ui/pagination";
+import { LeaderActions } from "@/components/leaders/leader-actions";
 
 const PAGE_SIZE = 10;
 
@@ -75,8 +75,10 @@ export default async function LeadersPage({
         description="Create login accounts for department leaders and automatically add them as workers."
       />
 
-      <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
-        <LeaderForm departments={departments} />
+      <section className="grid gap-6 grid-cols-1">
+        <LeaderActions
+          departments={departments}
+        />
 
         <div>
           <LeaderList leaders={leaders} />

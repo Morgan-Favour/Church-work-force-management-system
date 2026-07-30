@@ -11,6 +11,7 @@ import {
   BarChart3,
   Settings,
   type LucideIcon,
+  CheckCircle2,
 } from "lucide-react";
 
 type IconName =
@@ -21,7 +22,9 @@ type IconName =
   | "attendance"
   | "activity"
   | "reports"
-  | "settings";
+  | "settings"
+  | "approvals";   
+  
 
 const icons: Record<IconName, LucideIcon> = {
   dashboard: LayoutDashboard,
@@ -32,6 +35,7 @@ const icons: Record<IconName, LucideIcon> = {
   activity: BarChart3,
   reports: BarChart3,
   settings: Settings,
+  approvals: CheckCircle2
 };
 
 type DashboardNavLinkProps = {

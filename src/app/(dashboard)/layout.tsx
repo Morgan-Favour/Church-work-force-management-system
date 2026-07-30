@@ -6,11 +6,13 @@ import { authOptions } from "@/lib/auth";
 import { DashboardNavLink } from "@/components/layout/dashboard-nav-link";
 import { MobileDashboardNav } from "@/components/layout/mobile-dashboard-nav";
 import { prisma } from "@/lib/prisma";
+import type { ReactNode } from "react";
+
 
 export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const session = await getServerSession(authOptions);
 
@@ -42,37 +44,24 @@ export default async function DashboardLayout({
     !isAdmin && inactiveLeaderDepartments.length > 0;
 
   const navItems = isAdmin
-    ? [
+  ? [
       { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
-      {
-        label: "Departments",
-        href: "/departments",
-        icon: "departments" as const,
-      },
+      { label: "Departments", href: "/departments", icon: "departments" as const },
       { label: "Workers", href: "/workers", icon: "workers" as const },
       { label: "Leaders", href: "/leaders", icon: "leaders" as const },
-      {
-        label: "Attendance",
-        href: "/attendance",
-        icon: "attendance" as const,
-      },
+      { label: "Attendance", href: "/attendance", icon: "attendance" as const },
+      { label: "Approvals", href: "/approvals", icon: "approvals" as const },
       { label: "Activity", href: "/activity", icon: "activity" as const },
     ]
-    : [
+  : [
       { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
-      {
-        label: "My Departments",
-        href: "/my-department",
-        icon: "departments" as const,
-      },
+      { label: "My Departments", href: "/my-department", icon: "departments" as const },
       { label: "Workers", href: "/workers", icon: "workers" as const },
-      {
-        label: "Attendance",
-        href: "/attendance",
-        icon: "attendance" as const,
-      },
+      { label: "Approvals", href: "/approvals", icon: "approvals" as const },
+      { label: "Attendance", href: "/attendance", icon: "attendance" as const },
       { label: "Activity", href: "/activity", icon: "activity" as const },
     ];
+
 
   const blockedContent = (
     <main className="flex min-h-[calc(100vh-5rem)] items-center justify-center p-4 sm:p-6 lg:p-8">

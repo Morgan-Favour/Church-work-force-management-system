@@ -5,11 +5,14 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
+import { generateInviteToken, generateExpiryDate } from "@/lib/invite";
 
 type ActionResult = {
   error?: string;
   success?: string;
 };
+
+
 
 export async function createWorker(formData: FormData): Promise<ActionResult> {
   const fullName = formData.get("fullName")?.toString().trim();
@@ -205,4 +208,60 @@ export async function updateWorker(formData: FormData): Promise<ActionResult> {
       error: "Could not update worker. Please check your internet connection and try again.",
     };
   }
+}
+
+export async function createWorkerInvite(formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  const fullName = formData.get("fullName")?.toString().trim();
+  const phone = formData.get("phone")?.toString().trim();
+  const gender = formData.get("gender")?.toString();
+  const departmentIds = formData.getAll("departmentIds").map(String);
+
+  if (!fullName || departmentIds.length === 0) {
+    return { error: "Fill all required fields." };
+  }
+
+  const token = generateInviteToken();
+
+  // 1. Create the Invite
+  const invite = await prisma.invite.create({
+    data: {
+      token,
+      type: "WORKER",
+      createdById: session.user.id,   // optional but recommended
+      expiresAt: generateExpiryDate(),
+      departments: {
+        create: departmentIds.map((departmentId) => ({
+          departmentId,
+        })),
+      },
+    },
+  });
+
+  // 2. Create the PendingWorker linked to that invite
+  await prisma.pendingWorker.create({
+    data: {
+      fullName,
+      phone: phone || null,
+      gender: gender || null,          // no need for `as any`
+      inviteId: invite.id,
+      departments: {
+        create: departmentIds.map((departmentId) => ({
+          departmentId,
+        })),
+      },
+    },
+  });
+
+  const inviteLink = `${process.env.NEXTAUTH_URL}/invite/worker/${token}`;
+
+  return {
+    success: "Invite created.",
+    inviteLink,
+  };
 }
