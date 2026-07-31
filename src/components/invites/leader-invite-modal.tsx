@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { createLeaderInvite } from "@/actions/leader.actions";
+import DepartmentCheckboxDropdown from "../workers/department-checkbox-dropdown";
 
 type Department = {
     id: string;
@@ -89,31 +90,16 @@ export function LeaderInviteModal({
                 >
 
                     <div>
-                        <label className="font-semibold">
-                            Departments
-                        </label>
+                        <div>
+                            <label className="mb-2 block text-sm font-medium">
+                                Department
+                            </label>
 
-                        <div className="mt-3 max-h-56 space-y-2 overflow-y-auto rounded-lg border p-4">
-
-                            {departments.map((department) => (
-
-                                <label
-                                    key={department.id}
-                                    className="flex items-center gap-3"
-                                >
-
-                                    <input
-                                        type="checkbox"
-                                        name="departmentIds"
-                                        value={department.id}
-                                    />
-
-                                    {department.name}
-
-                                </label>
-
-                            ))}
-
+                            <DepartmentCheckboxDropdown
+                                departments={departments}
+                                name="departmentId"
+                                multiple={false}
+                            />
                         </div>
 
                     </div>

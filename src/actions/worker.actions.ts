@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
-import { generateInviteToken, generateExpiryDate } from "@/lib/invite";
+import { createWorkerInviteService, registerWorkerService, approveWorkerService,rejectWorkerService} from "@/services/worker";
+import { redirect } from "next/navigation";
 
 type ActionResult = {
   error?: string;
@@ -175,11 +176,11 @@ export async function updateWorker(formData: FormData): Promise<ActionResult> {
       where: isAdmin
         ? { workerId }
         : {
-            workerId,
-            departmentId: {
-              in: session.user.departmentIds || [],
-            },
+          workerId,
+          departmentId: {
+            in: session.user.departmentIds || [],
           },
+        },
     });
 
     await prisma.workerDepartment.createMany({
@@ -213,55 +214,100 @@ export async function updateWorker(formData: FormData): Promise<ActionResult> {
 export async function createWorkerInvite(formData: FormData) {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
-    return { error: "Unauthorized" };
-  }
+  if (
+  !session ||
+  ![
+    UserRole.ADMIN,
+    UserRole.DEPARTMENT_LEADER,
+  ].includes(session.user.role)
+) {
+  return {
+    error: "Unauthorized",
+  };
+}
 
-  const fullName = formData.get("fullName")?.toString().trim();
-  const phone = formData.get("phone")?.toString().trim();
-  const gender = formData.get("gender")?.toString();
   const departmentIds = formData.getAll("departmentIds").map(String);
 
-  if (!fullName || departmentIds.length === 0) {
-    return { error: "Fill all required fields." };
+  if (departmentIds.length === 0) {
+    return {
+      error: "Select at least one department.",
+    };
   }
 
-  const token = generateInviteToken();
+  return await createWorkerInviteService({
+    createdById: session.user.id,
+    departmentIds,
+  });
+}
 
-  // 1. Create the Invite
-  const invite = await prisma.invite.create({
-    data: {
-      token,
-      type: "WORKER",
-      createdById: session.user.id,   // optional but recommended
-      expiresAt: generateExpiryDate(),
-      departments: {
-        create: departmentIds.map((departmentId) => ({
-          departmentId,
-        })),
-      },
-    },
+export async function completeWorkerRegistration(formData: FormData) {
+  const token = formData.get("token")?.toString() ?? "";
+  const fullName = formData.get("fullName")?.toString() ?? "";
+  const phone = formData.get("phone")?.toString() ?? "";
+  const gender = formData.get("gender")?.toString() ?? "";
+
+  await registerWorkerService({
+    token,
+    fullName,
+    phone,
+    gender,
   });
 
-  // 2. Create the PendingWorker linked to that invite
-  await prisma.pendingWorker.create({
-    data: {
-      fullName,
-      phone: phone || null,
-      gender: gender || null,          // no need for `as any`
-      inviteId: invite.id,
-      departments: {
-        create: departmentIds.map((departmentId) => ({
-          departmentId,
-        })),
-      },
-    },
-  });
+  revalidatePath("/approvals");
 
-  const inviteLink = `${process.env.NEXTAUTH_URL}/invite/worker/${token}`;
+  redirect("/invite/worker/success");
+}
 
+export async function approveWorker(formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (
+  !session ||
+  ![
+    UserRole.ADMIN,
+    UserRole.DEPARTMENT_LEADER,
+  ].includes(session.user.role)
+) {
   return {
-    success: "Invite created.",
-    inviteLink,
+    error: "Unauthorized",
   };
+}
+
+  const pendingWorkerId = formData.get("pendingWorkerId")?.toString();
+
+  if (!pendingWorkerId) {
+    throw new Error("Missing pendingWorkerId");
+  }
+
+  await approveWorkerService(pendingWorkerId);
+
+  revalidatePath("/workers");
+  revalidatePath("/approvals");
+  revalidatePath("/dashboard");
+}
+
+export async function rejectWorker(formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (
+    !session ||
+    ![
+      UserRole.ADMIN,
+      UserRole.DEPARTMENT_LEADER,
+    ].includes(session.user.role)
+  ) {
+    return {
+      error: "Unauthorized",
+    };
+  }
+
+  const pendingWorkerId = formData.get("pendingWorkerId")?.toString();
+
+  if (!pendingWorkerId) {
+    throw new Error("Missing pendingWorkerId");
+  }
+
+  await rejectWorkerService(pendingWorkerId);
+
+  revalidatePath("/approvals");
 }

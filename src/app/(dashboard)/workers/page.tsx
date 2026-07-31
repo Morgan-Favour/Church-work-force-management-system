@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { WorkerForm } from "@/components/workers/worker-form";
 import { WorkerList } from "@/components/workers/worker-list";
 import { Pagination } from "@/components/ui/pagination";
+import { WorkersPageActions } from "@/components/workers/workers-page-actions";
 
 const PAGE_SIZE = 10;
 
@@ -32,23 +33,23 @@ export default async function WorkersPage({
     where: isAdmin
       ? { isActive: true }
       : {
-          id: { in: leaderDepartmentIds },
-          isActive: true,
-        },
+        id: { in: leaderDepartmentIds },
+        isActive: true,
+      },
     orderBy: { name: "asc" },
   });
 
   const workerWhere = isAdmin
     ? {}
     : {
-        departments: {
-          some: {
-            departmentId: {
-              in: leaderDepartmentIds,
-            },
+      departments: {
+        some: {
+          departmentId: {
+            in: leaderDepartmentIds,
           },
         },
-      };
+      },
+    };
 
   const [workers, totalWorkers] = await Promise.all([
     prisma.worker.findMany({
@@ -85,22 +86,26 @@ export default async function WorkersPage({
         }
       />
 
-      <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
-        <WorkerForm isAdmin={isAdmin} departments={departments} />
+      <section className="space-y-6">
 
-        <div>
-          <WorkerList
-            workers={workers}
-            isAdmin={isAdmin}
-            visibleDepartmentIds={isAdmin ? undefined : leaderDepartmentIds}
-          />
+        <WorkersPageActions
+          departments={departments}
+        />
 
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            basePath="/workers"
-          />
-        </div>
+        <WorkerList
+          workers={workers}
+          isAdmin={isAdmin}
+          visibleDepartmentIds={
+            isAdmin ? undefined : leaderDepartmentIds
+          }
+        />
+
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          basePath="/workers"
+        />
+
       </section>
     </div>
   );

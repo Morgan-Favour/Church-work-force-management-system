@@ -8,7 +8,7 @@ import { generateInviteToken, generateExpiryDate } from "@/lib/invite";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import {approveLeaderService, rejectLeaderService, registerLeaderService, createLeaderInviteService } from "@/services/leader";
+import { approveLeaderService, rejectLeaderService, registerLeaderService, createLeaderInviteService } from "@/services/leader";
 
 type ActionResult = {
   error?: string;
@@ -140,24 +140,24 @@ export async function createLeader(formData: FormData): Promise<ActionResult> {
 
     return result;
   } catch (error) {
-  console.error(error);
+    console.error(error);
 
-  if (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
-    error.code === "P2002"
-  ) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return {
+        error: "This department already has a leader assigned.",
+      };
+    }
+
     return {
-      error: "This department already has a leader assigned.",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while adding leader.",
     };
   }
-
-  return {
-    error:
-      error instanceof Error
-        ? error.message
-        : "Something went wrong while adding leader.",
-  };
-}
 }
 
 export async function deactivateLeader(formData: FormData) {
@@ -239,7 +239,15 @@ export async function createLeaderInvite(formData: FormData) {
     };
   }
 
-  const departmentIds = formData.getAll("departmentIds").map(String);
+  const departmentId = formData.get("departmentId")?.toString();
+
+  if (!departmentId) {
+    return {
+      error: "Select a department.",
+    };
+  }
+
+  const departmentIds = [departmentId];
 
   if (departmentIds.length === 0) {
     return {
@@ -248,7 +256,7 @@ export async function createLeaderInvite(formData: FormData) {
   }
 
   console.log(session.user);
-  
+
   return await createLeaderInviteService({
     createdById: session.user.id,
     departmentIds,

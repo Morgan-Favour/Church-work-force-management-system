@@ -1,14 +1,14 @@
 import { prisma } from "@/lib/prisma";
-import { ApprovalStatus, UserRole } from "@prisma/client";
 import { logActivity } from "@/lib/activity-log";
+import { ApprovalStatus } from "@prisma/client";
 
-export async function approveLeaderService(
-  pendingLeaderId: string,
+export async function approveWorkerService(
+  pendingWorkerId: string,
   actorId?: string
 ) {
-  const pending = await prisma.pendingLeader.findUnique({
+  const pending = await prisma.pendingWorker.findUnique({
     where: {
-      id: pendingLeaderId,
+      id: pendingWorkerId,
     },
     include: {
       invite: true,
@@ -17,21 +17,25 @@ export async function approveLeaderService(
   });
 
   if (!pending) {
-    throw new Error("Pending leader not found.");
+    throw new Error("Pending worker not found.");
   }
 
   if (pending.status !== ApprovalStatus.PENDING) {
-    throw new Error("Leader has already been processed.");
+    throw new Error("Worker has already been processed.");
   }
 
-  const existingUser = await prisma.user.findUnique({
+  if (!pending.phone) {
+    throw new Error("Worker has not completed registration.");
+  }
+
+  const existingWorker = await prisma.worker.findUnique({
     where: {
-      username: pending.username,
+      phone: pending.phone,
     },
   });
 
-  if (existingUser) {
-    throw new Error("Username already exists.");
+  if (existingWorker) {
+    throw new Error("Phone number already exists.");
   }
 
   const departmentIds = pending.departments.map(
@@ -39,25 +43,24 @@ export async function approveLeaderService(
   );
 
   await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
+    const worker = await tx.worker.create({
       data: {
         fullName: pending.fullName,
-        username: pending.username,
-        password: pending.password!,
-        role: UserRole.DEPARTMENT_LEADER,
+        phone: pending.phone,
+        gender: pending.gender,
         isActive: true,
       },
     });
 
-    await tx.leaderDepartment.createMany({
+    await tx.workerDepartment.createMany({
       data: departmentIds.map((departmentId) => ({
-        userId: user.id,
+        workerId: worker.id,
         departmentId,
       })),
       skipDuplicates: true,
     });
 
-    await tx.pendingLeader.update({
+    await tx.pendingWorker.update({
       where: {
         id: pending.id,
       },
@@ -76,8 +79,8 @@ export async function approveLeaderService(
     });
 
     await logActivity(tx, {
-      action: "APPROVE_LEADER",
-      description: `${user.fullName} approved as department leader.`,
+      action: "APPROVE_WORKER",
+      description: `${worker.fullName} approved as worker.`,
       actorId,
       departmentId: departmentIds[0],
     });

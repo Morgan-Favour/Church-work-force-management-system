@@ -12,12 +12,14 @@ type Props = {
   departments: Department[];
   name?: string;
   selected?: string[];
+  multiple?: boolean;
 };
 
 export default function DepartmentCheckboxDropdown({
   departments,
   name = "departmentIds",
   selected = [],
+  multiple = true,
 }: Props) {
   const [open, setOpen] = useState(false);
 
@@ -25,6 +27,12 @@ export default function DepartmentCheckboxDropdown({
     useState<string[]>(selected);
 
   function toggleDepartment(id: string) {
+    if (!multiple) {
+      setSelectedDepartments([id]);
+      setOpen(false);
+      return;
+    }
+
     setSelectedDepartments((current) =>
       current.includes(id)
         ? current.filter((d) => d !== id)
@@ -63,7 +71,7 @@ export default function DepartmentCheckboxDropdown({
               className="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-slate-100"
             >
               <input
-                type="checkbox"
+                type={multiple ? "checkbox" : "radio"}
                 name={name}
                 value={department.id}
                 checked={selectedDepartments.includes(department.id)}
