@@ -26,27 +26,45 @@ export async function createLeader(formData: FormData): Promise<ActionResult> {
     return { error: "Please fill in all required fields." };
   }
 
-  if (!/^\d{7,15}$/.test(phone)) {
+  if (!/^\d{11,15}$/.test(phone)) {
     return {
-      error: "Phone number must contain only numbers and must be 7 to 15 digits.",
+      error: "Phone number must contain only numbers and must be 11 to 15 digits.",
+    };
+  }
+  const departmentAlreadyHasLeader = await prisma.leaderDepartment.findFirst({
+    where: { departmentId },
+    include: { user: true },
+  });
+
+  if (departmentAlreadyHasLeader) {
+    return {
+      error: `${departmentAlreadyHasLeader.user.fullName} is already leading this department.`,
     };
   }
 
+  const existingUsername = await prisma.user.findUnique({
+    where: { username },
+  });
+
+  if (existingUsername) {
+    return {
+      error: "This username is already in use.",
+    };
+  }
+
+  if (!password || password.length < 8) {
+    return {
+      error: "Password must be at least 8 characters.",
+    };
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const result = await prisma.$transaction(async (tx) => {
-      const departmentAlreadyHasLeader = await tx.leaderDepartment.findFirst({
-        where: { departmentId },
-        include: { user: true },
-      });
-
-      if (departmentAlreadyHasLeader) {
-        return {
-          error: `${departmentAlreadyHasLeader.user.fullName} is already leading this department.`,
-        };
-      }
-
       let worker = await tx.worker.findUnique({
-        where: { phone },
+        where: {
+          phone,
+        },
       });
 
       if (!worker) {
@@ -55,13 +73,17 @@ export async function createLeader(formData: FormData): Promise<ActionResult> {
             fullName,
             phone,
             departments: {
-              create: { departmentId },
+              create: {
+                departmentId,
+              },
             },
           },
         });
       } else {
         worker = await tx.worker.update({
-          where: { id: worker.id },
+          where: {
+            id: worker.id,
+          },
           data: {
             fullName,
             isActive: true,
@@ -69,7 +91,12 @@ export async function createLeader(formData: FormData): Promise<ActionResult> {
         });
 
         await tx.workerDepartment.createMany({
-          data: [{ workerId: worker.id, departmentId }],
+          data: [
+            {
+              workerId: worker.id,
+              departmentId,
+            },
+          ],
           skipDuplicates: true,
         });
       }
@@ -82,37 +109,14 @@ export async function createLeader(formData: FormData): Promise<ActionResult> {
       });
 
       if (!user) {
-        if (!password || password.length < 8) {
-          return { error: "Password must be at least 8 characters." };
-        }
-
-        const existingUsername = await tx.user.findUnique({
-          where: { username },
-        });
-
-        if (existingUsername) {
-          return { error: "This username is already in use." };
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
         user = await tx.user.create({
           data: {
             fullName,
             username,
             password: hashedPassword,
             role: UserRole.DEPARTMENT_LEADER,
-            departmentId,
             workerId: worker.id,
-          },
-        });
-      } else {
-        user = await tx.user.update({
-          where: { id: user.id },
-          data: {
-            fullName,
-            isActive: true,
-            departmentId: user.departmentId || departmentId,
+            departmentId,
           },
         });
       }
@@ -124,14 +128,9 @@ export async function createLeader(formData: FormData): Promise<ActionResult> {
         },
       });
 
-      // await tx.activityLog.create({
-      //   data: {
-      //     action: "CREATE_LEADER",
-      //     description: `${fullName} was added as leader.`,
-      //   },
-      // });
-
-      return { success: "Leader added successfully." };
+      return {
+        success: "Leader added successfully.",
+      };
     });
 
     revalidatePath("/leaders");
@@ -233,21 +232,19 @@ export async function resetLeaderPassword(formData: FormData) {
 export async function createLeaderInvite(formData: FormData) {
   const session = await getServerSession(authOptions);
 
-  if (!session || session.user.role !== UserRole.ADMIN) {
+  if (
+    !session ||
+    ![
+      UserRole.ADMIN,
+      UserRole.DEPARTMENT_LEADER,
+    ].includes(session.user.role)
+  ) {
     return {
       error: "Unauthorized",
     };
   }
 
-  const departmentId = formData.get("departmentId")?.toString();
-
-  if (!departmentId) {
-    return {
-      error: "Select a department.",
-    };
-  }
-
-  const departmentIds = [departmentId];
+  const departmentIds = formData.getAll("departmentIds").map(String);
 
   if (departmentIds.length === 0) {
     return {
@@ -255,7 +252,20 @@ export async function createLeaderInvite(formData: FormData) {
     };
   }
 
-  console.log(session.user);
+  // Department Leaders can only invite into departments they lead
+  if (session.user.role === UserRole.DEPARTMENT_LEADER) {
+    const allowedDepartments = session.user.departmentIds ?? [];
+
+    const invalidDepartment = departmentIds.find(
+      (id) => !allowedDepartments.includes(id)
+    );
+
+    if (invalidDepartment) {
+      return {
+        error: "You can only invite leaders into departments you lead.",
+      };
+    }
+  }
 
   return await createLeaderInviteService({
     createdById: session.user.id,

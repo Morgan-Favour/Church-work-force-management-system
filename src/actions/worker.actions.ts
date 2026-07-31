@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
-import { createWorkerInviteService, registerWorkerService, approveWorkerService,rejectWorkerService} from "@/services/worker";
+import { createWorkerInviteService, registerWorkerService, approveWorkerService, rejectWorkerService } from "@/services/worker";
 import { redirect } from "next/navigation";
 
 type ActionResult = {
@@ -27,9 +27,9 @@ export async function createWorker(formData: FormData): Promise<ActionResult> {
     };
   }
 
-  if (!/^\d{7,15}$/.test(phone)) {
+  if (!/^\d{11,15}$/.test(phone)) {
     return {
-      error: "Phone number must contain only numbers and must be 7 to 15 digits.",
+      error: "Phone number must contain only numbers and must be 11 to 15 digits.",
     };
   }
 
@@ -132,9 +132,9 @@ export async function updateWorker(formData: FormData): Promise<ActionResult> {
     return { error: "Please fill in all required fields." };
   }
 
-  if (!/^\d{7,15}$/.test(phone)) {
+  if (!/^\d{11,15}$/.test(phone)) {
     return {
-      error: "Phone number must contain only numbers and must be 7 to 15 digits.",
+      error: "Phone number must contain only numbers and must be 11 to 15 digits.",
     };
   }
 
@@ -215,24 +215,38 @@ export async function createWorkerInvite(formData: FormData) {
   const session = await getServerSession(authOptions);
 
   if (
-  !session ||
-  ![
-    UserRole.ADMIN,
-    UserRole.DEPARTMENT_LEADER,
-  ].includes(session.user.role)
-) {
-  throw new Error("Unauthorized");
-}
-
-  const departmentIds = formData.getAll("departmentIds").map(String);
-
-  if (departmentIds.length === 0) {
+    !session ||
+    ![
+      UserRole.ADMIN,
+      UserRole.DEPARTMENT_LEADER,
+    ].includes(session.user.role)
+  ) {
     return {
-      error: "Select at least one department.",
+      error: "Unauthorized",
     };
   }
 
-  return await createWorkerInviteService({
+  const departmentIds = formData.getAll("departmentIds").map(String);
+
+  if (
+    session.user.role === UserRole.DEPARTMENT_LEADER
+  ) {
+    const allowedDepartments =
+      session.user.departmentIds ?? [];
+
+    const invalidDepartment = departmentIds.find(
+      (id) => !allowedDepartments.includes(id)
+    );
+
+    if (invalidDepartment) {
+      return {
+        error:
+          "You can only invite workers into departments you lead.",
+      };
+    }
+  }
+
+  return createWorkerInviteService({
     createdById: session.user.id,
     departmentIds,
   });
@@ -260,14 +274,14 @@ export async function approveWorker(formData: FormData) {
   const session = await getServerSession(authOptions);
 
   if (
-  !session ||
-  ![
-    UserRole.ADMIN,
-    UserRole.DEPARTMENT_LEADER,
-  ].includes(session.user.role)
-) {
-  throw new Error("Unauthorized");
-}
+    !session ||
+    ![
+      UserRole.ADMIN,
+      UserRole.DEPARTMENT_LEADER,
+    ].includes(session.user.role)
+  ) {
+    throw new Error("Unauthorized");
+  }
 
   const pendingWorkerId = formData.get("pendingWorkerId")?.toString();
 

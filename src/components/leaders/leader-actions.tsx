@@ -20,7 +20,7 @@ export function LeaderActions({
 
   return (
     <>
-      <div className="flex flex-wrap gap-4">
+      <div className="flex gap-3">
         <button
           onClick={() => setShowAddLeader(true)}
           className="flex items-center gap-2 rounded-xl bg-[#0e2d33] px-5 py-3 font-semibold text-white"

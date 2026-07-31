@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import React, { useState, useTransition } from "react";
 import { createLeader } from "@/actions/leader.actions";
 import { PasswordInput } from "../ui/password-ui";
 
