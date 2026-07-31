@@ -14,11 +14,11 @@ type Props = {
   selected?: string[];
 };
 
-export const DepartmentCheckboxDropdown = ({
+export default function DepartmentCheckboxDropdown({
   departments,
   name = "departmentIds",
   selected = [],
-}: Props) => {
+}: Props) {
   const [open, setOpen] = useState(false);
 
   const [selectedDepartments, setSelectedDepartments] =

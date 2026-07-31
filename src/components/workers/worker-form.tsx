@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Users } from "lucide-react";
 import { createWorker } from "@/actions/worker.actions";
-import { DepartmentCheckboxDropdown } from "@/components/workers/department-checkbox-dropdown";
+import  DepartmentCheckboxDropdown from "@/components/workers/department-checkbox-dropdown";
 import { createWorkerInvite } from "@/actions/worker.actions";
 
 type Department = {
