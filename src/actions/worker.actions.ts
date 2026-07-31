@@ -221,9 +221,7 @@ export async function createWorkerInvite(formData: FormData) {
     UserRole.DEPARTMENT_LEADER,
   ].includes(session.user.role)
 ) {
-  return {
-    error: "Unauthorized",
-  };
+  throw new Error("Unauthorized");
 }
 
   const departmentIds = formData.getAll("departmentIds").map(String);
@@ -268,9 +266,7 @@ export async function approveWorker(formData: FormData) {
     UserRole.DEPARTMENT_LEADER,
   ].includes(session.user.role)
 ) {
-  return {
-    error: "Unauthorized",
-  };
+  throw new Error("Unauthorized");
 }
 
   const pendingWorkerId = formData.get("pendingWorkerId")?.toString();
@@ -296,9 +292,7 @@ export async function rejectWorker(formData: FormData) {
       UserRole.DEPARTMENT_LEADER,
     ].includes(session.user.role)
   ) {
-    return {
-      error: "Unauthorized",
-    };
+    throw new Error("Unauthorized");
   }
 
   const pendingWorkerId = formData.get("pendingWorkerId")?.toString();
