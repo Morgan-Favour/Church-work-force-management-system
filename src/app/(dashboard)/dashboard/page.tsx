@@ -200,7 +200,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-3">
-        <RecentActivityCard activities={recentActivities} />
+        {/* <RecentActivityCard activities={recentActivities} /> */}
         <QuickActionsCard
           actions={[
             { label: "Add Department", href: "/departments", primary: true },
