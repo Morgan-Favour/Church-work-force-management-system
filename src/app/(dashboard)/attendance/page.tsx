@@ -8,6 +8,8 @@ import { CreateGatheringForm } from "@/components/attendance/create-gathering-fo
 import { AttendanceTable } from "@/components/attendance/attendance-table";
 import AttendanceContextSelector from "./AttendanceContextSelector";
 
+ 
+
 export default async function AttendancePage({
   searchParams,
 }: {

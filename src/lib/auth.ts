@@ -6,13 +6,20 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
-  
+
   providers: [
     CredentialsProvider({
       name: "Credentials",
+
       credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" },
+        username: {
+          label: "Username",
+          type: "text",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+        },
       },
 
       async authorize(credentials) {
@@ -25,7 +32,9 @@ export const authOptions: NextAuthOptions = {
           }
 
           const user = await prisma.user.findUnique({
-            where: { username },
+            where: {
+              username,
+            },
             include: {
               leaderDepartments: true,
             },
@@ -35,19 +44,26 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Username or password is incorrect.");
           }
 
-          const isPasswordCorrect = await bcrypt.compare(password, user.password);
+          const passwordMatches = await bcrypt.compare(
+            password,
+            user.password
+          );
 
-          if (!isPasswordCorrect) {
+          if (!passwordMatches) {
             throw new Error("Username or password is incorrect.");
           }
 
           if (!user.isActive) {
-            return null;
+            throw new Error(
+              "Your account has been disabled. Please contact an administrator."
+            );
           }
 
           const departmentIds =
             user.role === UserRole.DEPARTMENT_LEADER
-              ? user.leaderDepartments.map((item) => item.departmentId)
+              ? user.leaderDepartments.map(
+                  (department) => department.departmentId
+                )
               : [];
 
           return {
@@ -58,13 +74,15 @@ export const authOptions: NextAuthOptions = {
             departmentIds,
           };
         } catch (error) {
-          if (error instanceof Error) {
-            if (
-              error.message === "Please enter both username and password." ||
-              error.message === "Username or password is incorrect."
-            ) {
-              throw error;
-            }
+          if (
+            error instanceof Error &&
+            [
+              "Please enter both username and password.",
+              "Username or password is incorrect.",
+              "Your account has been disabled. Please contact an administrator.",
+            ].includes(error.message)
+          ) {
+            throw error;
           }
 
           throw new Error("Something went wrong. Please try again.");
@@ -73,20 +91,19 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
 
-session: {
-  strategy: "jwt",
-  maxAge: 60 * 60 * 8, // 8 hours
-},
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60 * 8, // 8 hours
+    updateAge: 60 * 5, // Refresh every 5 minutes
+  },
 
-jwt: {
-  maxAge: 60 * 60 * 8,
-},
-
-
-
+  jwt: {
+    maxAge: 60 * 60 * 8,
+  },
 
   callbacks: {
     async jwt({ token, user }) {
+      // Runs once when the user signs in
       if (user) {
         token.id = user.id;
         token.role = user.role;
@@ -100,7 +117,8 @@ jwt: {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as UserRole;
-        session.user.departmentIds = token.departmentIds as string[];
+        session.user.departmentIds =
+          (token.departmentIds as string[]) ?? [];
       }
 
       return session;

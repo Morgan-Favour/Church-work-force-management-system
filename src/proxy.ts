@@ -2,7 +2,9 @@ import { withAuth } from "next-auth/middleware";
 
 export default withAuth({
   callbacks: {
-    authorized: ({ token }) => !!token,
+    authorized: ({ token }) => {
+      return !!token?.id;
+    },
   },
 });
 
@@ -14,6 +16,7 @@ export const config = {
     "/leaders/:path*",
     "/attendance/:path*",
     "/activity/:path*",
+    "/approvals/:path*",
     "/my-department/:path*",
   ],
 };

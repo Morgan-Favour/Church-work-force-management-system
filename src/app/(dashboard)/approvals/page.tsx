@@ -6,6 +6,8 @@ import { UserRole } from "@prisma/client";
 import { PageHeader } from "@/components/ui/page-header";
 import { PendingApprovalSection } from "@/components/approvals/pending approval-section";
 
+ 
+
 export default async function ApprovalsPage() {
   const session = await getServerSession(authOptions);
 

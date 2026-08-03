@@ -11,15 +11,15 @@ export type NavItem = {
   label: string;
   href: string;
   icon:
-    | "departments"
-    | "attendance"
-    | "workers"
-    | "leaders"
-    | "dashboard"
-    | "activity"
-    | "reports"
-    | "settings"
-    | "approvals";
+  | "departments"
+  | "attendance"
+  | "workers"
+  | "leaders"
+  | "dashboard"
+  | "activity"
+  | "reports"
+  | "settings"
+  | "approvals";
 };
 
 type Props = {
@@ -42,7 +42,14 @@ export function MobileDashboardNav({
       <div className="flex items-center justify-between">
         <Link href="/dashboard" className="flex min-w-0 items-center gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} />
+            <Image
+              src="/logo.png"
+              alt="GIC Egbelu Workforce"
+              width={40}
+              height={40}
+              loading="eager"
+              priority
+            />
           </div>
 
           <div className="min-w-0">

@@ -22,20 +22,20 @@ export default async function AttendanceHistoryPage({
     ...(isAdmin
       ? {}
       : {
-          departmentId: {
-            in: session.user.departmentIds || [],
-          },
-        }),
+        departmentId: {
+          in: session.user.departmentIds || [],
+        },
+      }),
 
     ...(selectedDate
       ? {
-          service: {
-            date: {
-              gte: new Date(`${selectedDate}T00:00:00.000Z`),
-              lt: new Date(`${selectedDate}T23:59:59.999Z`),
-            },
+        service: {
+          date: {
+            gte: new Date(`${selectedDate}T00:00:00.000Z`),
+            lt: new Date(`${selectedDate}T23:59:59.999Z`),
           },
-        }
+        },
+      }
       : {}),
   };
 
@@ -96,6 +96,7 @@ export default async function AttendanceHistoryPage({
           className="mt-5 grid gap-4 md:grid-cols-[1fr_auto_auto]"
         >
           <input
+            required
             type="date"
             name="date"
             defaultValue={selectedDate || ""}

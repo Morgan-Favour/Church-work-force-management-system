@@ -3,6 +3,10 @@
 import React, { useState, useTransition } from "react";
 import { createLeader } from "@/actions/leader.actions";
 import { PasswordInput } from "../ui/password-ui";
+import { ModalBody } from "../ui/modal-body";
+import { ModalFooter } from "../ui/modal-footer";
+import { ModalHeader } from "../ui/modal-header";
+import Modal from "../ui/modal";
 
 type Department = {
   id: string;
@@ -37,23 +41,22 @@ export function AddLeaderModal({
       }
 
       setMessage(result?.success ?? "Leader created successfully.");
+      onClose();
     });
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
-
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold">
-            Add Leader
-          </h2>
-
-          <button onClick={onClose}>
-            ✕
-          </button>
-        </div>
-
+    <Modal
+      open={open}
+      onClose={onClose}
+      size="lg"
+    >
+      <ModalHeader
+        title="Add Leader"
+        description="Register a leader into one or more departments."
+        onClose={onClose}
+      />
+      <ModalBody>
         <form action={action} className="space-y-5">
 
           <div>
@@ -130,8 +133,16 @@ export function AddLeaderModal({
           </button>
 
         </form>
-
-      </div>
-    </div>
+      </ModalBody>
+      <ModalFooter>
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full rounded-xl border py-3 font-semibold text-[#0e2d33]"
+        >
+          Cancel
+        </button>
+      </ModalFooter>
+    </Modal>
   );
 }

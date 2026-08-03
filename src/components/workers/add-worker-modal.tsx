@@ -2,6 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { createWorker } from "@/actions/worker.actions";
+import Modal from "../ui/modal";
+import { ModalHeader } from "../ui/modal-header";
+import { ModalBody } from "../ui/modal-body";
+import { ModalFooter } from "../ui/modal-footer";
 
 type Department = {
   id: string;
@@ -14,6 +18,8 @@ type Props = {
   departments: Department[];
 };
 
+
+
 export function WorkerCreateModal({
   open,
   onClose,
@@ -22,8 +28,9 @@ export function WorkerCreateModal({
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
 
-  if (!open) return null;
 
+  if (!open) return null;
+  
   function action(formData: FormData) {
     setMessage("");
 
@@ -36,35 +43,23 @@ export function WorkerCreateModal({
       }
 
       setMessage(result?.success ?? "Worker created successfully.");
+      onClose();
 
-      setTimeout(() => {
-        onClose();
-      }, 1000);
-    });
+  });
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
-
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold">
-            Add Worker
-          </h2>
-
-          <button
-            type="button"
-            onClick={onClose}
-          >
-            ✕
-          </button>
-        </div>
-
-        <form action={action} className="space-y-5">
-
-          <div>
-            <label className="block font-medium">
-              Full Name
+   <Modal open={open} onClose={onClose} size="lg">
+    <ModalHeader
+        title="Add Worker"
+        description="Register a worker into one or more departments."
+        onClose={onClose}
+    />
+        <ModalBody>
+          <form action={action} className="space-y-5">
+            <div>
+              <label className="block font-medium">
+                Full Name
             </label>
 
             <input
@@ -101,30 +96,29 @@ export function WorkerCreateModal({
             </select>
           </div>
 
-          <div>
-            <label className="block font-medium mb-2">
-              Departments
-            </label>
+            <div>
+              <label>Department</label>
 
-            <div className="grid grid-cols-2 gap-3 rounded-lg border p-4 max-h-64 overflow-y-auto">
+              <select
+                name="departmentIds"
+                required
+                className="mt-2 w-full rounded-lg border p-3"
+              >
+                <option value="">
+                  Select Department
+                </option>
 
-              {departments.map((department) => (
-                <label
-                  key={department.id}
-                  className="flex items-center gap-2"
-                >
-                  <input
-                    type="checkbox"
-                    name="departmentIds"
+                {departments.map((department) => (
+                  <option
+                    key={department.id}
                     value={department.id}
-                  />
-
-                  {department.name}
-                </label>
-              ))}
-
+                  >
+                    {department.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          </div>
+          
 
           {message && (
             <div className="rounded-lg bg-slate-100 p-3">
@@ -140,8 +134,16 @@ export function WorkerCreateModal({
           </button>
 
         </form>
-
-      </div>
-    </div>
+           </ModalBody>
+      <ModalFooter>
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full rounded-xl border py-3 font-semibold text-[#0e2d33]"
+        >
+          Cancel
+        </button>
+      </ModalFooter>
+    </Modal>
   );
 }

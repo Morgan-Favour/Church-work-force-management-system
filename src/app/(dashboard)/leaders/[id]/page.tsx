@@ -1,14 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, KeyRound, ShieldCheck, UserRound } from "lucide-react";
-import { PasswordInput } from "@/components/ui/password-ui";
+import { ArrowLeft, ShieldCheck, UserRound } from "lucide-react";
 
-import {
-  deactivateLeader,
-  reactivateLeader,
-  resetLeaderPassword,
-} from "@/actions/leader.actions";
+import { LeaderAccountActions } from "@/components/leaders/leader-account-actions";
 
 
 export default async function LeaderDetailsPage({
@@ -124,75 +119,10 @@ export default async function LeaderDetailsPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0e2d33]/10 text-[#0e2d33]">
-            <KeyRound size={21} />
-          </div>
-          <div>
-            <h2 className="font-bold text-slate-900">Account Actions</h2>
-            <p className="text-sm text-slate-500">
-              Reset password or change account status.
-            </p>
-          </div>
-        </div>
-
-        <form
-          action={resetLeaderPassword}
-          className="mt-6 grid gap-3 md:grid-cols-[1fr_1fr_auto]"
-        >
-          <input type="hidden" name="leaderId" defaultValue={leader.id} />
-
-          <PasswordInput
-            name="password"
-            label="Password"
-            required
-            minLength={8}
-            placeholder="Minimum 8 characters"
-            autoComplete="new-password"
-          />
-
-          <PasswordInput
-            name="confirmPassword"
-            label="Confirm Password"
-            required
-            minLength={8}
-            placeholder="Confirm password"
-            autoComplete="new-password"
-          />
-
-          <button
-            type="submit"
-            className="rounded-xl bg-[#0e2d33] px-5 py-3 text-sm font-bold text-white hover:bg-[#123940]"
-          >
-            Reset Password
-          </button>
-        </form>
-
-        <div className="mt-6 border-t border-slate-200 pt-5">
-          {leader.isActive ? (
-            <form action={deactivateLeader}>
-              <input type="hidden" name="leaderId" defaultValue={leader.id} />
-              <button
-                type="submit"
-                className="rounded-xl border border-red-200 px-4 py-3 text-sm font-bold text-red-700 hover:bg-red-50"
-              >
-                Deactivate Leader
-              </button>
-            </form>
-          ) : (
-            <form action={reactivateLeader}>
-              <input type="hidden" name="leaderId" defaultValue={leader.id} />
-              <button
-                type="submit"
-                className="rounded-xl border border-emerald-200 px-4 py-3 text-sm font-bold text-emerald-700 hover:bg-emerald-50"
-              >
-                Reactivate Leader
-              </button>
-            </form>
-          )}
-        </div>
-      </section>
+      <LeaderAccountActions
+        leaderId={leader.id}
+        isActive={leader.isActive}
+      />
     </div>
   );
 }

@@ -1,10 +1,7 @@
 import { notFound } from "next/navigation";
-import { InviteRegistrationLayout } from "@/components/layout/InviteRegistrationLayout";
-import { InviteInvalidCard } from "@/components/invites/InviteInvalidCard";
-import { LeaderRegistrationFields } from "@/components/invites/LeaderRegistrationFields";
 import { validateInvite } from "@/lib/invite";
-import { completeLeaderRegistration } from "@/actions/leader.actions";
-
+import { InviteRegistrationLayout } from "@/components/layout/InviteRegistrationLayout";
+import { LeaderInviteForm } from "@/components/leaders/leader-invite-form"; 
 type Props = {
   params: Promise<{
     token: string;
@@ -19,7 +16,14 @@ export default async function LeaderInvitePage({
   const result = await validateInvite(token);
 
   if (!result.valid) {
-    return <InviteInvalidCard message={result.message} />;
+    return (
+      <InviteRegistrationLayout
+        title="Invite Invalid"
+        description={result.message ?? "This invite is no longer valid."}
+      >
+        <></>
+      </InviteRegistrationLayout>
+    );
   }
 
   if (!result.invite?.pendingLeader) {
@@ -29,27 +33,9 @@ export default async function LeaderInvitePage({
   return (
     <InviteRegistrationLayout
       title="Leader Registration"
-      description="Complete your registration to join the church workforce."
+      description="Complete your registration to join the church leadership."
     >
-      <form
-        action={completeLeaderRegistration}
-        className="space-y-6"
-      >
-        <input
-          type="hidden"
-          name="token"
-          value={token}
-        />
-
-        <LeaderRegistrationFields />
-
-        <button
-          type="submit"
-          className="w-full rounded-xl bg-[#0e2d33] py-3 font-semibold text-white hover:bg-[#15414a]"
-        >
-          Submit Registration
-        </button>
-      </form>
+      <LeaderInviteForm token={token} />
     </InviteRegistrationLayout>
   );
 }

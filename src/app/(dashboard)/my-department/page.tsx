@@ -7,6 +7,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Building2, Users } from "lucide-react";
 
+
+
 export default async function MyDepartmentsPage() {
   const session = await getServerSession(authOptions);
 

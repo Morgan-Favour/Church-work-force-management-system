@@ -20,9 +20,13 @@ export default function InviteModal({
 }: InviteModalProps) {
   if (!open) return null;
 
+  
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-5">
-      <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
+      <div 
+       onClick={(e) => e.stopPropagation()}
+      className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
 
         <div className="flex items-center justify-between border-b px-6 py-5">
           <div>

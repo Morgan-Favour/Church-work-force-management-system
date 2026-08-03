@@ -6,9 +6,11 @@ import { PageHeader } from "@/components/ui/page-header";
 import { authOptions } from "@/lib/auth";
 import { LeaderList } from "@/components/leaders/leader-list";
 import { Pagination } from "@/components/ui/pagination";
-import { LeaderActions } from "@/components/leaders/leader-actions";
+import { LeaderActions } from "@/components/leaders/leader-page-actions";
 
 const PAGE_SIZE = 10;
+
+  
 
 export default async function LeadersPage({
   searchParams,

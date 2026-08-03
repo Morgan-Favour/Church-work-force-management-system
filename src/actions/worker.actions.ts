@@ -21,6 +21,13 @@ export async function createWorker(formData: FormData): Promise<ActionResult> {
   const gender = formData.get("gender")?.toString();
   const departmentIds = formData.getAll("departmentIds").map(String);
 
+    console.log({
+    fullName: formData.get("fullName"),
+    phone: formData.get("phone"),
+    gender: formData.get("gender"),
+    departmentIds: formData.getAll("departmentIds"),
+  });
+  
   if (!fullName || !phone || departmentIds.length === 0) {
     return {
       error: "Please enter worker name, phone number, and select at least one department.",

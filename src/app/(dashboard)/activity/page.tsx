@@ -6,6 +6,8 @@ import { PageHeader } from "@/components/ui/page-header";
 
 const PAGE_SIZE = 10;
 
+ 
+
 export default async function ActivityPage({
   searchParams,
 }: {

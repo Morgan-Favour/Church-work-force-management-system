@@ -63,7 +63,7 @@ export async function createLeaderInviteService({
   if (existingPending) {
     return {
       error:
-        "A leader invitation is already pending for one or more selected departments.",
+        `A leader invitation is already pending for (${existingPending.departments.map((d) => d.department.name).join(', ')}).`,
     };
   }
 

@@ -41,7 +41,6 @@ export function LoginForm() {
 
       if (res?.url) {
         router.push(res.url);
-        router.refresh();
         return;
       }
 
@@ -63,6 +62,8 @@ export function LoginForm() {
               alt="GIC Egbelu Workforce"
               width={120}
               height={120}
+              loading="eager"
+              priority
             />
           </div>
 

@@ -1,6 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ChevronDown } from "lucide-react";
 
 type Department = {
@@ -14,6 +19,7 @@ type Props = {
   selected?: string[];
   multiple?: boolean;
 };
+
 
 export default function DepartmentCheckboxDropdown({
   departments,
@@ -47,8 +53,46 @@ export default function DepartmentCheckboxDropdown({
       .join(", ");
   }, [departments, selectedDepartments]);
 
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(
+          event.target as Node
+        )
+      ) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+  }, []);
+
   return (
-    <div className="relative">
+    <div ref={dropdownRef} className="relative"
+    >
+
+      {/* Hidden inputs that are ALWAYS submitted */}
+      {selectedDepartments.map((id) => (
+        <input
+          key={id}
+          type="hidden"
+          name={name}
+          value={id}
+        />
+      ))}
+
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -65,22 +109,42 @@ export default function DepartmentCheckboxDropdown({
 
       {open && (
         <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border bg-white p-3 shadow-xl">
-          {departments.map((department) => (
-            <label
-              key={department.id}
-              className="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-slate-100"
-            >
-              <input
-                type={multiple ? "checkbox" : "radio"}
-                name={name}
-                value={department.id}
-                checked={selectedDepartments.includes(department.id)}
-                onChange={() => toggleDepartment(department.id)}
-              />
 
-              <span>{department.name}</span>
-            </label>
+          {departments.map((department) => (
+            <div
+              key={department.id}
+              onClick={() => toggleDepartment(department.id)}
+              className={`flex cursor-pointer items-center gap-3 rounded-lg p-3 transition
+    ${selectedDepartments.includes(department.id)
+                  ? "border border-[#0e2d33]/20 bg-[#0e2d33]/10"
+                  : "hover:bg-slate-100"
+                }`}
+            >
+              {multiple ? (
+                <input
+                  type="checkbox"
+                  checked={selectedDepartments.includes(department.id)}
+                  onChange={() => { }}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              ) : (
+                <div
+                  className={`flex h-5 w-5 items-center justify-center rounded-full border
+        ${selectedDepartments.includes(department.id)
+                      ? "border-[#0e2d33]"
+                      : "border-slate-300"
+                    }`}
+                >
+                  {selectedDepartments.includes(department.id) && (
+                    <div className="h-2.5 w-2.5 rounded-full bg-[#0e2d33]" />
+                  )}
+                </div>
+              )}
+
+              <span className="flex-1">{department.name}</span>
+            </div>
           ))}
+
         </div>
       )}
     </div>

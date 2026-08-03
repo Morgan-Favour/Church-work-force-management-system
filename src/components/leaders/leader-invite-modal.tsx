@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createWorkerInvite } from "@/actions/worker.actions";
-import DepartmentCheckboxDropdown from "./department-checkbox-dropdown";
+import { createLeaderInvite } from "@/actions/leader.actions";
+import DepartmentCheckboxDropdown from "../workers/department-checkbox-dropdown";
 import Modal from "../ui/modal";
 import { ModalHeader } from "../ui/modal-header";
 import { ModalBody } from "../ui/modal-body";
@@ -19,7 +19,7 @@ type Props = {
   departments: Department[];
 };
 
-export function WorkerInviteModal({
+export function LeaderInviteModal({
   open,
   onClose,
   departments,
@@ -35,12 +35,12 @@ export function WorkerInviteModal({
     onClose();
   }
 
-  function action(formData: FormData) {
+  function handleSubmit(formData: FormData) {
     setInviteLink("");
     setError("");
 
     startTransition(async () => {
-      const result = await createWorkerInvite(formData);
+      const result = await createLeaderInvite(formData);
 
       if (result?.error) {
         setError(result.error);
@@ -68,13 +68,13 @@ export function WorkerInviteModal({
       size="lg"
     >
       <ModalHeader
-        title="Invite Worker"
+        title="Invite Leader"
         description="Generate a secure registration link for one or more departments."
         onClose={closeModal}
       />
 
       <ModalBody>
-        <form action={action} className="space-y-6">
+        <form action={handleSubmit} className="space-y-6">
           <div>
             <label className="mb-2 block text-sm font-medium">
               Department(s)
@@ -83,7 +83,7 @@ export function WorkerInviteModal({
             <DepartmentCheckboxDropdown
               departments={departments}
               name="departmentIds"
-              multiple
+              multiple={false}
             />
           </div>
 

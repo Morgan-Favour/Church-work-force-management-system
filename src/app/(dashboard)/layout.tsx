@@ -20,6 +20,19 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const currentUser = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      isActive: true,
+    },
+  });
+
+  if (!currentUser || !currentUser.isActive) {
+    redirect("/login");
+  }
+
   const isAdmin = session.user.role === "ADMIN";
 
   const leaderDepartments =
@@ -44,7 +57,7 @@ export default async function DashboardLayout({
     !isAdmin && inactiveLeaderDepartments.length > 0;
 
   const navItems = isAdmin
-  ? [
+    ? [
       { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
       { label: "Departments", href: "/departments", icon: "departments" as const },
       { label: "Workers", href: "/workers", icon: "workers" as const },
@@ -53,7 +66,7 @@ export default async function DashboardLayout({
       { label: "Approvals", href: "/approvals", icon: "approvals" as const },
       { label: "Activity", href: "/activity", icon: "activity" as const },
     ]
-  : [
+    : [
       { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
       { label: "My Departments", href: "/my-department", icon: "departments" as const },
       { label: "Workers", href: "/workers", icon: "workers" as const },
@@ -112,6 +125,8 @@ export default async function DashboardLayout({
               alt="GIC Egbelu Workforce"
               width={120}
               height={120}
+              loading="eager"
+              priority
             />
           </div>
 

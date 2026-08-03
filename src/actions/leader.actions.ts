@@ -203,20 +203,47 @@ export async function reactivateLeader(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
-export async function resetLeaderPassword(formData: FormData) {
+export async function resetLeaderPassword(
+  prevState: ActionResult,
+  formData: FormData
+): Promise<ActionResult> {
   const leaderId = formData.get("leaderId")?.toString();
   const password = formData.get("password")?.toString();
   const confirmPassword = formData.get("confirmPassword")?.toString();
 
-  if (!leaderId || !password || !confirmPassword) return;
-  if (password !== confirmPassword) return;
-  if (password.length < 8) return;
+  if (!leaderId) {
+    return {
+      error: "Leader not found.",
+    };
+  }
+
+  if (!password || !confirmPassword) {
+    return {
+      error: "Please fill in all fields.",
+    };
+  }
+
+  if (password !== confirmPassword) {
+    return {
+      error: "Passwords do not match.",
+    };
+  }
+
+  if (password.length < 8) {
+    return {
+      error: "Password must be at least 8 characters.",
+    };
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const leader = await prisma.user.update({
-    where: { id: leaderId },
-    data: { password: hashedPassword },
+    where: {
+      id: leaderId,
+    },
+    data: {
+      password: hashedPassword,
+    },
   });
 
   await prisma.activityLog.create({
@@ -227,6 +254,10 @@ export async function resetLeaderPassword(formData: FormData) {
   });
 
   revalidatePath(`/leaders/${leaderId}`);
+
+  return {
+    success: "Password reset successfully.",
+  };
 }
 
 export async function createLeaderInvite(formData: FormData) {
@@ -245,6 +276,8 @@ export async function createLeaderInvite(formData: FormData) {
   }
 
   const departmentIds = formData.getAll("departmentIds").map(String);
+
+  console.log("Leader departments:", departmentIds);
 
   if (departmentIds.length === 0) {
     return {
