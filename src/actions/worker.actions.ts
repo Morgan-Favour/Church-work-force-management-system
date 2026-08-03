@@ -34,6 +34,12 @@ export async function createWorker(formData: FormData): Promise<ActionResult> {
     };
   }
 
+   if(/^[a-zA-Z\s-]+$/.test(fullName) === false) {
+    return {
+      error: "Full name can only contain letters, spaces, and hyphens.",
+    };
+  }
+
   if (!/^\d{11,15}$/.test(phone)) {
     return {
       error: "Phone number must contain only numbers and must be 11 to 15 digits.",
@@ -139,6 +145,12 @@ export async function updateWorker(formData: FormData): Promise<ActionResult> {
     return { error: "Please fill in all required fields." };
   }
 
+  if(/^[a-zA-Z\s-]+$/.test(fullName) === false) {
+    return {
+      error: "Full name can only contain letters, spaces, and hyphens.",
+    };
+  }
+  
   if (!/^\d{11,15}$/.test(phone)) {
     return {
       error: "Phone number must contain only numbers and must be 11 to 15 digits.",
