@@ -46,7 +46,7 @@ export function RecentActivityCard({
         </div>
       )} */}
 
-      We are currently working on this feature. It will be available in the next update.
+      <p className="text-xs font-medium text-slate-400"> We are currently working on this feature. It will be available in the next update.</p>
     </SectionCard>
   );
 }
