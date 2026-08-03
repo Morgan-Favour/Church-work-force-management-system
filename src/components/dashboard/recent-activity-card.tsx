@@ -18,7 +18,7 @@ export function RecentActivityCard({
       description="Latest important actions in the workforce system."
       className="lg:col-span-2"
     >
-      {activities.length === 0 ? (
+      {/* {activities.length === 0 ? (
         <p className="text-sm text-slate-500">No activity yet.</p>
       ) : (
         <div className="space-y-4">
@@ -44,7 +44,9 @@ export function RecentActivityCard({
             View all activity
           </Link>
         </div>
-      )}
+      )} */}
+
+      We are currently working on this feature. It will be available in the next update.
     </SectionCard>
   );
 }
