@@ -23,6 +23,7 @@ type IconName =
   | "activity"
   | "reports"
   | "settings"
+  | "members"
   | "approvals";   
   
 
@@ -35,7 +36,8 @@ const icons: Record<IconName, LucideIcon> = {
   activity: BarChart3,
   reports: BarChart3,
   settings: Settings,
-  approvals: CheckCircle2
+  approvals: CheckCircle2,
+  members: Users
 };
 
 type DashboardNavLinkProps = {

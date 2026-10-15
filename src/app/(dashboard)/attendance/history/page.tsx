@@ -22,20 +22,20 @@ export default async function AttendanceHistoryPage({
     ...(isAdmin
       ? {}
       : {
-        departmentId: {
-          in: session.user.departmentIds || [],
-        },
-      }),
+          departmentId: {
+            in: session.user.departmentIds || [],
+          },
+        }),
 
     ...(selectedDate
       ? {
-        service: {
-          date: {
-            gte: new Date(`${selectedDate}T00:00:00.000Z`),
-            lt: new Date(`${selectedDate}T23:59:59.999Z`),
+          service: {
+            date: {
+              gte: new Date(`${selectedDate}T00:00:00.000Z`),
+              lt: new Date(`${selectedDate}T23:59:59.999Z`),
+            },
           },
-        },
-      }
+        }
       : {}),
   };
 
@@ -87,8 +87,8 @@ export default async function AttendanceHistoryPage({
         }
       />
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-slate-900">Search Attendance</h2>
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-card-foreground">Search Attendance</h2>
 
         <form
           method="GET"
@@ -100,43 +100,43 @@ export default async function AttendanceHistoryPage({
             type="date"
             name="date"
             defaultValue={selectedDate || ""}
-            className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+            className="rounded-xl border border-border bg-input px-4 py-3 text-sm text-card-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
           />
 
           <button
             type="submit"
-            className="rounded-xl bg-[#0e2d33] px-5 py-3 text-sm font-bold text-white hover:bg-[#123940]"
+            className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-colors hover:opacity-90"
           >
             Search Date
           </button>
 
           <a
             href="/attendance/history"
-            className="rounded-xl border border-slate-200 px-5 py-3 text-center text-sm font-bold text-slate-700 hover:bg-slate-50"
+            className="rounded-xl border border-border px-5 py-3 text-center text-sm font-bold text-card-foreground transition-colors hover:bg-muted"
           >
             Clear
           </a>
         </form>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <div className="mb-6">
-          <h2 className="text-lg font-bold text-slate-900">
+          <h2 className="text-lg font-bold text-card-foreground">
             Attendance Records
           </h2>
 
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             Showing {records.length} record(s)
             {selectedDate ? ` for ${selectedDate}` : ""}.
           </p>
         </div>
 
         {records.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 p-10 text-center">
-            <p className="font-semibold text-slate-700">
+          <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+            <p className="font-semibold text-card-foreground">
               No attendance records found
             </p>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Try another date or mark attendance first.
             </p>
           </div>
@@ -144,32 +144,32 @@ export default async function AttendanceHistoryPage({
           <div className="space-y-8">
             {Object.entries(groupedRecords).map(([date, gatherings]) => (
               <div key={date} className="space-y-4">
-                <div className="rounded-2xl bg-slate-100 px-5 py-4">
-                  <h3 className="text-lg font-bold text-slate-900">{date}</h3>
+                <div className="rounded-2xl bg-muted px-5 py-4">
+                  <h3 className="text-lg font-bold text-card-foreground">{date}</h3>
                 </div>
 
                 {Object.entries(gatherings).map(([key, group]) => (
                   <div
                     key={key}
-                    className="overflow-hidden rounded-2xl border border-slate-200"
+                    className="overflow-hidden rounded-2xl border border-border"
                   >
-                    <div className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
+                    <div className="flex items-center justify-between border-b border-border bg-card px-5 py-4">
                       <div>
-                        <h4 className="font-bold text-slate-900">
+                        <h4 className="font-bold text-card-foreground">
                           {group.serviceTitle}
                         </h4>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-muted-foreground">
                           {group.departmentName} Department
                         </p>
                       </div>
 
-                      <span className="rounded-full bg-[#0e2d33]/10 px-3 py-1 text-xs font-bold text-[#0e2d33]">
+                      <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
                         {group.records.length} record(s)
                       </span>
                     </div>
 
                     <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                      <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
                         <tr>
                           <th className="px-4 py-3">Worker</th>
                           <th className="px-4 py-3">Status</th>
@@ -177,20 +177,20 @@ export default async function AttendanceHistoryPage({
                         </tr>
                       </thead>
 
-                      <tbody className="divide-y divide-slate-200 bg-white">
+                      <tbody className="divide-y divide-border bg-card">
                         {group.records.map((record) => (
-                          <tr key={record.id} className="hover:bg-slate-50">
-                            <td className="px-4 py-4 font-semibold text-slate-900">
+                          <tr key={record.id} className="transition-colors hover:bg-muted/50">
+                            <td className="px-4 py-4 font-semibold text-card-foreground">
                               {record.worker.fullName}
                             </td>
 
                             <td className="px-4 py-4">
-                              <span className="rounded-full bg-[#0e2d33]/10 px-3 py-1 text-xs font-bold text-[#0e2d33]">
+                              <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
                                 {record.status}
                               </span>
                             </td>
 
-                            <td className="px-4 py-4 text-slate-600">
+                            <td className="px-4 py-4 text-muted-foreground">
                               {record.createdAt.toDateString()}
                             </td>
                           </tr>

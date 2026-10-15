@@ -42,15 +42,15 @@ export function ResetPasswordModal({
       open={open}
       onClose={onClose}
     >
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-4">
-        <h2 className="text-lg font-bold text-slate-900">
+      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card px-6 py-4">
+        <h2 className="text-lg font-bold text-card-foreground">
           Reset Password
         </h2>
 
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg p-2 transition hover:bg-slate-100"
+          className="rounded-xl border border-border p-2 text-muted-foreground transition hover:bg-muted/50 hover:text-card-foreground"
         >
           <X size={18} />
         </button>
@@ -67,15 +67,15 @@ export function ResetPasswordModal({
         />
 
         {state.error && (
-          <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle size={18} className="mt-0.5" />
+          <div className="flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm font-semibold text-destructive">
+            <AlertCircle size={18} className="mt-0.5 shrink-0" />
             <p>{state.error}</p>
           </div>
         )}
 
         {state.success && (
-          <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
-            <CheckCircle2 size={18} className="mt-0.5" />
+          <div className="flex items-start gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
             <p>{state.success}</p>
           </div>
         )}
@@ -101,7 +101,7 @@ export function ResetPasswordModal({
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-xl bg-[#0e2d33] py-3 font-semibold text-white transition hover:bg-[#123940] disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {pending ? "Resetting..." : "Reset Password"}
         </button>

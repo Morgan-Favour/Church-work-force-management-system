@@ -13,18 +13,18 @@ export function SectionCard({
 }: SectionCardProps) {
   return (
     <section
-      className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 ${className}`}
+      className={`rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6 ${className}`}
     >
       {(title || description) && (
         <div className="mb-5">
           {title && (
-            <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+            <h2 className="text-base font-bold text-card-foreground sm:text-lg">
               {title}
             </h2>
           )}
 
           {description && (
-            <p className="mt-1 text-sm leading-6 text-slate-500">
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
               {description}
             </p>
           )}

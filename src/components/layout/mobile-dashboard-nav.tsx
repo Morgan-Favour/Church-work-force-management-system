@@ -19,7 +19,9 @@ export type NavItem = {
   | "activity"
   | "reports"
   | "settings"
+  | "members"
   | "approvals";
+  
 };
 
 type Props = {

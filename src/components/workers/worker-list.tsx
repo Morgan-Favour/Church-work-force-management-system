@@ -97,13 +97,13 @@ export function WorkerList({
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <div className="mb-6">
-        <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+        <h2 className="text-base font-bold text-card-foreground sm:text-lg">
           Worker Directory
         </h2>
 
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           Showing {visibleWorkers.length} of {filteredWorkers.length} worker(s)
         </p>
       </div>
@@ -116,7 +116,7 @@ export function WorkerList({
             resetPage();
           }}
           placeholder="Search by name, phone, or department..."
-          className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+          className="rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
 
         <select
@@ -125,7 +125,7 @@ export function WorkerList({
             setDepartment(e.target.value);
             resetPage();
           }}
-          className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+          className="rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         >
           <option value="all">All departments</option>
           {departments.map((name) => (
@@ -141,7 +141,7 @@ export function WorkerList({
             setStatus(e.target.value);
             resetPage();
           }}
-          className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+          className="rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         >
           <option value="all">All status</option>
           <option value="active">Active only</option>
@@ -150,21 +150,22 @@ export function WorkerList({
       </div>
 
       {workers.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center sm:p-10">
-          <p className="font-semibold text-slate-700">No workers yet</p>
-          <p className="mt-1 text-sm text-slate-500">
+        <div className="rounded-2xl border border-dashed border-border p-8 text-center sm:p-10">
+          <p className="font-semibold text-card-foreground">No workers yet</p>
+          <p className="mt-1 text-sm text-muted-foreground">
             Add your first worker to begin attendance tracking.
           </p>
         </div>
       ) : visibleWorkers.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center">
-          <p className="font-semibold text-slate-700">No matching workers</p>
+        <div className="rounded-2xl border border-dashed border-border p-8 text-center">
+          <p className="font-semibold text-card-foreground">No matching workers</p>
         </div>
       ) : (
         <>
-          <div className="hidden overflow-hidden rounded-2xl border border-slate-200 lg:block">
+          {/* Desktop Table */}
+          <div className="hidden overflow-hidden rounded-2xl border border-border lg:block">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+              <thead className="bg-muted/50 text-xs uppercase text-muted-foreground border-b border-border">
                 <tr>
                   <th className="px-4 py-3">Worker</th>
                   <th className="px-4 py-3">Phone</th>
@@ -174,22 +175,22 @@ export function WorkerList({
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-200 bg-white">
+              <tbody className="divide-y divide-border bg-card">
                 {visibleWorkers.map((worker) => {
                   const visibleDepartments = getVisibleDepartments(worker);
 
                   return (
-                    <tr key={worker.id} className="hover:bg-slate-50">
+                    <tr key={worker.id} className="transition hover:bg-muted/50">
                       <td className="px-4 py-4">
                         <Link
                           href={`/workers/${worker.id}`}
-                          className="font-bold text-slate-900 hover:text-[#0e2d33]"
+                          className="font-bold text-card-foreground transition hover:text-primary"
                         >
                           {worker.fullName}
                         </Link>
                       </td>
 
-                      <td className="px-4 py-4 text-slate-600">
+                      <td className="px-4 py-4 text-muted-foreground">
                         {worker.phone || "No phone"}
                       </td>
 
@@ -198,7 +199,7 @@ export function WorkerList({
                           {visibleDepartments.map((item) => (
                             <span
                               key={item.id}
-                              className="rounded-full bg-[#0e2d33]/10 px-3 py-1 text-xs font-semibold text-[#0e2d33]"
+                              className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
                             >
                               {item.department.name}
                             </span>
@@ -210,8 +211,8 @@ export function WorkerList({
                         <span
                           className={
                             worker.isActive
-                              ? "rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
-                              : "rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700"
+                              ? "rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                              : "rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive"
                           }
                         >
                           {worker.isActive ? "Active" : "Inactive"}
@@ -226,7 +227,7 @@ export function WorkerList({
                               name="workerId"
                               defaultValue={worker.id}
                             />
-                            <button className="text-xs font-bold text-red-700 hover:underline">
+                            <button className="text-xs font-bold text-destructive transition hover:underline">
                               Deactivate
                             </button>
                           </form>
@@ -239,7 +240,7 @@ export function WorkerList({
                               name="workerId"
                               defaultValue={worker.id}
                             />
-                            <button className="text-xs font-bold text-emerald-700 hover:underline">
+                            <button className="text-xs font-bold text-emerald-600 dark:text-emerald-400 transition hover:underline">
                               Reactivate
                             </button>
                           </form>
@@ -252,6 +253,7 @@ export function WorkerList({
             </table>
           </div>
 
+          {/* Mobile Cards */}
           <div className="space-y-3 lg:hidden">
             {visibleWorkers.map((worker) => {
               const visibleDepartments = getVisibleDepartments(worker);
@@ -259,14 +261,14 @@ export function WorkerList({
               return (
                 <div
                   key={worker.id}
-                  className="rounded-2xl border border-slate-200 p-4"
+                  className="rounded-2xl border border-border bg-card p-4 shadow-sm"
                 >
                   <Link href={`/workers/${worker.id}`}>
-                    <h3 className="font-bold text-slate-900">
+                    <h3 className="font-bold text-card-foreground">
                       {worker.fullName}
                     </h3>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {worker.phone || "No phone number"}
                     </p>
                   </Link>
@@ -275,7 +277,7 @@ export function WorkerList({
                     {visibleDepartments.map((item) => (
                       <span
                         key={item.id}
-                        className="rounded-full bg-[#0e2d33]/10 px-3 py-1 text-xs font-semibold text-[#0e2d33]"
+                        className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
                       >
                         {item.department.name}
                       </span>
@@ -284,8 +286,8 @@ export function WorkerList({
                     <span
                       className={
                         worker.isActive
-                          ? "rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
-                          : "rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700"
+                          ? "rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                          : "rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive"
                       }
                     >
                       {worker.isActive ? "Active" : "Inactive"}
@@ -296,17 +298,18 @@ export function WorkerList({
             })}
           </div>
 
-          <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-5">
+          {/* Pagination */}
+          <div className="mt-6 flex items-center justify-between border-t border-border pt-5">
             <button
               type="button"
               disabled={page <= 1}
               onClick={() => setPage((current) => Math.max(1, current - 1))}
-              className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-xl border border-border bg-card px-4 py-2 text-sm font-bold text-card-foreground transition hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Previous
             </button>
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               Page {page} of {totalPages}
             </p>
 
@@ -316,7 +319,7 @@ export function WorkerList({
               onClick={() =>
                 setPage((current) => Math.min(totalPages, current + 1))
               }
-              className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-xl border border-border bg-card px-4 py-2 text-sm font-bold text-card-foreground transition hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next
             </button>

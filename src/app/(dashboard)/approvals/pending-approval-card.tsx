@@ -30,20 +30,20 @@ export function PendingApprovalCard({
   hiddenField,
 }: PendingApprovalCardProps) {
   return (
-    <div className="rounded-xl border bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">
+        <h3 className="text-lg font-semibold text-card-foreground">
           {name}
         </h3>
 
         {subtitle && (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             {subtitle}
           </p>
         )}
 
         {phone && (
-          <p className="text-sm">
+          <p className="text-sm text-card-foreground">
             {phone}
           </p>
         )}
@@ -52,7 +52,7 @@ export function PendingApprovalCard({
           {departments.map((dept) => (
             <span
               key={dept.department.name}
-              className="rounded-full bg-[#0e2d33]/10 px-3 py-1 text-sm text-[#0e2d33]"
+              className="rounded-full bg-secondary px-3 py-1 text-sm text-secondary-foreground font-medium"
             >
               {dept.department.name}
             </span>
@@ -70,7 +70,7 @@ export function PendingApprovalCard({
 
           <button
             type="submit"
-            className="rounded-lg bg-green-600 px-5 py-2 font-semibold text-white hover:bg-green-700"
+            className="rounded-lg bg-primary px-5 py-2 font-semibold text-primary-foreground transition-colors hover:opacity-90"
           >
             Approve
           </button>
@@ -85,7 +85,7 @@ export function PendingApprovalCard({
 
           <button
             type="submit"
-            className="rounded-lg bg-red-600 px-5 py-2 font-semibold text-white hover:bg-red-700"
+            className="rounded-lg bg-destructive px-5 py-2 font-semibold text-destructive-foreground transition-colors hover:opacity-90"
           >
             Reject
           </button>

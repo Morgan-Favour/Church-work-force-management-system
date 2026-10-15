@@ -36,35 +36,35 @@ export default async function LeaderDetailsPage({
     <div className="space-y-6">
       <Link
         href="/leaders"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#0e2d33]"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
       >
         <ArrowLeft size={17} />
         Back to Leaders
       </Link>
 
-      <section className="rounded-3xl bg-[#0e2d33] p-6 text-white shadow-xl shadow-slate-300/40 sm:p-8">
+      <section className="rounded-3xl bg-primary p-6 text-primary-foreground shadow-xl sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-[#d4af37]">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-foreground/10 text-secondary">
               <UserRound size={28} />
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-[#d4af37]">
+              <p className="text-sm font-semibold text-secondary">
                 Leader Profile
               </p>
               <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
                 {leader.fullName}
               </h1>
-              <p className="mt-1 text-sm text-white/65">@{leader.username}</p>
+              <p className="mt-1 text-sm text-primary-foreground/70">@{leader.username}</p>
             </div>
           </div>
 
           <span
             className={
               leader.isActive
-                ? "w-fit rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200"
-                : "w-fit rounded-full bg-red-400/15 px-3 py-1 text-xs font-bold text-red-200"
+                ? "w-fit rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300"
+                : "w-fit rounded-full bg-destructive/20 px-3 py-1 text-xs font-bold text-destructive-foreground"
             }
           >
             {leader.isActive ? "Active Leader" : "Inactive Leader"}
@@ -73,24 +73,24 @@ export default async function LeaderDetailsPage({
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0e2d33]/10 text-[#0e2d33]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">
               <ShieldCheck size={21} />
             </div>
-            <h2 className="font-bold text-slate-900">Departments Led</h2>
+            <h2 className="font-bold text-card-foreground">Departments Led</h2>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
             {leader.leaderDepartments.length === 0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-muted-foreground">
                 No leadership department assigned.
               </p>
             ) : (
               leader.leaderDepartments.map((item) => (
                 <span
                   key={item.id}
-                  className="rounded-full bg-[#0e2d33]/10 px-3 py-1 text-xs font-semibold text-[#0e2d33]"
+                  className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground"
                 >
                   Leads {item.department.name}
                 </span>
@@ -99,10 +99,10 @@ export default async function LeaderDetailsPage({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="font-bold text-slate-900">Linked Worker Profile</h2>
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+          <h2 className="font-bold text-card-foreground">Linked Worker Profile</h2>
 
-          <p className="mt-3 text-sm text-slate-500">
+          <p className="mt-3 text-sm text-muted-foreground">
             {leader.worker?.phone || "No phone number"}
           </p>
 
@@ -110,7 +110,7 @@ export default async function LeaderDetailsPage({
             {leader.worker?.departments.map((item) => (
               <span
                 key={item.id}
-                className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
+                className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground"
               >
                 Works in {item.department.name}
               </span>

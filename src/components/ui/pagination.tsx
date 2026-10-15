@@ -18,26 +18,26 @@ export function Pagination({
       <Link
         href={`${basePath}?page=${currentPage - 1}`}
         prefetch={false}
-        className={`rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 ${
+        className={`rounded-xl border border-border bg-card px-4 py-2 text-sm font-bold text-card-foreground transition ${
           currentPage <= 1
             ? "pointer-events-none opacity-40"
-            : "hover:bg-slate-50"
+            : "hover:bg-muted/50"
         }`}
       >
         Previous
       </Link>
 
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-muted-foreground">
         Page {currentPage} of {totalPages}
       </p>
 
       <Link
         href={`${basePath}?page=${currentPage + 1}`}
         prefetch={false}
-        className={`rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 ${
+        className={`rounded-xl border border-border bg-card px-4 py-2 text-sm font-bold text-card-foreground transition ${
           currentPage >= totalPages
             ? "pointer-events-none opacity-40"
-            : "hover:bg-slate-50"
+            : "hover:bg-muted/50"
         }`}
       >
         Next
