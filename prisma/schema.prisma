@@ -4,9 +4,10 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  url       = env("DATABASE_URL")  // Pooled connection (Port 6543) for Vercel
+  directUrl = env("DIRECT_URL")    // Direct connection (Port 5432) for terminal migrations
 }
+
 
 model User {
   id           String   @id @default(cuid())
@@ -16,54 +17,107 @@ model User {
   role         UserRole
   departmentId String?
   workerId     String?
- 
 
-  worker       Worker?  @relation(fields: [workerId], references: [id])
+  worker Worker? @relation(fields: [workerId], references: [id])
+  member Member?
 
   leaderDepartments LeaderDepartment[]
-   createdInvites Invite[]
+  createdInvites    Invite[]
 
-  isActive     Boolean  @default(true)
+  isActive Boolean @default(true)
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Member {
+  id String @id @default(cuid())
+
+  fullName      String
+  gender        String
+  phone         String   @unique
+  whatsappNo    String?  @unique
+  email         String?  @unique
+  dateOfBirth   DateTime
+  maritalStatus String
+  occupation    String
+  address       String
+  dateJoined    DateTime
+
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  g12Id String?
+  g12   G12?    @relation(fields: [g12Id], references: [id])
+
+  workerId String? @unique
+  worker   Worker? @relation(fields: [workerId], references: [id])
+
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id])
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MemberRegistrationLink {
+  id       String  @id @default(cuid())
+  token    String  @unique
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Department {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String?
 
-  isActive    Boolean  @default(true)
+  isActive Boolean @default(true)
 
-  workers     WorkerDepartment[]
-  leaders     LeaderDepartment[]
-  attendance  Attendance[]
-  activities  ActivityLog[]
-  inviteDepartments InviteDepartment[]
+  workers                  WorkerDepartment[]
+  leaders                  LeaderDepartment[]
+  members                  Member[]
+  attendance               Attendance[]
+  activities               ActivityLog[]
+  inviteDepartments        InviteDepartment[]
   pendingLeaderDepartments PendingLeaderDepartment[]
+  pendingWorkerDepartments PendingWorkerDepartment[]
 
-pendingWorkerDepartments PendingWorkerDepartment[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Worker {
-  id          String   @id @default(cuid())
-  fullName    String
-  phone       String?  @unique
-  gender      String?
+  id       String  @id @default(cuid())
+  fullName String
+  phone    String? @unique
+  gender   String?
 
-  isActive    Boolean  @default(true)
-  joinedAt    DateTime @default(now())
+  isActive Boolean  @default(true)
+  joinedAt DateTime @default(now())
 
   departments WorkerDepartment[]
   attendance  Attendance[]
   users       User[]
+  member      Member?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model G12 {
+  id       String  @id @default(cuid())
+  name     String  @unique
+  isActive Boolean @default(true)
+
+  members Member[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model WorkerDepartment {
@@ -71,120 +125,120 @@ model WorkerDepartment {
   workerId     String
   departmentId String
 
-  worker       Worker     @relation(fields: [workerId], references: [id])
-  department   Department @relation(fields: [departmentId], references: [id])
+  worker     Worker     @relation(fields: [workerId], references: [id])
+  department Department @relation(fields: [departmentId], references: [id])
 
-  createdAt    DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([workerId, departmentId])
 }
 
 model LeaderDepartment {
-  id           String @id @default(cuid())
+  id String @id @default(cuid())
 
   userId       String
   departmentId String
 
-  user         User @relation(fields: [userId], references: [id])
-  department   Department @relation(fields: [departmentId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
+  department Department @relation(fields: [departmentId], references: [id])
 
-  createdAt    DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([userId, departmentId])
 }
 
 model Service {
-  id         String   @id @default(cuid())
-  title      String
-  date       DateTime
+  id    String   @id @default(cuid())
+  title String
+  date  DateTime
 
   attendance Attendance[]
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([title, date])
 }
 
 model Attendance {
-  id           String @id @default(cuid())
+  id String @id @default(cuid())
 
   workerId     String
   serviceId    String
   departmentId String
 
-  status       AttendanceStatus
-  markedBy     String?
+  status   AttendanceStatus
+  markedBy String?
 
-  worker       Worker     @relation(fields: [workerId], references: [id])
-  service      Service    @relation(fields: [serviceId], references: [id])
-  department   Department @relation(fields: [departmentId], references: [id])
+  worker     Worker     @relation(fields: [workerId], references: [id])
+  service    Service    @relation(fields: [serviceId], references: [id])
+  department Department @relation(fields: [departmentId], references: [id])
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([workerId, serviceId, departmentId])
 }
 
 model ActivityLog {
-  id           String   @id @default(cuid())
-  action       String
-  description  String
-  actorId      String?
+  id          String  @id @default(cuid())
+  action      String
+  description String
+  actorId     String?
 
   departmentId String?
   department   Department? @relation(fields: [departmentId], references: [id])
 
-  createdAt    DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Invite {
-  id            String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  token         String   @unique
+  token String @unique
 
-  type          InviteType
+  type InviteType
 
-  createdById   String?
+  createdById String?
 
-  createdBy      User?   @relation(fields: [createdById], references: [id])
+  createdBy User? @relation(fields: [createdById], references: [id])
 
-  expiresAt     DateTime?
+  expiresAt DateTime?
 
-  used          Boolean  @default(false)
+  used Boolean @default(false)
 
-  departments   InviteDepartment[]
+  departments InviteDepartment[]
 
   pendingLeader PendingLeader?
 
   pendingWorker PendingWorker?
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model InviteDepartment {
   id String @id @default(cuid())
 
   inviteId String
-  invite Invite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+  invite   Invite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
 
   departmentId String
-  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
 
   @@unique([inviteId, departmentId])
 }
 
 model PendingLeader {
-  id         String @id @default(cuid())
+  id String @id @default(cuid())
 
-  fullName   String
-  username   String
-  phone      String?
-  password   String?
+  fullName String
+  username String
+  phone    String?
+  password String?
 
-  status     ApprovalStatus @default(PENDING)
+  status ApprovalStatus @default(PENDING)
 
-  inviteId   String @unique
-  invite     Invite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+  inviteId String @unique
+  invite   Invite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
 
   departments PendingLeaderDepartment[]
 
@@ -206,16 +260,16 @@ model PendingLeaderDepartment {
 }
 
 model PendingWorker {
-  id         String @id @default(cuid())
+  id String @id @default(cuid())
 
-  fullName   String
-  phone      String?
-  gender     String?
+  fullName String
+  phone    String?
+  gender   String?
 
-  status     ApprovalStatus @default(PENDING)
+  status ApprovalStatus @default(PENDING)
 
-  inviteId   String @unique
-  invite     Invite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+  inviteId String @unique
+  invite   Invite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
 
   departments PendingWorkerDepartment[]
 
@@ -236,7 +290,6 @@ model PendingWorkerDepartment {
   @@unique([pendingWorkerId, departmentId])
 }
 
-
 enum UserRole {
   ADMIN
   DEPARTMENT_LEADER
@@ -248,6 +301,7 @@ enum AttendanceStatus {
   ABSENT
   EXCUSED
 }
+
 enum InviteType {
   LEADER
   WORKER

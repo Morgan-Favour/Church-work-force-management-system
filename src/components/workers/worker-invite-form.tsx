@@ -19,7 +19,7 @@ export function WorkerInviteForm({ token }: Props) {
       />
 
       <div>
-        <label className="mb-2 block font-medium">
+        <label className="mb-2 block text-sm font-semibold text-card-foreground">
           Full Name
         </label>
 
@@ -27,34 +27,37 @@ export function WorkerInviteForm({ token }: Props) {
           name="fullName"
           required
           placeholder="John Doe"
-          className="w-full rounded-xl border p-3"
+          className="w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
       </div>
 
       <div>
-        <label className="mb-2 block font-medium">
+        <label className="mb-2 block text-sm font-semibold text-card-foreground">
           Phone Number
         </label>
 
         <input
           name="phone"
           required
+          type="tel"
+          inputMode="numeric"
           placeholder="08012345678"
-          className="w-full rounded-xl border p-3"
+          className="w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
       </div>
 
       <div>
-        <label className="mb-2 block font-medium">
+        <label className="mb-2 block text-sm font-semibold text-card-foreground">
           Gender
         </label>
 
         <select
           name="gender"
           required
-          className="w-full rounded-xl border p-3"
+          defaultValue=""
+          className="w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         >
-          <option value="">
+          <option value="" disabled>
             Select Gender
           </option>
 
@@ -70,7 +73,7 @@ export function WorkerInviteForm({ token }: Props) {
 
       <button
         type="submit"
-        className="w-full rounded-xl bg-[#0e2d33] py-3 font-semibold text-white hover:bg-[#15414a]"
+        className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
       >
         Submit Registration
       </button>

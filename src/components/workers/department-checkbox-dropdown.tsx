@@ -80,9 +80,7 @@ export default function DepartmentCheckboxDropdown({
   }, []);
 
   return (
-    <div ref={dropdownRef} className="relative"
-    >
-
+    <div ref={dropdownRef} className="relative">
       {/* Hidden inputs that are ALWAYS submitted */}
       {selectedDepartments.map((id) => (
         <input
@@ -96,28 +94,26 @@ export default function DepartmentCheckboxDropdown({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-4 py-3 text-left"
+        className="flex w-full items-center justify-between rounded-xl border border-input bg-card px-4 py-3 text-left transition hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10"
       >
-        <span className="truncate text-sm">
+        <span className="truncate text-sm text-card-foreground">
           {selectedDepartments.length
             ? selectedNames
             : "Select department(s)"}
         </span>
 
-        <ChevronDown size={18} />
+        <ChevronDown size={18} className="text-muted-foreground" />
       </button>
 
       {open && (
-        <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border bg-white p-3 shadow-xl">
-
+        <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-border bg-card p-3 shadow-xl">
           {departments.map((department) => (
             <div
               key={department.id}
               onClick={() => toggleDepartment(department.id)}
-              className={`flex cursor-pointer items-center gap-3 rounded-lg p-3 transition
-    ${selectedDepartments.includes(department.id)
-                  ? "border border-[#0e2d33]/20 bg-[#0e2d33]/10"
-                  : "hover:bg-slate-100"
+              className={`flex cursor-pointer items-center gap-3 rounded-lg p-3 text-sm transition ${selectedDepartments.includes(department.id)
+                  ? "border border-primary/20 bg-primary/10 text-card-foreground font-semibold"
+                  : "text-card-foreground hover:bg-muted/50"
                 }`}
             >
               {multiple ? (
@@ -126,17 +122,17 @@ export default function DepartmentCheckboxDropdown({
                   checked={selectedDepartments.includes(department.id)}
                   onChange={() => { }}
                   onClick={(e) => e.stopPropagation()}
+                  className="rounded border-input text-primary focus:ring-primary"
                 />
               ) : (
                 <div
-                  className={`flex h-5 w-5 items-center justify-center rounded-full border
-        ${selectedDepartments.includes(department.id)
-                      ? "border-[#0e2d33]"
-                      : "border-slate-300"
+                  className={`flex h-5 w-5 items-center justify-center rounded-full border ${selectedDepartments.includes(department.id)
+                      ? "border-primary"
+                      : "border-input"
                     }`}
                 >
                   {selectedDepartments.includes(department.id) && (
-                    <div className="h-2.5 w-2.5 rounded-full bg-[#0e2d33]" />
+                    <div className="h-2.5 w-2.5 rounded-full bg-primary" />
                   )}
                 </div>
               )}
@@ -144,7 +140,6 @@ export default function DepartmentCheckboxDropdown({
               <span className="flex-1">{department.name}</span>
             </div>
           ))}
-
         </div>
       )}
     </div>

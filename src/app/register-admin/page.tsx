@@ -72,52 +72,50 @@ export default async function RegisterAdminPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
-      <section className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl shadow-slate-200">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <section className="w-full max-w-md rounded-3xl bg-card p-8 border border-border shadow-2xl shadow-black/5">
         <div className="mb-8 flex justify-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0e2d33]/10">
-            <ShieldCheck className="text-[#0e2d33]" size={26} />
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+            <ShieldCheck className="text-primary" size={26} />
           </div>
         </div>
 
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-[#0e2d33]">
+          <h1 className="text-3xl font-bold tracking-tight text-card-foreground">
             Create Admin
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             Initial setup for GIC Egbelu Workforce.
           </p>
         </div>
 
         <form action={createAdmin} className="space-y-5">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-card-foreground">
               Full Name
             </label>
             <input
               name="fullName"
               required
-              className="block w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+              className="block w-full rounded-xl border border-input bg-card px-4 py-3 text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
               placeholder="Admin name"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-card-foreground">
               Username
             </label>
             <input
               name="username"
-              type="username"
+              type="text"
               required
-              className="block w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+              className="block w-full rounded-xl border border-input bg-card px-4 py-3 text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
               placeholder="admin@gic.org"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-            </label>
             <PasswordInput
               name="password"
               label="Password"
@@ -126,23 +124,23 @@ export default async function RegisterAdminPage() {
               placeholder="Minimum 8 characters"
               autoComplete="new-password"
             />
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-muted-foreground">
               Password must be at least 8 characters.
             </p>
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-[#0e2d33] py-3 font-semibold text-white transition hover:bg-[#123940]"
+            className="w-full rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition hover:opacity-90"
           >
             Create Admin Account
           </button>
-          <p className="mt-4 text-sm text-slate-500">
-            Already have an account? <a href="/login" className="text-[#0e2d33] hover:underline">Login</a>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Already have an account? <a href="/login" className="text-primary hover:underline">Login</a>
           </p>
         </form>
 
-        <p className="mt-8 text-center text-xs text-slate-400">
+        <p className="mt-8 text-center text-xs text-muted-foreground">
           This page is disabled automatically after the first admin is created.
         </p>
       </section>

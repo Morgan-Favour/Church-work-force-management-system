@@ -76,7 +76,7 @@ export function WorkerInviteModal({
       <ModalBody>
         <form action={action} className="space-y-6">
           <div>
-            <label className="mb-2 block text-sm font-medium">
+            <label className="mb-2 block text-sm font-semibold text-card-foreground">
               Department(s)
             </label>
 
@@ -88,7 +88,7 @@ export function WorkerInviteModal({
           </div>
 
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm font-semibold text-destructive">
               {error}
             </div>
           )}
@@ -97,20 +97,20 @@ export function WorkerInviteModal({
             <button
               type="submit"
               disabled={pending}
-              className="w-full rounded-xl bg-[#0e2d33] py-3 font-semibold text-white transition hover:bg-[#123940] disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pending ? "Generating Invite..." : "Generate Invite Link"}
             </button>
           ) : (
             <div className="space-y-4">
-              <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                 Invite link generated successfully.
               </div>
 
               <input
                 readOnly
                 value={inviteLink}
-                className="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm"
+                className="w-full rounded-xl border border-input bg-muted/50 p-3 text-sm text-card-foreground outline-none"
               />
             </div>
           )}
@@ -122,7 +122,7 @@ export function WorkerInviteModal({
           <button
             type="button"
             onClick={closeModal}
-            className="w-full rounded-xl border border-slate-300 py-3 font-semibold text-[#0e2d33] hover:bg-slate-50"
+            className="w-full rounded-xl border border-border bg-card py-3 text-sm font-bold text-card-foreground transition hover:bg-muted/50"
           >
             Cancel
           </button>
@@ -130,7 +130,7 @@ export function WorkerInviteModal({
           <button
             type="button"
             onClick={copyLink}
-            className="w-full rounded-xl bg-[#0e2d33] py-3 font-semibold text-white hover:bg-[#123940]"
+            className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
           >
             Copy Invite Link
           </button>

@@ -10,7 +10,7 @@ import { QuickActionsCard } from "@/components/dashboard/quick-actions-card";
 import { RecentActivityCard } from "@/components/dashboard/recent-activity-card";
 
 
- 
+
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -81,16 +81,16 @@ export default async function DashboardPage() {
           description="Departments currently assigned to you as a leader."
         >
           {departments.length === 0 ? (
-            <p className="text-sm text-slate-500">No active department assigned.</p>
+            <p className="text-sm text-muted-foreground">No active department assigned.</p>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {departments.map((department) => (
                 <div
                   key={department.id}
-                  className="rounded-2xl border border-slate-200 p-4"
+                  className="rounded-2xl border border-border bg-muted/50 p-4 transition-colors hover:bg-muted"
                 >
-                  <h3 className="font-bold text-slate-900">{department.name}</h3>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <h3 className="font-bold text-card-foreground">{department.name}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {department._count.workers} worker(s)
                   </p>
                 </div>

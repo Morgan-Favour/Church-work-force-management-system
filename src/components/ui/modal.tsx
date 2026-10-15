@@ -47,20 +47,20 @@ export default function Modal({
   if (!open) return null;
 
   return (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+    onClick={() => {
+      if (closeOnOutsideClick) {
+        onClose();
+      }
+    }}
+  >
     <div
-      className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-4"
-      onClick={() => {
-        if (closeOnOutsideClick) {
-          onClose();
-        }
-      }}
+      onClick={(e) => e.stopPropagation()}
+      className={`flex max-h-[90vh] w-full ${sizes[size]} flex-col overflow-hidden rounded-3xl border border-border bg-card text-card-foreground shadow-2xl`}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className={`flex max-h-[90vh] w-full ${sizes[size]} flex-col overflow-hidden rounded-3xl bg-white shadow-2xl`}
-      >
-        {children}
-      </div>
+      {children}
     </div>
-  );
+  </div>
+);
 }

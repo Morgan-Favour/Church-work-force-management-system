@@ -11,19 +11,19 @@ type AttendanceRowProps = {
 
 export function AttendanceRow({ worker, savedStatus }: AttendanceRowProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 p-4 transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 transition hover:bg-muted/50 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <input type="hidden" name="workerIds" value={worker.id} />
 
-        <h3 className="font-bold text-slate-900">{worker.fullName}</h3>
+        <h3 className="font-bold text-card-foreground">{worker.fullName}</h3>
 
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           {worker.phone || "No phone number"}
         </p>
 
         <a
           href={`/workers/${worker.id}`}
-          className="mt-2 inline-block text-xs font-bold text-[#0e2d33] hover:underline"
+          className="mt-2 inline-block text-xs font-bold text-primary hover:underline"
         >
           View profile
         </a>
@@ -32,7 +32,7 @@ export function AttendanceRow({ worker, savedStatus }: AttendanceRowProps) {
       <select
         name={`status-${worker.id}`}
         defaultValue={savedStatus || "PRESENT"}
-        className="rounded-xl border border-slate-300 px-4 py-2 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+        className="rounded-xl border border-border bg-input px-4 py-2 text-sm text-card-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
       >
         <option value="PRESENT">Present</option>
         <option value="LATE">Late</option>

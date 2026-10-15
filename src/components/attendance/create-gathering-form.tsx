@@ -9,31 +9,31 @@ export function CreateGatheringForm({ message }: CreateGatheringFormProps) {
   const feedback =
     message === "gathering-exists"
       ? {
-          title: "Gathering already exists",
-          text: "A gathering with this same name and date already exists.",
-          className: "border-amber-200 bg-amber-50 text-amber-700",
-        }
+        title: "Gathering already exists",
+        text: "A gathering with this same name and date already exists.",
+        className: "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+      }
       : message === "gathering-created"
-      ? {
+        ? {
           title: "Gathering created",
           text: "The new gathering is now selected.",
-          className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+          className: "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
         }
-      : null;
+        : null;
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <div className="mb-5 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0e2d33]/10 text-[#0e2d33]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <ClipboardCheck size={22} />
         </div>
 
         <div>
-          <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+          <h2 className="text-base font-bold text-card-foreground sm:text-lg">
             Create Gathering
           </h2>
 
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             Example: Sunday Service, Wednesday Service, Workers Meeting.
           </p>
         </div>
@@ -51,19 +51,19 @@ export function CreateGatheringForm({ message }: CreateGatheringFormProps) {
           name="title"
           required
           placeholder="Sunday Service"
-          className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+          className="rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
 
         <input
           name="date"
           type="date"
           required
-          className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+          className="rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
 
         <button
           type="submit"
-          className="rounded-xl bg-[#0e2d33] px-4 py-3 text-sm font-bold text-white hover:bg-[#123940]"
+          className="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition hover:opacity-90"
         >
           Create Gathering
         </button>

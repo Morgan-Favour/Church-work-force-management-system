@@ -21,8 +21,8 @@ export function QuickActionsCard({
             href={action.href}
             className={
               action.primary
-                ? "block rounded-xl bg-[#0e2d33] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#123940]"
-                : "block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                ? "block rounded-xl bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+                : "block rounded-xl border border-border bg-card px-4 py-3 text-center text-sm font-semibold text-card-foreground transition hover:bg-muted/50"
             }
           >
             {action.label}

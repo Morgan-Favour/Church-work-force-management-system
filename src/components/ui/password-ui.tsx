@@ -31,7 +31,7 @@ export function PasswordInput({
   return (
     <div>
       {label && (
-        <label className="mb-2 block text-sm font-semibold text-slate-700">
+        <label className="mb-2 block text-sm font-semibold text-card-foreground">
           {label}
         </label>
       )}
@@ -47,13 +47,13 @@ export function PasswordInput({
           minLength={minLength}
           autoComplete={autoComplete}
           placeholder={placeholder}
-          className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 pr-12 text-sm outline-none transition focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+          className="block w-full rounded-xl border border-input bg-card px-4 py-3 pr-12 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
 
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-[#0e2d33]"
+          className="absolute inset-y-0 right-3 flex items-center text-muted-foreground transition hover:text-primary"
         >
           {showPassword ? (
             <EyeOff size={20} />

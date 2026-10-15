@@ -53,100 +53,100 @@ export function LoginForm() {
   }
 
   return (
-    <section className="grid w-full overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-2xl shadow-slate-300/50 lg:grid-cols-[1fr_430px]">
-      <div className="hidden bg-[#0e2d33] p-10 text-white lg:flex lg:flex-col lg:justify-between">
+  <section className="grid w-full overflow-hidden rounded-4xl border border-border bg-card shadow-2xl shadow-black/10 lg:grid-cols-[1fr_430px]">
+    {/* Left Branding Side (Earthy Dark/Primary Hero Block) */}
+    <div className="hidden bg-accent p-10 text-accent-foreground lg:flex lg:flex-col lg:justify-between">
+      <div>
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-card/20 backdrop-blur-sm">
+          <Image
+            src="/logo.png"
+            alt="GIC Egbelu Workforce"
+            width={120}
+            height={120}
+            loading="eager"
+            priority
+          />
+        </div>
+
+        <h1 className="mt-10 max-w-md text-4xl font-bold leading-tight">
+          GIC Egbelu Workforce
+        </h1>
+
+        <p className="mt-4 max-w-md text-sm leading-6 opacity-80">
+          A simple internal system for managing departments, workers,
+          attendance, and accountability.
+        </p>
+      </div>
+
+      <div className="rounded-3xl border border-accent-foreground/10 bg-card/10 p-5 backdrop-blur-xs">
+        <p className="text-sm font-semibold text-primary">
+          Workforce Management
+        </p>
+        <p className="mt-2 text-sm leading-6 opacity-80">
+          Built for church administrators and department leaders.
+        </p>
+      </div>
+    </div>
+
+    {/* Right Form Side */}
+    <div className="p-8 sm:p-10">
+      <div className="mb-8">
+        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <LockKeyhole size={23} />
+        </div>
+
+        <h2 className="text-3xl font-bold tracking-tight text-card-foreground">
+          Welcome back
+        </h2>
+
+        <p className="mt-2 text-sm text-muted-foreground">
+          Sign in to access your workforce dashboard.
+        </p>
+      </div>
+
+      {error && (
+        <div className="mb-5 flex gap-3 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm font-semibold text-destructive shadow-sm">
+          <AlertCircle className="mt-0.5 shrink-0" size={18} />
+          <p>{error}</p>
+        </div>
+      )}
+
+      <form onSubmit={handleLogin} className="space-y-5">
         <div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
-            <Image
-              src="/logo.png"
-              alt="GIC Egbelu Workforce"
-              width={120}
-              height={120}
-              loading="eager"
-              priority
-            />
-          </div>
-
-          <h1 className="mt-10 max-w-md text-4xl font-bold leading-tight">
-            GIC Egbelu Workforce
-          </h1>
-
-          <p className="mt-4 max-w-md text-sm leading-6 text-white/65">
-            A simple internal system for managing departments, workers,
-            attendance, and accountability.
-          </p>
+          <label className="mb-2 block text-sm font-semibold text-card-foreground">
+            Username
+          </label>
+          <input
+            type="text"
+            autoComplete="username"
+            className="w-full rounded-2xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
+            placeholder="admin"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/10 p-5">
-          <p className="text-sm font-semibold text-[#d4af37]">
-            Workforce Management
-          </p>
-          <p className="mt-2 text-sm leading-6 text-white/65">
-            Built for church administrators and department leaders.
-          </p>
-        </div>
-      </div>
-
-      <div className="p-8 sm:p-10">
-        <div className="mb-8">
-          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0e2d33]/10 text-[#0e2d33]">
-            <LockKeyhole size={23} />
-          </div>
-
-          <h2 className="text-3xl font-bold tracking-tight text-slate-950">
-            Welcome back
-          </h2>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Sign in to access your workforce dashboard.
-          </p>
+        <div>
+          <PasswordInput
+            name="password"
+            label="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            placeholder="Enter password"
+          />
         </div>
 
-        {error && (
-          <div className="mb-5 flex gap-3 rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-semibold text-red-700 shadow-sm">
-            <AlertCircle className="mt-0.5 shrink-0" size={18} />
-            <p>{error}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
-              Username
-            </label>
-            <input
-              type="text"
-              autoComplete="username"
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-[#0e2d33] focus:bg-white focus:ring-4 focus:ring-[#0e2d33]/10"
-              placeholder="admin"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
-            </label>
-            <PasswordInput
-              name="password"
-              label="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              placeholder="Enter password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0e2d33] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-[#0e2d33]/20 transition hover:bg-[#123940] disabled:opacity-70"
-          >
-            {loading ? "Signing in..." : "Sign in"}
-            {!loading && <ArrowRight size={17} />}
-          </button>
-        </form>
-      </div>
-    </section>
-  );
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:opacity-70"
+        >
+          {loading ? "Signing in..." : "Sign in"}
+          {!loading && <ArrowRight size={17} />}
+        </button>
+      </form>
+    </div>
+  </section>
+);
 }

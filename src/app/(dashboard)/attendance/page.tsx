@@ -8,8 +8,6 @@ import { CreateGatheringForm } from "@/components/attendance/create-gathering-fo
 import { AttendanceTable } from "@/components/attendance/attendance-table";
 import AttendanceContextSelector from "./AttendanceContextSelector";
 
- 
-
 export default async function AttendancePage({
   searchParams,
 }: {
@@ -37,9 +35,9 @@ export default async function AttendancePage({
     where: isAdmin
       ? { isActive: true }
       : {
-        id: { in: leaderDepartmentIds },
-        isActive: true,
-      },
+          id: { in: leaderDepartmentIds },
+          isActive: true,
+        },
     orderBy: { name: "asc" },
   });
 
@@ -99,30 +97,30 @@ export default async function AttendancePage({
 
   const workers = selectedDepartmentId
     ? await prisma.worker.findMany({
-      where: {
-        isActive: true,
-        departments: {
-          some: {
-            departmentId: selectedDepartmentId,
+        where: {
+          isActive: true,
+          departments: {
+            some: {
+              departmentId: selectedDepartmentId,
+            },
           },
         },
-      },
-      orderBy: { fullName: "asc" },
-    })
+        orderBy: { fullName: "asc" },
+      })
     : [];
 
   const existingAttendance =
     selectedServiceId && selectedDepartmentId
       ? await prisma.attendance.findMany({
-        where: {
-          serviceId: selectedServiceId,
-          departmentId: selectedDepartmentId,
-        },
-        select: {
-          workerId: true,
-          status: true,
-        },
-      })
+          where: {
+            serviceId: selectedServiceId,
+            departmentId: selectedDepartmentId,
+          },
+          select: {
+            workerId: true,
+            status: true,
+          },
+        })
       : [];
 
   const markedCount = existingAttendance.length;
@@ -139,12 +137,10 @@ export default async function AttendancePage({
 
   const attendanceStatusClass =
     attendanceStatus === "Marked"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
       : attendanceStatus === "Partially marked"
-        ? "border-amber-200 bg-amber-50 text-amber-700"
-        : attendanceStatus === "Not marked"
-          ? "border-slate-200 bg-slate-50 text-slate-600"
-          : "border-slate-200 bg-slate-50 text-slate-500";
+        ? "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+        : "border-border bg-muted/50 text-muted-foreground";
 
   return (
     <div className="space-y-6">
@@ -158,7 +154,7 @@ export default async function AttendancePage({
         action={
           <a
             href="/attendance/history"
-            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50"
+            className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-bold text-card-foreground shadow-sm transition hover:bg-muted"
           >
             View History
           </a>

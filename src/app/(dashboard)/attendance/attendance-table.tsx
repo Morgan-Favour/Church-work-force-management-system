@@ -27,28 +27,28 @@ export function AttendanceTable({
   existingAttendance,
 }: AttendanceTableProps) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <div className="mb-6">
-        <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+        <h2 className="text-base font-bold text-card-foreground sm:text-lg">
           Attendance Sheet
         </h2>
 
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           {workers.length} worker(s) available for{" "}
           {selectedDepartmentName || "this department"}.
         </p>
       </div>
 
       {!selectedServiceId ? (
-        <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-700">
+        <p className="rounded-xl bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
           Please create or select a gathering first.
         </p>
       ) : !selectedDepartmentId ? (
-        <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-700">
+        <p className="rounded-xl bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
           Please select a department first.
         </p>
       ) : workers.length === 0 ? (
-        <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+        <p className="rounded-xl bg-muted p-4 text-sm text-muted-foreground">
           No workers found for this department.
         </p>
       ) : (
@@ -73,7 +73,7 @@ export function AttendanceTable({
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-[#0e2d33] px-4 py-3 text-sm font-bold text-white hover:bg-[#123940]"
+            className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-colors hover:opacity-90"
           >
             Save Attendance
           </button>

@@ -94,27 +94,27 @@ export default async function WorkerDetailsPage({
     <div className="space-y-8">
       <Link
         href="/workers"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#0e2d33]"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
       >
         <ArrowLeft size={17} />
         Back to Workers
       </Link>
 
-      <section className="rounded-3xl bg-[#0e2d33] p-8 text-white shadow-xl shadow-slate-300/40">
+      <section className="rounded-3xl bg-primary p-8 text-primary-foreground shadow-xl">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-5">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-[#d4af37]">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-foreground/10 text-secondary">
               <UserRound size={32} />
             </div>
 
             <div>
-              <p className="text-sm font-medium text-[#d4af37]">
+              <p className="text-sm font-medium text-secondary">
                 Worker Profile
               </p>
               <h1 className="mt-1 text-3xl font-bold tracking-tight">
                 {worker.fullName}
               </h1>
-              <p className="mt-2 text-sm text-white/65">
+              <p className="mt-2 text-sm text-primary-foreground/75">
                 {worker.phone || "No phone number"} ·{" "}
                 {worker.gender || "Gender not specified"}
               </p>
@@ -122,60 +122,59 @@ export default async function WorkerDetailsPage({
               <span
                 className={
                   worker.isActive
-                    ? "mt-4 inline-flex rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200"
-                    : "mt-4 inline-flex rounded-full bg-red-400/15 px-3 py-1 text-xs font-bold text-red-200"
+                    ? "mt-4 inline-flex rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300"
+                    : "mt-4 inline-flex rounded-full bg-destructive/20 px-3 py-1 text-xs font-bold text-destructive-foreground"
                 }
               >
                 {worker.isActive ? "Active Worker" : "Inactive Worker"}
               </span>
-              </div>
             </div>
-            <EditWorkerModal worker={worker} departments={availableDepartments} />
           </div>
-          
+          <EditWorkerModal worker={worker} departments={availableDepartments} />
+        </div>
       </section>
 
-      <section className="grid grid-cols-4 gap-5">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">
+      <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <p className="text-sm font-medium text-muted-foreground">
             Attendance Rate
           </p>
-          <h2 className="mt-5 text-4xl font-bold text-slate-900">
+          <h2 className="mt-5 text-4xl font-bold text-card-foreground">
             {attendanceRate}%
           </h2>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">Present</p>
-          <h2 className="mt-5 text-4xl font-bold text-slate-900">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <p className="text-sm font-medium text-muted-foreground">Present</p>
+          <h2 className="mt-5 text-4xl font-bold text-card-foreground">
             {presentCount}
           </h2>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">Late</p>
-          <h2 className="mt-5 text-4xl font-bold text-slate-900">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <p className="text-sm font-medium text-muted-foreground">Late</p>
+          <h2 className="mt-5 text-4xl font-bold text-card-foreground">
             {lateCount}
           </h2>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">Absent</p>
-          <h2 className="mt-5 text-4xl font-bold text-slate-900">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <p className="text-sm font-medium text-muted-foreground">Absent</p>
+          <h2 className="mt-5 text-4xl font-bold text-card-foreground">
             {absentCount}
           </h2>
         </div>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-900">Departments</h2>
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-card-foreground">Departments</h2>
 
           <div className="mt-5 flex flex-wrap gap-2">
             {worker.departments.map((item) => (
               <span
                 key={item.id}
-                className="rounded-full bg-[#0e2d33]/10 px-3 py-1 text-xs font-bold text-[#0e2d33]"
+                className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground"
               >
                 {item.department.name}
               </span>
@@ -183,24 +182,24 @@ export default async function WorkerDetailsPage({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
-          <h2 className="text-lg font-bold text-slate-900">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm lg:col-span-2">
+          <h2 className="text-lg font-bold text-card-foreground">
             Attendance History
           </h2>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Showing latest attendance records for this worker.
           </p>
 
           {worker.attendance.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-dashed border-slate-300 p-8 text-center">
-              <p className="font-semibold text-slate-700">
+            <div className="mt-6 rounded-2xl border border-dashed border-border p-8 text-center">
+              <p className="font-semibold text-card-foreground">
                 No attendance records yet
               </p>
             </div>
           ) : (
-            <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
+            <div className="mt-6 overflow-hidden rounded-2xl border border-border">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3">Gathering</th>
                     <th className="px-4 py-3">Department</th>
@@ -209,23 +208,23 @@ export default async function WorkerDetailsPage({
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-slate-200 bg-white">
+                <tbody className="divide-y divide-border bg-card">
                   {worker.attendance.map((record) => (
-                    <tr key={record.id}>
-                      <td className="px-4 py-4 font-semibold text-slate-900">
+                    <tr key={record.id} className="transition-colors hover:bg-muted/50">
+                      <td className="px-4 py-4 font-semibold text-card-foreground">
                         {record.service.title}
                       </td>
 
-                      <td className="px-4 py-4 text-slate-600">
+                      <td className="px-4 py-4 text-muted-foreground">
                         {record.department.name}
                       </td>
 
-                      <td className="px-4 py-4 text-slate-600">
+                      <td className="px-4 py-4 text-muted-foreground">
                         {record.service.date.toDateString()}
                       </td>
 
                       <td className="px-4 py-4">
-                        <span className="rounded-full bg-[#0e2d33]/10 px-3 py-1 text-xs font-bold text-[#0e2d33]">
+                        <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
                           {record.status}
                         </span>
                       </td>
@@ -238,10 +237,9 @@ export default async function WorkerDetailsPage({
         </div>
       </section>
 
-      <p className="text-sm text-slate-400">
+      <p className="text-sm text-muted-foreground">
         Joined: {worker.joinedAt.toDateString()}
       </p>
-
     </div>
   );
 }

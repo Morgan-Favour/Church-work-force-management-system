@@ -70,12 +70,12 @@ export default function AttendanceContextSelector({
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <h2 className="text-base font-bold text-card-foreground sm:text-lg">
         Select Attendance Context
       </h2>
 
-      <p className="mt-1 text-sm text-slate-500">
+      <p className="mt-1 text-sm text-muted-foreground">
         Workers load automatically when you select a gathering or department.
       </p>
 
@@ -87,7 +87,7 @@ export default function AttendanceContextSelector({
             setServiceId(nextServiceId);
             updatePage(nextServiceId, departmentId);
           }}
-          className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+          className="rounded-xl border border-border bg-input px-4 py-3 text-sm text-card-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
         >
           {services.length === 0 ? (
             <option value="">No gathering created</option>
@@ -107,7 +107,7 @@ export default function AttendanceContextSelector({
             setDepartmentId(nextDepartmentId);
             updatePage(serviceId, nextDepartmentId);
           }}
-          className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+          className="rounded-xl border border-border bg-input px-4 py-3 text-sm text-card-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
         >
           {departments.length === 0 ? (
             <option value="">No department available</option>
@@ -129,7 +129,7 @@ export default function AttendanceContextSelector({
           <StatusIcon size={20} />
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide">
+            <p className="text-xs font-semibold uppercase tracking-wide opacity-80">
               Attendance Status
             </p>
             <p className="mt-1 text-sm font-bold">
@@ -138,9 +138,9 @@ export default function AttendanceContextSelector({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-2xl border border-[#0e2d33]/20 bg-[#0e2d33]/5 px-4 py-4 text-[#0e2d33]">
+        <div className="flex items-center gap-3 rounded-2xl border border-border bg-secondary/50 px-4 py-4 text-secondary-foreground">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Department
             </p>
             <p className="mt-1 text-sm font-bold">

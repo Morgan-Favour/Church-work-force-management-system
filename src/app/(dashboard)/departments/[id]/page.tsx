@@ -63,60 +63,63 @@ export default async function DepartmentDetailsPage({
 
   return (
     <div className="space-y-8">
-      <section className="rounded-3xl bg-[#0e2d33] p-8 text-white shadow-xl">
+      {/* Hero Header Card */}
+      <section className="rounded-3xl bg-primary p-8 text-primary-foreground shadow-xl">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-foreground/10">
             <Building2 size={30} />
           </div>
 
           <div>
-            <p className="text-sm text-[#d4af37]">Department Profile</p>
+            <p className="text-sm font-medium opacity-80">Department Profile</p>
 
             <h1 className="text-3xl font-bold">
               {department.name}
             </h1>
 
-            <p className="mt-2 text-white/70">
+            <p className="mt-2 text-primary-foreground/80">
               {department.description || "No description"}
             </p>
           </div>
         </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-5">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">
+      {/* Metrics Stats Grid */}
+      <section className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <p className="text-sm text-muted-foreground">
             Total Workers
           </p>
 
-          <h2 className="mt-4 text-4xl font-bold">
+          <h2 className="mt-4 text-4xl font-bold text-card-foreground">
             {workerCount}
           </h2>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <p className="text-sm text-muted-foreground">
             Attendance Records
           </p>
 
-          <h2 className="mt-4 text-4xl font-bold">
+          <h2 className="mt-4 text-4xl font-bold text-card-foreground">
             {totalRecords}
           </h2>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <p className="text-sm text-muted-foreground">
             Attendance Rate
           </p>
 
-          <h2 className="mt-4 text-4xl font-bold">
+          <h2 className="mt-4 text-4xl font-bold text-card-foreground">
             {attendanceRate}%
           </h2>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold">
+      {/* Workers List Card */}
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-card-foreground">
           Department Workers
         </h2>
 
@@ -125,19 +128,19 @@ export default async function DepartmentDetailsPage({
             <a
               key={item.worker.id}
               href={`/workers/${item.worker.id}`}
-              className="flex items-center justify-between rounded-xl border border-slate-200 p-4 hover:bg-slate-50"
+              className="flex items-center justify-between rounded-xl border border-border bg-background p-4 transition-colors hover:bg-muted/50"
             >
               <div>
-                <h3 className="font-semibold">
+                <h3 className="font-semibold text-card-foreground">
                   {item.worker.fullName}
                 </h3>
 
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted-foreground">
                   {item.worker.phone || "No phone"}
                 </p>
               </div>
 
-              <span className="text-sm font-semibold text-[#0e2d33]">
+              <span className="text-sm font-semibold text-primary hover:underline">
                 View Profile →
               </span>
             </a>

@@ -21,20 +21,20 @@ export async function createWorker(formData: FormData): Promise<ActionResult> {
   const gender = formData.get("gender")?.toString();
   const departmentIds = formData.getAll("departmentIds").map(String);
 
-    console.log({
+  console.log({
     fullName: formData.get("fullName"),
     phone: formData.get("phone"),
     gender: formData.get("gender"),
     departmentIds: formData.getAll("departmentIds"),
   });
-  
+
   if (!fullName || !phone || departmentIds.length === 0) {
     return {
       error: "Please enter worker name, phone number, and select at least one department.",
     };
   }
 
-   if(/^[a-zA-Z\s-]+$/.test(fullName) === false) {
+  if (/^[a-zA-Z\s-]+$/.test(fullName) === false) {
     return {
       error: "Full name can only contain letters, spaces, and hyphens.",
     };
@@ -145,12 +145,12 @@ export async function updateWorker(formData: FormData): Promise<ActionResult> {
     return { error: "Please fill in all required fields." };
   }
 
-  if(/^[a-zA-Z\s-]+$/.test(fullName) === false) {
+  if (/^[a-zA-Z\s-]+$/.test(fullName) === false) {
     return {
       error: "Full name can only contain letters, spaces, and hyphens.",
     };
   }
-  
+
   if (!/^\d{11,15}$/.test(phone)) {
     return {
       error: "Phone number must contain only numbers and must be 11 to 15 digits.",

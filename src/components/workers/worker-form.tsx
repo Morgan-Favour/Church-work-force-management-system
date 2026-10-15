@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Users } from "lucide-react";
 import { createWorker } from "@/actions/worker.actions";
-import  DepartmentCheckboxDropdown from "@/components/workers/department-checkbox-dropdown";
+import DepartmentCheckboxDropdown from "@/components/workers/department-checkbox-dropdown";
 import { createWorkerInvite } from "@/actions/worker.actions";
 
 type Department = {
@@ -43,18 +43,18 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0e2d33]/10 text-[#0e2d33]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <Users size={22} />
         </div>
 
         <div>
-          <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+          <h2 className="text-base font-bold text-card-foreground sm:text-lg">
             Add Worker
           </h2>
 
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             {isAdmin
               ? "Register workers and assign them to departments."
               : "Register workers under departments you lead."}
@@ -64,19 +64,19 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
 
       <form id="worker-form" action={action} className="space-y-5">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
+          <label className="mb-2 block text-sm font-semibold text-card-foreground">
             Full Name
           </label>
           <input
             name="fullName"
             required
             placeholder="Worker name"
-            className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+            className="block w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
+          <label className="mb-2 block text-sm font-semibold text-card-foreground">
             Phone Number
           </label>
           <input
@@ -86,34 +86,37 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
             inputMode="numeric"
             pattern="[0-9]{7,15}"
             placeholder="08012345678"
-            className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+            className="block w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
           />
-          <p className="mt-2 text-xs text-slate-400">
+          <p className="mt-2 text-xs text-muted-foreground">
             Phone number must be unique for each worker.
           </p>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
+          <label className="mb-2 block text-sm font-semibold text-card-foreground">
             Gender
           </label>
           <select
             name="gender"
-            className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#0e2d33] focus:ring-4 focus:ring-[#0e2d33]/10"
+            defaultValue=""
+            className="block w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
           >
-            <option value="">Select gender</option>
+            <option value="" disabled>
+              Select gender
+            </option>
             <option value="MALE">Male</option>
             <option value="FEMALE">Female</option>
           </select>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
+          <label className="mb-2 block text-sm font-semibold text-card-foreground">
             Department(s)
           </label>
 
           {departments.length === 0 ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive">
               No department available.
             </div>
           ) : (
@@ -122,13 +125,13 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
         </div>
 
         {state?.error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+          <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive">
             {state.error}
           </div>
         )}
 
         {state?.success && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
             {state.success}
           </div>
         )}
@@ -136,7 +139,7 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
         <div className="flex gap-3">
           <button
             type="submit"
-            className="flex-1 rounded-xl bg-[#0e2d33] py-3 font-semibold text-white"
+            className="flex-1 rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
           >
             Add Worker
           </button>
@@ -160,14 +163,15 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
 
               setLoadingInvite(false);
             }}
-            className="rounded-xl border px-5 py-3"
+            className="rounded-xl border border-border bg-card px-5 py-3 text-sm font-bold text-card-foreground transition hover:bg-muted/50"
           >
             {loadingInvite ? "Creating..." : "Create Invite"}
           </button>
         </div>
+
         {inviteLink && (
-          <div className="mt-5 rounded-xl border bg-slate-50 p-4">
-            <p className="text-sm font-medium">
+          <div className="mt-5 rounded-xl border border-border bg-muted/50 p-4">
+            <p className="text-sm font-semibold text-card-foreground">
               Invite Link
             </p>
 
@@ -175,13 +179,13 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
               <input
                 readOnly
                 value={inviteLink}
-                className="flex-1 rounded-lg border p-2 text-sm"
+                className="flex-1 rounded-lg border border-input bg-card px-3 py-2 text-sm text-card-foreground outline-none"
               />
 
               <button
                 type="button"
                 onClick={() => navigator.clipboard.writeText(inviteLink)}
-                className="rounded-lg bg-[#0e2d33] px-4 text-white"
+                className="rounded-lg bg-primary px-4 text-sm font-bold text-primary-foreground transition hover:opacity-90"
               >
                 Copy
               </button>

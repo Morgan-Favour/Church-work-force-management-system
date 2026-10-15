@@ -45,11 +45,11 @@ export default async function MyDepartmentsPage() {
       />
 
       {departments.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm">
-          <p className="font-semibold text-slate-700">
+        <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center shadow-sm">
+          <p className="font-semibold text-card-foreground">
             No active department assigned
           </p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Please contact the administrator if this is incorrect.
           </p>
         </div>
@@ -58,17 +58,17 @@ export default async function MyDepartmentsPage() {
           {departments.map((department) => (
             <div
               key={department.id}
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="rounded-2xl border border-border bg-card p-5 shadow-sm"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0e2d33]/10 text-[#0e2d33]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">
                 <Building2 size={22} />
               </div>
 
-              <h2 className="mt-5 text-lg font-bold text-slate-900">
+              <h2 className="mt-5 text-lg font-bold text-card-foreground">
                 {department.name}
               </h2>
 
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-muted-foreground">
                 {department.description || "No description provided"}
               </p>
 
