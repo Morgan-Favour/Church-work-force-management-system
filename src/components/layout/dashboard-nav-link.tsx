@@ -63,13 +63,13 @@ export function DashboardNavLink({
     return (
       <Link
         href={href}
-        className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition ${
+        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
           isActive
-            ? "border-primary bg-primary text-primary-foreground shadow-sm"
-            : "border-border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground"
+            ? "bg-muted font-semibold text-card-foreground"
+            : "text-card-foreground/80 hover:bg-muted/50 hover:text-card-foreground"
         }`}
       >
-        <Icon size={15} />
+        <Icon size={18} className={isActive ? "text-primary" : "text-muted-foreground"} />
         {label}
       </Link>
     );

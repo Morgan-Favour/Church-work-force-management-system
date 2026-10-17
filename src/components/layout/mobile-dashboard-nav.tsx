@@ -43,7 +43,7 @@ export function MobileDashboardNav({
     <header className="sticky top-0 z-40 border-b border-border bg-card px-4 py-4 lg:hidden">
       <div className="flex items-center justify-between">
         <Link href="/dashboard" className="flex min-w-0 items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent-foreground">
             <Image
               src="/logo.png"
               alt="GIC Egbelu Workforce"
@@ -76,7 +76,7 @@ export function MobileDashboardNav({
       </div>
 
       {open && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50  backdrop-blur-sm">
           <div className="ml-auto flex h-full w-[82%] max-w-sm flex-col border-l border-border bg-card p-5 text-card-foreground shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
               <div>
@@ -93,13 +93,14 @@ export function MobileDashboardNav({
               </button>
             </div>
 
-            <nav className="space-y-2">
+            <nav className="space-y-2 ">
               {navItems.map((item) => (
-                <div key={item.href} onClick={() => setOpen(false)}>
+                <div className="" key={item.href} onClick={() => setOpen(false)}>
                   <DashboardNavLink
                     href={item.href}
                     label={item.label}
                     icon={item.icon}
+                    mobile={true}
                   />
                 </div>
               ))}
