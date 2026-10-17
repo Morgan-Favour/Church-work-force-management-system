@@ -3,25 +3,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardNavLink } from "@/components/layout/dashboard-nav-link";
 
-// wherever NavItem is defined
 export type NavItem = {
   label: string;
   href: string;
   icon:
-  | "departments"
-  | "attendance"
-  | "workers"
-  | "leaders"
-  | "dashboard"
-  | "activity"
-  | "reports"
-  | "settings"
-  | "members"
-  | "approvals";
-
+    | "departments"
+    | "attendance"
+    | "workers"
+    | "leaders"
+    | "dashboard"
+    | "activity"
+    | "reports"
+    | "settings"
+    | "members"
+    | "approvals";
 };
 
 type Props = {
@@ -38,6 +36,20 @@ export function MobileDashboardNav({
   disabled = false,
 }: Props) {
   const [open, setOpen] = useState(false);
+
+  // Lock body scroll when the mobile menu is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    // Cleanup when component unmounts
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [open]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card px-4 py-4 lg:hidden">
@@ -76,7 +88,7 @@ export function MobileDashboardNav({
       </div>
 
       {open && (
-        <div className="fixed inset-0 z-50  backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 backdrop-blur-sm">
           <div className="ml-auto flex h-full w-[82%] max-w-sm flex-col border-l border-border bg-card p-5 text-card-foreground shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
               <div>
@@ -93,14 +105,14 @@ export function MobileDashboardNav({
               </button>
             </div>
 
-            <nav className="space-y-2 ">
+            <nav className="space-y-1">
               {navItems.map((item) => (
-                <div className="" key={item.href} onClick={() => setOpen(false)}>
+                <div key={item.href} onClick={() => setOpen(false)}>
                   <DashboardNavLink
                     href={item.href}
                     label={item.label}
                     icon={item.icon}
-                    mobile={true}
+                    mobile
                   />
                 </div>
               ))}
