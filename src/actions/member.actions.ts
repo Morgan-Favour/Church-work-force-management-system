@@ -22,7 +22,7 @@ function getField(formData: FormData, field: string): string {
 }
 
 function isValidPhone(phone: string): boolean {
-  return /^\d{11,15}$/.test(phone);
+  return /^\+?\d{10,15}$/.test(phone);
 }
 
 function isValidEmail(email: string): boolean {

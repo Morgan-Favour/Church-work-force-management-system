@@ -10,8 +10,8 @@ import {
   UserCheck,
   Users,
   UserX,
+  Link as LinkIcon
 } from "lucide-react";
-
 type Department = {
   id: string;
   name: string;
@@ -101,13 +101,22 @@ export default function MemberDirectory({
           </p>
         </div>
 
-        <Link
-          href="/members/new"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
-        >
-          <Plus size={18} />
-          Add member
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/members/registration-link"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-card-foreground transition-colors hover:bg-muted"
+          >
+            <LinkIcon className="size-4" />
+            Registration Link
+          </Link>
+          <Link
+            href="/members/new"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
+          >
+            <Plus size={18} />
+            Add member
+          </Link>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -225,7 +234,7 @@ export default function MemberDirectory({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[850px] text-left text-sm">
+            <table className="w-full min-w-212.5 text-left text-sm">
               <thead className="border-b border-border bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th className="px-5 py-4 font-medium">Member</th>
@@ -276,11 +285,10 @@ export default function MemberDirectory({
 
                     <td className="px-5 py-4">
                       <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          member.isActive
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                            : "bg-muted text-muted-foreground"
-                        }`}
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${member.isActive
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                          : "bg-muted text-muted-foreground"
+                          }`}
                       >
                         {member.isActive ? "Active" : "Inactive"}
                       </span>

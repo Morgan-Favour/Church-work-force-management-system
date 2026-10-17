@@ -116,7 +116,7 @@ export default async function DashboardLayout({
         disabled={Boolean(isLeaderDepartmentInactive)}
       />
 
-      <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-primary text-primary-foreground lg:flex">
+      <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-foreground text-primary-foreground lg:flex">
         <div className="shrink-0 px-6 py-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-foreground/10">
             <Image

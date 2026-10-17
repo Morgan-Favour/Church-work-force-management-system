@@ -27,18 +27,18 @@ export function LeaderAccountActions({
 
   return (
     <>
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0e2d33]/10 text-[#0e2d33]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <ShieldCheck size={20} />
           </div>
 
           <div>
-            <h2 className="font-bold text-slate-900">
+            <h2 className="font-bold text-card-foreground">
               Account Actions
             </h2>
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               Reset password or manage account status.
             </p>
           </div>
@@ -48,7 +48,7 @@ export function LeaderAccountActions({
           <button
             type="button"
             onClick={() => setPasswordModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0e2d33] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#123940]"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
           >
             <KeyRound size={17} />
             Reset Password
@@ -64,7 +64,7 @@ export function LeaderAccountActions({
 
               <button
                 type="submit"
-                className="rounded-xl border border-red-200 px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+                className="rounded-xl border border-destructive/30 bg-card px-5 py-3 text-sm font-bold text-destructive transition hover:bg-destructive/10"
               >
                 Deactivate Leader
               </button>
@@ -79,7 +79,7 @@ export function LeaderAccountActions({
 
               <button
                 type="submit"
-                className="rounded-xl border border-emerald-200 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                className="rounded-xl border border-emerald-500/30 bg-card px-5 py-3 text-sm font-bold text-emerald-600 dark:text-emerald-400 transition hover:bg-emerald-500/10"
               >
                 Reactivate Leader
               </button>

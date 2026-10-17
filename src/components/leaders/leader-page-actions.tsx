@@ -23,7 +23,7 @@ export function LeaderActions({
       <div className="flex gap-3">
         <button
           onClick={() => setShowAddLeader(true)}
-          className="flex items-center gap-2 rounded-xl bg-[#0e2d33] px-3 py-2 lg:px-4 lg:py-2 font-semibold text-white text-sm"
+          className="flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 lg:px-4 lg:py-2.5"
         >
           <Plus size={18} />
           Add Leader
@@ -31,7 +31,7 @@ export function LeaderActions({
 
         <button
           onClick={() => setShowInvite(true)}
-          className="flex items-center gap-2 rounded-xl border border-[#0e2d33] px-3 py-2 lg:px-4 lg:py-2 text-[#0e2d33]"
+          className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-bold text-card-foreground shadow-sm transition hover:bg-muted/50 lg:px-4 lg:py-2.5"
         >
           <Link2 size={18} />
           Create Invite

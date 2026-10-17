@@ -120,14 +120,15 @@ export function AddLeaderModal({
           </div>
 
           {message && (
-            <div className="rounded-lg bg-slate-100 p-3">
+            <div className="rounded-xl border border-border bg-muted/50 p-3 text-sm font-semibold text-card-foreground">
               {message}
             </div>
           )}
 
           <button
+            type="submit"
             disabled={pending}
-            className="w-full rounded-xl bg-[#0e2d33] py-3 text-white"
+            className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending ? "Saving..." : "Add Leader"}
           </button>

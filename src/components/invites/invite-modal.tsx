@@ -20,30 +20,31 @@ export default function InviteModal({
 }: InviteModalProps) {
   if (!open) return null;
 
-  
+
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-5">
-      <div 
-       onClick={(e) => e.stopPropagation()}
-      className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
-
-        <div className="flex items-center justify-between border-b px-6 py-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-5 backdrop-blur-sm">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-2xl rounded-2xl border border-border bg-card shadow-2xl"
+      >
+        <div className="flex items-center justify-between border-b border-border px-6 py-5">
           <div>
-            <h2 className="text-xl font-bold">
+            <h2 className="text-xl font-bold tracking-tight text-card-foreground">
               {title}
             </h2>
 
             {description && (
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {description}
               </p>
             )}
           </div>
 
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-lg p-2 hover:bg-slate-100"
+            className="rounded-xl border border-border p-2 text-muted-foreground transition hover:bg-muted/50 hover:text-card-foreground"
           >
             <X size={20} />
           </button>
