@@ -57,7 +57,7 @@ export function LoginForm() {
     {/* Left Branding Side (Earthy Dark/Primary Hero Block) */}
     <div className="hidden bg-accent p-10 text-accent-foreground lg:flex lg:flex-col lg:justify-between">
       <div>
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-card/20 backdrop-blur-sm">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-foreground backdrop-blur-sm">
           <Image
             src="/logo.png"
             alt="GIC Egbelu Workforce"

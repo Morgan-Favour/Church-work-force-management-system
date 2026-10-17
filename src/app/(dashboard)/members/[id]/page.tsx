@@ -97,11 +97,10 @@ export default async function MemberProfilePage({
 
               <div className="flex flex-wrap items-center gap-2">
                 <span
-                  className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                    member.isActive
+                  className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${member.isActive
                       ? "bg-primary/15 text-foreground"
                       : "bg-muted text-muted-foreground"
-                  }`}
+                    }`}
                 >
                   {member.isActive ? "Active member" : "Inactive member"}
                 </span>

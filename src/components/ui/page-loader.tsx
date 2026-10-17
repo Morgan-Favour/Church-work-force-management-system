@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export function PageLoader() {
     return (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-accent text-accent-foreground">
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-accent-foreground text-accent">
             {/* Soft ambient glow */}
             <div className="absolute h-72 w-72 rounded-full bg-accent-foreground/5 blur-3xl" />
 
@@ -26,7 +26,7 @@ export function PageLoader() {
             </p>
 
             {/* Elegant thin progress bar */}
-            <div className="h-1 w-52 overflow-hidden rounded-full bg-accent-foreground/10">
+            <div className="h-1 w-52 overflow-hidden rounded-full bg-accent">
                 <div className="h-full w-1/2 animate-[loading_1.6s_ease-in-out_infinite] rounded-full bg-accent-foreground/80" />
             </div>
         </div>
