@@ -6,9 +6,24 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
 
+type MemberField =
+  | "fullName"
+  | "gender"
+  | "phone"
+  | "whatsappNo"
+  | "email"
+  | "dateOfBirth"
+  | "maritalStatus"
+  | "occupation"
+  | "address"
+  | "dateJoined"
+  | "departmentId"
+  | "g12Id";
+
 type ActionResult = {
   error?: string;
   success?: string;
+  fieldErrors?: Partial<Record<MemberField, string>>;
 };
 
 async function requireAdmin(): Promise<boolean> {
@@ -21,8 +36,8 @@ function getField(formData: FormData, field: string): string {
   return formData.get(field)?.toString().trim() ?? "";
 }
 
-function isValidPhone(phone: string): boolean {
-  return /^\+?\d{10,15}$/.test(phone);
+function isValidPhone(value: string) {
+  return /^\+?\d{11,15}$/.test(value.trim());
 }
 
 function isValidEmail(email: string): boolean {
@@ -57,6 +72,26 @@ export async function createMember(
   const departmentId = getField(formData, "departmentId");
   const g12Id = getField(formData, "g12Id");
 
+
+  function normalizePhoneNumber(phone: string | null | undefined): string | null {
+    if (!phone) return null;
+
+    // Remove all spaces, dashes, or parentheses
+    const cleaned = phone.replace(/[\s\-\(\)]/g, "");
+
+    // If it starts with 234 without the plus, add the plus
+    if (cleaned.startsWith("234") && cleaned.length === 13) {
+      return "+" + cleaned;
+    }
+
+    // If it starts with local '0' (e.g. 08144543193), convert to +234
+    if (cleaned.startsWith("0") && cleaned.length === 11) {
+      return "+234" + cleaned.slice(1);
+    }
+
+    // If it already starts with +234, return as is
+    return cleaned;
+  }
   if (
     !fullName ||
     !gender ||
@@ -94,30 +129,36 @@ export async function createMember(
     return { error: "Date of birth cannot be in the future." };
   }
 
-  try {
-    const existingPhone = await prisma.member.findUnique({
-      where: { phone },
+  // 1. Normalize the incoming values first
+const normalizedPhone = normalizePhoneNumber(phone);
+const normalizedWhatsApp = normalizePhoneNumber(whatsappNo);
+
+try {
+  // 2. Check the normalized phone
+  const existingPhone = await prisma.member.findUnique({
+    where: { phone: normalizedPhone ?? phone },
+    select: { fullName: true },
+  });
+
+  if (existingPhone) {
+    return {
+      error: `${existingPhone.fullName} already uses this phone number.`,
+    };
+  }
+
+  // 3. Check the normalized WhatsApp number
+  if (normalizedWhatsApp) {
+    const existingWhatsApp = await prisma.member.findUnique({
+      where: { whatsappNo: normalizedWhatsApp },
       select: { fullName: true },
     });
 
-    if (existingPhone) {
+    if (existingWhatsApp) {
       return {
-        error: `${existingPhone.fullName} already uses this phone number.`,
+        error: `${existingWhatsApp.fullName} already uses this WhatsApp number.`,
       };
     }
-
-    if (whatsappNo) {
-      const existingWhatsApp = await prisma.member.findUnique({
-        where: { whatsappNo },
-        select: { fullName: true },
-      });
-
-      if (existingWhatsApp) {
-        return {
-          error: `${existingWhatsApp.fullName} already uses this WhatsApp number.`,
-        };
-      }
-    }
+  }
 
     if (email) {
       const existingEmail = await prisma.member.findUnique({

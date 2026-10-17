@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { UserRole } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import MemberForm from "@/components/members/member-form";
+import AdminMemberRegistration from "@/components/members/admin-member-registration";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ export default async function NewMemberPage() {
   ]);
 
   return (
-    <MemberForm
+    <AdminMemberRegistration
       departments={departments}
       g12Groups={g12Groups}
     />
