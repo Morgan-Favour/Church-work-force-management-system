@@ -87,7 +87,7 @@ export function MobileDashboardNav({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-xl border border-border bg-card p-2 text-foreground transition hover:bg-muted/50"
+                className="rounded-xl border border-border bg-card p-2 text-card-foreground transition hover:bg-muted/50"
               >
                 <X size={20} />
               </button>
