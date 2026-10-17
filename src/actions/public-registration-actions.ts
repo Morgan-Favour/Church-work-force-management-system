@@ -27,8 +27,8 @@ function getField(formData: FormData, field: string): string {
   return formData.get(field)?.toString().trim() ?? "";
 }
 
-function isValidPhone(phone: string): boolean {
-  return /^\d{11,15}$/.test(phone);
+function isValidPhone(value: string) {
+  return /^\+?\d{11,15}$/.test(value.trim());
 }
 
 function isValidEmail(email: string): boolean {
