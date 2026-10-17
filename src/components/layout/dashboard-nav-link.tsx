@@ -24,8 +24,7 @@ type IconName =
   | "reports"
   | "settings"
   | "members"
-  | "approvals";   
-  
+  | "approvals";
 
 const icons: Record<IconName, LucideIcon> = {
   dashboard: LayoutDashboard,
@@ -37,7 +36,7 @@ const icons: Record<IconName, LucideIcon> = {
   reports: BarChart3,
   settings: Settings,
   approvals: CheckCircle2,
-  members: Users
+  members: Users,
 };
 
 type DashboardNavLinkProps = {
@@ -63,26 +62,16 @@ export function DashboardNavLink({
   if (mobile) {
     return (
       <Link
-  href={href}
-  className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition ${
-    isActive
-      ? "border-card bg-card text-card-foreground shadow-sm"
-      : "border-border bg-primary text-primary-foreground hover:opacity-90"
-  }`}
->
-  <Icon size={15} />
-  {label}<Link
-  href={href}
-  className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition ${
-    isActive
-      ? "border-card bg-card text-card-foreground shadow-sm"
-      : "border-border bg-primary text-primary-foreground hover:opacity-90"
-  }`}
->
-  <Icon size={15} />
-  {label}
-</Link>
-</Link>
+        href={href}
+        className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition ${
+          isActive
+            ? "border-primary bg-primary text-primary-foreground shadow-sm"
+            : "border-border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground"
+        }`}
+      >
+        <Icon size={15} />
+        {label}
+      </Link>
     );
   }
 
