@@ -87,7 +87,7 @@ export default function AttendanceContextSelector({
             setServiceId(nextServiceId);
             updatePage(nextServiceId, departmentId);
           }}
-          className="rounded-xl border border-border bg-input px-4 py-3 text-sm text-card-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+          className="overflow-hidden w-full rounded-xl border border-border bg-input px-4 py-3 text-sm text-card-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
         >
           {services.length === 0 ? (
             <option value="">No gathering created</option>

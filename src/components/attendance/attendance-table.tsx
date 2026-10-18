@@ -27,7 +27,7 @@ export function AttendanceTable({
   existingAttendance,
 }: AttendanceTableProps) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+    <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm p-4">
       <div className="mb-6">
         <h2 className="text-base font-bold text-card-foreground sm:text-lg">
           Attendance Sheet

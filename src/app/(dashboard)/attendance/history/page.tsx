@@ -168,35 +168,37 @@ export default async function AttendanceHistoryPage({
                       </span>
                     </div>
 
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-                        <tr>
-                          <th className="px-4 py-3">Worker</th>
-                          <th className="px-4 py-3">Status</th>
-                          <th className="px-4 py-3">Marked On</th>
-                        </tr>
-                      </thead>
-
-                      <tbody className="divide-y divide-border bg-card">
-                        {group.records.map((record) => (
-                          <tr key={record.id} className="transition-colors hover:bg-muted/50">
-                            <td className="px-4 py-4 font-semibold text-card-foreground">
-                              {record.worker.fullName}
-                            </td>
-
-                            <td className="px-4 py-4">
-                              <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
-                                {record.status}
-                              </span>
-                            </td>
-
-                            <td className="px-4 py-4 text-muted-foreground">
-                              {record.createdAt.toDateString()}
-                            </td>
+                    <div className="w-full overflow-x-auto">
+                      <table className="w-full text-left text-sm border-collapse">
+                        <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                          <tr>
+                            <th className="px-4 py-3 whitespace-nowrap">Worker</th>
+                            <th className="px-4 py-3 whitespace-nowrap">Status</th>
+                            <th className="px-4 py-3 whitespace-nowrap">Marked On</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+
+                        <tbody className="divide-y divide-border bg-card">
+                          {group.records.map((record) => (
+                            <tr key={record.id} className="transition-colors hover:bg-muted/50">
+                              <td className="px-4 py-4 font-semibold text-card-foreground whitespace-nowrap">
+                                {record.worker.fullName}
+                              </td>
+
+                              <td className="px-4 py-4 whitespace-nowrap">
+                                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
+                                  {record.status}
+                                </span>
+                              </td>
+
+                              <td className="px-4 py-4 text-muted-foreground whitespace-nowrap">
+                                {record.createdAt.toDateString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 ))}
               </div>
