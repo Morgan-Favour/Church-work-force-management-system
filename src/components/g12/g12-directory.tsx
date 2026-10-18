@@ -2,6 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
     MapPin,
     Search,
@@ -11,6 +12,7 @@ import {
     Mail,
     MessageCircle,
     MapPinned,
+    ArrowRight,
 } from "lucide-react";
 
 export type G12DirectoryItem = {
@@ -53,16 +55,6 @@ export default function G12Directory({ groups }: G12DirectoryProps) {
     return (
         <section className="space-y-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                    <h2 className="text-xl font-bold tracking-tight text-foreground">
-                        G12 Directory
-                    </h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        Browse the churchs registered G12 groups and their
-                        contact details.
-                    </p>
-                </div>
-
                 <p className="text-sm text-muted-foreground">
                     {filteredGroups.length}{" "}
                     {filteredGroups.length === 1 ? "group" : "groups"}
@@ -223,6 +215,13 @@ export default function G12Directory({ groups }: G12DirectoryProps) {
                                     </p>
                                 )}
                             </div>
+                            <Link
+                                href={`/g12/${group.id}`}
+                                className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary transition-opacity hover:opacity-80"
+                            >
+                                View G12 Details
+                                <ArrowRight className="h-4 w-4" />
+                            </Link>
                         </article>
                     ))}
                 </div>

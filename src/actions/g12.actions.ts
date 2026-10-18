@@ -151,3 +151,142 @@ export async function createG12(
         };
     }
 }
+
+export async function updateG12(
+    id: string,
+    formData: FormData
+): Promise<G12ActionResult> {
+    await requireAdmin();
+
+    const name = String(formData.get("name") ?? "").trim();
+    const hostLocation = String(
+        formData.get("hostLocation") ?? ""
+    ).trim();
+    const hostName = String(formData.get("hostName") ?? "").trim();
+    const leaderName = String(
+        formData.get("leaderName") ?? ""
+    ).trim();
+    const contactPhone = String(
+        formData.get("contactPhone") ?? ""
+    ).trim();
+    const contactWhatsApp = String(
+        formData.get("contactWhatsApp") ?? ""
+    ).trim();
+    const contactEmail = String(
+        formData.get("contactEmail") ?? ""
+    ).trim().toLowerCase();
+    const contactPerson = String(
+        formData.get("contactPerson") ?? ""
+    ).trim().toUpperCase();
+
+    const fieldErrors: Partial<Record<G12Field, string>> = {};
+
+    if (!id.trim()) {
+        return { error: "Invalid G12 ID." };
+    }
+
+    if (!name) fieldErrors.name = "G12 name is required.";
+    if (!hostLocation) {
+        fieldErrors.hostLocation = "Host location is required.";
+    }
+    if (!hostName) fieldErrors.hostName = "Host name is required.";
+    if (!leaderName) {
+        fieldErrors.leaderName = "G12 leader name is required.";
+    }
+
+    if (!contactPhone) {
+        fieldErrors.contactPhone = "Contact phone is required.";
+    } else if (!isValidPhone(contactPhone)) {
+        fieldErrors.contactPhone =
+            "Enter a valid phone number using 11–15 digits, optionally starting with +.";
+    }
+
+    if (contactWhatsApp && !isValidPhone(contactWhatsApp)) {
+        fieldErrors.contactWhatsApp = "Enter a valid WhatsApp number.";
+    }
+
+    if (contactEmail && !isValidEmail(contactEmail)) {
+        fieldErrors.contactEmail = "Enter a valid email address.";
+    }
+
+    if (!["HOST", "LEADER"].includes(contactPerson)) {
+        fieldErrors.contactPerson =
+            "Select either the host or the leader as the contact person.";
+    }
+
+    if (Object.keys(fieldErrors).length > 0) {
+        return { fieldErrors };
+    }
+
+    try {
+        const existingGroup = await prisma.g12.findUnique({
+            where: { id },
+            select: { id: true },
+        });
+
+        if (!existingGroup) {
+            return { error: "G12 group not found." };
+        }
+
+        const duplicateName = await prisma.g12.findFirst({
+            where: {
+                name: { equals: name, mode: "insensitive" },
+                id: { not: id },
+            },
+            select: { id: true },
+        });
+
+        if (duplicateName) {
+            return {
+                fieldErrors: {
+                    name: "A G12 with this name already exists.",
+                },
+            };
+        }
+
+        await prisma.g12.update({
+            where: { id },
+            data: {
+                name,
+                hostLocation,
+                hostName,
+                leaderName,
+                contactPhone,
+                contactWhatsApp: contactWhatsApp || null,
+                contactEmail: contactEmail || null,
+                contactPerson,
+            },
+        });
+
+        revalidatePath("/g12");
+        revalidatePath(`/g12/${id}`);
+        revalidatePath("/members");
+        revalidatePath("/dashboard");
+
+        return { success: "G12 details updated successfully." };
+    } catch (error) {
+        if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2002"
+        ) {
+            return {
+                fieldErrors: {
+                    name: "A G12 with this name already exists.",
+                },
+            };
+        }
+
+        if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2025"
+        ) {
+            return { error: "G12 group not found." };
+        }
+
+        console.error("Failed to update G12:", error);
+
+        return {
+            error: "Something went wrong while updating the G12. Please try again.",
+        };
+    }
+}

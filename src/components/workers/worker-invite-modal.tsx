@@ -93,6 +93,12 @@ export function WorkerInviteModal({
             </div>
           )}
 
+
+        </form>
+      </ModalBody>
+
+      <ModalFooter>
+       
           {!inviteLink ? (
             <button
               type="submit"
@@ -114,27 +120,25 @@ export function WorkerInviteModal({
               />
             </div>
           )}
-        </form>
-      </ModalBody>
+          {!inviteLink ? (
+            <button
+              type="button"
+              onClick={closeModal}
+              className="w-full rounded-xl border border-border bg-card py-3 text-sm font-bold text-card-foreground transition hover:bg-muted/50"
+            >
+              Cancel
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={copyLink}
+              className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
+            >
+              Copy Invite Link
+            </button>
+          )}
 
-      <ModalFooter>
-        {!inviteLink ? (
-          <button
-            type="button"
-            onClick={closeModal}
-            className="w-full rounded-xl border border-border bg-card py-3 text-sm font-bold text-card-foreground transition hover:bg-muted/50"
-          >
-            Cancel
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={copyLink}
-            className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
-          >
-            Copy Invite Link
-          </button>
-        )}
+        
       </ModalFooter>
     </Modal>
   );
