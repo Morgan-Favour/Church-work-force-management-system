@@ -155,9 +155,11 @@ export default function MemberDirectory({
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <SlidersHorizontal size={18} className="shrink-0 text-muted-foreground" />
 
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 justify-center" >
+            <div className="flex items-center justify-self-end gap-2 text-sm font-medium text-muted-foreground">
+              <SlidersHorizontal size={18} className="shrink-0 text-muted-foreground" />
+            </div>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as StatusFilter)}
