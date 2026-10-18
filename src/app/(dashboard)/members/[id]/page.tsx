@@ -258,7 +258,7 @@ function InfoItem({
         <p className="text-sm">{label}</p>
       </div>
 
-      <p className="break-words text-sm font-medium text-foreground">
+      <p className="wrap-break-word text-sm font-medium text-foreground">
         {value || "Not provided"}
       </p>
     </div>

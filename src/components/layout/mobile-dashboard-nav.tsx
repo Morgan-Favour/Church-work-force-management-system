@@ -19,6 +19,7 @@ export type NavItem = {
     | "reports"
     | "settings"
     | "members"
+    | "g12"
     | "approvals";
 };
 

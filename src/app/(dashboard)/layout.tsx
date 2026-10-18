@@ -61,10 +61,12 @@ export default async function DashboardLayout({
       { label: "Departments", href: "/departments", icon: "departments" as const },
       { label: "Workers", href: "/workers", icon: "workers" as const },
       { label: "Leaders", href: "/leaders", icon: "leaders" as const },
+      { label: "Members", href: "/members", icon: "members" as const },
+      { label: "G12", href: "/g12", icon: "g12" as const },
       { label: "Attendance", href: "/attendance", icon: "attendance" as const },
       { label: "Approvals", href: "/approvals", icon: "approvals" as const },
       { label: "Activity", href: "/activity", icon: "activity" as const },
-      { label: "Members", href: "/members", icon: "members" as const },
+      
     ]
     : [
       { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
