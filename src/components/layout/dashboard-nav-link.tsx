@@ -24,6 +24,7 @@ type IconName =
   | "reports"
   | "settings"
   | "members"
+  | "g12"
   | "approvals";
 
 const icons: Record<IconName, LucideIcon> = {
@@ -37,6 +38,7 @@ const icons: Record<IconName, LucideIcon> = {
   settings: Settings,
   approvals: CheckCircle2,
   members: Users,
+  g12: Users,
 };
 
 type DashboardNavLinkProps = {
