@@ -7,6 +7,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { CreateGatheringForm } from "@/components/attendance/create-gathering-form";
 import { AttendanceTable } from "@/components/attendance/attendance-table";
 import AttendanceContextSelector from "./AttendanceContextSelector";
+import { archiveExpiredGatherings } from "@/lib/archive-expired-gathering";
+import Link from "next/link";
 
 export default async function AttendancePage({
   searchParams,
@@ -27,11 +29,15 @@ export default async function AttendancePage({
   const isAdmin = session.user.role === UserRole.ADMIN;
   const leaderDepartmentIds = session.user.departmentIds || [];
 
+  await archiveExpiredGatherings();
+
   const services = await prisma.service.findMany({
     where: {
       archivedAt: null,
     },
-    orderBy: { date: "desc" },
+    orderBy: {
+      date: "desc",
+    },
   });
 
   const departments = await prisma.department.findMany({
@@ -155,12 +161,12 @@ export default async function AttendancePage({
             : "Mark attendance for the departments you lead."
         }
         action={
-          <a
+          <Link
             href="/attendance/history"
             className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-bold text-card-foreground shadow-sm transition hover:bg-muted"
           >
             View History
-          </a>
+          </Link>
         }
       />
 
