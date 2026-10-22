@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+body {
+  overflow-x: hidden
+}
+
 @keyframes logo-enter {
   0% {
     opacity: 0;

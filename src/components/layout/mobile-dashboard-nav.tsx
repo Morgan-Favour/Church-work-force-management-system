@@ -10,17 +10,17 @@ export type NavItem = {
   label: string;
   href: string;
   icon:
-    | "departments"
-    | "attendance"
-    | "workers"
-    | "leaders"
-    | "dashboard"
-    | "activity"
-    | "reports"
-    | "settings"
-    | "members"
-    | "g12"
-    | "approvals";
+  | "departments"
+  | "attendance"
+  | "workers"
+  | "leaders"
+  | "dashboard"
+  | "activity"
+  | "reports"
+  | "settings"
+  | "members"
+  | "g12"
+  | "approvals";
 };
 
 type Props = {
@@ -88,9 +88,16 @@ export function MobileDashboardNav({
         )}
       </div>
 
+
       {open && (
-        <div className="fixed inset-0 z-50 backdrop-blur-sm">
-          <div className="ml-auto flex h-full w-[82%] max-w-sm flex-col border-l border-border bg-card p-5 text-card-foreground shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="ml-auto flex h-full w-[82%] max-w-sm flex-col border-l border-border bg-card p-5 text-card-foreground shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="font-bold text-card-foreground">Menu</h2>
@@ -101,6 +108,7 @@ export function MobileDashboardNav({
                 type="button"
                 onClick={() => setOpen(false)}
                 className="rounded-xl border border-border bg-card p-2 text-card-foreground transition hover:bg-muted/50"
+                aria-label="Close navigation menu"
               >
                 <X size={20} />
               </button>
@@ -132,6 +140,7 @@ export function MobileDashboardNav({
           </div>
         </div>
       )}
+
     </header>
   );
 }

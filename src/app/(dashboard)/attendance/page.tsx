@@ -28,6 +28,9 @@ export default async function AttendancePage({
   const leaderDepartmentIds = session.user.departmentIds || [];
 
   const services = await prisma.service.findMany({
+    where: {
+      archivedAt: null,
+    },
     orderBy: { date: "desc" },
   });
 
@@ -35,9 +38,9 @@ export default async function AttendancePage({
     where: isAdmin
       ? { isActive: true }
       : {
-          id: { in: leaderDepartmentIds },
-          isActive: true,
-        },
+        id: { in: leaderDepartmentIds },
+        isActive: true,
+      },
     orderBy: { name: "asc" },
   });
 
@@ -97,30 +100,30 @@ export default async function AttendancePage({
 
   const workers = selectedDepartmentId
     ? await prisma.worker.findMany({
-        where: {
-          isActive: true,
-          departments: {
-            some: {
-              departmentId: selectedDepartmentId,
-            },
+      where: {
+        isActive: true,
+        departments: {
+          some: {
+            departmentId: selectedDepartmentId,
           },
         },
-        orderBy: { fullName: "asc" },
-      })
+      },
+      orderBy: { fullName: "asc" },
+    })
     : [];
 
   const existingAttendance =
     selectedServiceId && selectedDepartmentId
       ? await prisma.attendance.findMany({
-          where: {
-            serviceId: selectedServiceId,
-            departmentId: selectedDepartmentId,
-          },
-          select: {
-            workerId: true,
-            status: true,
-          },
-        })
+        where: {
+          serviceId: selectedServiceId,
+          departmentId: selectedDepartmentId,
+        },
+        select: {
+          workerId: true,
+          status: true,
+        },
+      })
       : [];
 
   const markedCount = existingAttendance.length;

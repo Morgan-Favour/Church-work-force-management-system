@@ -66,7 +66,7 @@ export default async function DashboardLayout({
       { label: "Attendance", href: "/attendance", icon: "attendance" as const },
       { label: "Approvals", href: "/approvals", icon: "approvals" as const },
       { label: "Activity", href: "/activity", icon: "activity" as const },
-      
+
     ]
     : [
       { label: "Dashboard", href: "/dashboard", icon: "dashboard" as const },
@@ -160,7 +160,7 @@ export default async function DashboardLayout({
         </div>
       </aside>
 
-      <div className="lg:pl-72">
+      <div className="min-w-0 lg:pl-72">
         <header className="hidden h-20 items-center justify-between border-b border-border bg-card px-8 lg:flex">
           <div>
             <p className="text-sm text-muted-foreground">Welcome back</p>
@@ -182,7 +182,9 @@ export default async function DashboardLayout({
         {isLeaderDepartmentInactive ? (
           blockedContent
         ) : (
-          <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+          <main className="min-w-0 p-4 sm:p-6 lg:p-8">
+            {children}  
+          </main>
         )}
       </div>
     </div>

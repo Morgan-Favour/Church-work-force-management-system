@@ -59,8 +59,8 @@ export default function AttendanceContextSelector({
     attendanceStatus === "Marked"
       ? CheckCircle2
       : attendanceStatus === "Partially marked"
-      ? AlertTriangle
-      : CircleMinus;
+        ? AlertTriangle
+        : CircleMinus;
 
   function getStatusEmoji(status: DepartmentStatus) {
     if (status === "Marked") return "🟢";
@@ -80,6 +80,7 @@ export default function AttendanceContextSelector({
       </p>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
+
         <select
           value={serviceId}
           onChange={(e) => {
@@ -87,10 +88,10 @@ export default function AttendanceContextSelector({
             setServiceId(nextServiceId);
             updatePage(nextServiceId, departmentId);
           }}
-          className="overflow-hidden w-full rounded-xl border border-border bg-input px-4 py-3 text-sm text-card-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+          className="w-full overflow-hidden rounded-xl border border-border bg-input px-4 py-3 text-sm text-card-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
         >
           {services.length === 0 ? (
-            <option value="">No gathering created</option>
+            <option value="">No active gathering available</option>
           ) : (
             services.map((service) => (
               <option key={service.id} value={service.id}>
@@ -99,6 +100,7 @@ export default function AttendanceContextSelector({
             ))
           )}
         </select>
+
 
         <select
           value={departmentId}

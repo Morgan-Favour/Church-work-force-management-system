@@ -22,14 +22,6 @@ export default function AdminMemberRegistration({
   return (
     <div className="mx-auto max-w-5xl space-y-6 pb-10">
       <div>
-        <Link
-          href="/members"
-          className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
-        >
-          <ArrowLeft size={16} />
-          Back to members
-        </Link>
-
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <UserPlus size={24} />
