@@ -74,7 +74,7 @@ export function LeaderInviteModal({
       />
 
       <ModalBody>
-        <form action={handleSubmit} className="space-y-6">
+        <form action={handleSubmit} className="space-y-10">
           <div>
             <label className="mb-2 block text-sm font-semibold text-card-foreground">
               Department(s)
@@ -93,31 +93,31 @@ export function LeaderInviteModal({
             </div>
           )}
 
-          {!inviteLink ? (
-            <button
-              type="submit"
-              disabled={pending}
-              className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {pending ? "Generating Invite..." : "Generate Invite Link"}
-            </button>
-          ) : (
-            <div className="space-y-4">
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                Invite link generated successfully.
-              </div>
-
-              <input
-                readOnly
-                value={inviteLink}
-                className="w-full rounded-xl border border-input bg-muted/50 p-3 text-sm text-card-foreground outline-none"
-              />
-            </div>
-          )}
         </form>
       </ModalBody>
 
       <ModalFooter>
+        {!inviteLink ? (
+          <button
+            type="submit"
+            disabled={pending}
+            className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {pending ? "Generating Invite..." : "Generate Invite Link"}
+          </button>
+        ) : (
+          <div className="space-y-4">
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+              Invite link generated successfully.
+            </div>
+
+            <input
+              readOnly
+              value={inviteLink}
+              className="w-full rounded-xl border border-input bg-muted/50 p-3 text-sm text-card-foreground outline-none"
+            />
+          </div>
+        )}
         {!inviteLink ? (
           <button
             type="button"

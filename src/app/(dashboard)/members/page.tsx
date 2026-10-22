@@ -6,7 +6,6 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import MemberDirectory from "@/components/members/member-directory";
 
-
 export const dynamic = "force-dynamic";
 
 export default async function MembersPage() {
@@ -45,17 +44,18 @@ export default async function MembersPage() {
   });
 
   return (
-    <MemberDirectory
-      members={members.map((member) => ({
-        ...member,
-        dateJoined: member.dateJoined.toISOString(),
-        dateOfBirth: member.dateOfBirth.toISOString(),
-        createdAt: member.createdAt.toISOString(),
-        updatedAt: member.updatedAt.toISOString(),
-      }))}
-      departments={departments}
-      g12Groups={g12Groups}
-    />
-
+    <div className="">
+      <MemberDirectory
+        members={members.map((member) => ({
+          ...member,
+          dateJoined: member.dateJoined.toISOString(),
+          dateOfBirth: member.dateOfBirth.toISOString(),
+          createdAt: member.createdAt.toISOString(),
+          updatedAt: member.updatedAt.toISOString(),
+        }))}
+        departments={departments}
+        g12Groups={g12Groups}
+      />
+    </div>
   );
 }

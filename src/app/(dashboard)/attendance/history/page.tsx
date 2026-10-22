@@ -1,207 +1,219 @@
+
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
-import { UserRole } from "@prisma/client";
+import { UserRole, Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import {
+  CalendarDays,
+  ChevronRight,
+  ClipboardCheck,
+  Search,
+} from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+
+type AttendanceHistoryPageProps = {
+  searchParams: Promise<{ date?: string }>;
+};
 
 export default async function AttendanceHistoryPage({
   searchParams,
-}: {
-  searchParams: Promise<{ date?: string }>;
-}) {
+}: AttendanceHistoryPageProps) {
   const params = await searchParams;
   const session = await getServerSession(authOptions);
 
-  if (!session) redirect("/login");
+  if (!session?.user) redirect("/login");
 
   const isAdmin = session.user.role === UserRole.ADMIN;
-  const selectedDate = params.date;
+  const departmentIds = session.user.departmentIds ?? [];
+  const selectedDate = params.date?.trim() ?? "";
 
-  const where = {
-    ...(isAdmin
-      ? {}
-      : {
-          departmentId: {
-            in: session.user.departmentIds || [],
-          },
-        }),
+  // Validate the date before using it in the database query.
+  const isValidDate =
+    /^\d{4}-\d{2}-\d{2}$/.test(selectedDate) &&
+    !Number.isNaN(Date.parse(`${selectedDate}T00:00:00.000Z`)) &&
+    new Date(`${selectedDate}T00:00:00.000Z`)
+      .toISOString()
+      .startsWith(selectedDate);
 
-    ...(selectedDate
+  const where: Prisma.ServiceWhereInput = {
+    ...(isValidDate
       ? {
-          service: {
-            date: {
-              gte: new Date(`${selectedDate}T00:00:00.000Z`),
-              lt: new Date(`${selectedDate}T23:59:59.999Z`),
+        date: {
+          gte: new Date(`${selectedDate}T00:00:00.000Z`),
+          lt: new Date(
+            new Date(`${selectedDate}T00:00:00.000Z`).getTime() +
+            24 * 60 * 60 * 1000
+          ),
+        },
+      }
+      : {}),
+    ...(!isAdmin
+      ? {
+        attendance: {
+          some: {
+            departmentId: {
+              in: departmentIds,
             },
           },
-        }
+        },
+      }
       : {}),
   };
 
-  const records = await prisma.attendance.findMany({
+  const services = await prisma.service.findMany({
     where,
     include: {
-      worker: true,
-      department: true,
-      service: true,
+      attendance: {
+        where: isAdmin
+          ? undefined
+          : {
+            departmentId: {
+              in: departmentIds,
+            },
+          },
+        select: {
+          id: true,
+        },
+      },
     },
-    orderBy: [
-      { service: { date: "desc" } },
-      { service: { title: "asc" } },
-      { department: { name: "asc" } },
-      { worker: { fullName: "asc" } },
-    ],
+    orderBy: [{ date: "desc" }, { title: "asc" }],
   });
 
-  const groupedRecords = records.reduce((groups, record) => {
-    const dateKey = record.service.date.toDateString();
-    const gatheringKey = `${record.service.title}__${record.department.name}`;
-
-    if (!groups[dateKey]) groups[dateKey] = {};
-
-    if (!groups[dateKey][gatheringKey]) {
-      groups[dateKey][gatheringKey] = {
-        serviceTitle: record.service.title,
-        departmentName: record.department.name,
-        records: [],
-      };
-    }
-
-    groups[dateKey][gatheringKey].records.push(record);
-    return groups;
-  }, {} as Record<string, Record<string, {
-    serviceTitle: string;
-    departmentName: string;
-    records: typeof records;
-  }>>);
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("en-NG", {
+      timeZone: "Africa/Lagos",
+      weekday: "short",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
 
   return (
     <div className="space-y-8">
       <PageHeader
-        title="View Attendance Records"
+        title="Attendance History"
         description={
           isAdmin
-            ? "View attendance records across all departments, grouped by date and gathering."
-            : "View attendance records for your departments, grouped by date and gathering."
+            ? "Browse gatherings and review attendance across all departments."
+            : "Browse gatherings and review attendance for your departments."
         }
       />
 
-      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-card-foreground">Search Attendance</h2>
+      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Search size={20} />
+          </div>
+
+          <div>
+            <h2 className="font-bold text-card-foreground">
+              Find a Gathering
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Filter attendance history by service date.
+            </p>
+          </div>
+        </div>
 
         <form
           method="GET"
           action="/attendance/history"
-          className="mt-5 grid gap-4 md:grid-cols-[1fr_auto_auto]"
+          className="mt-5 flex flex-col gap-3 sm:flex-row"
         >
           <input
-            required
             type="date"
             name="date"
-            defaultValue={selectedDate || ""}
-            className="rounded-xl border border-border bg-input px-4 py-3 text-sm text-card-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+            aria-label="Filter gatherings by date"
+            defaultValue={isValidDate ? selectedDate : ""}
+            className="min-h-11 min-w-0 flex-1 rounded-xl border border-input bg-background px-4 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
           />
 
           <button
             type="submit"
-            className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-colors hover:opacity-90"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Search Date
+            <Search size={16} />
+            Search
           </button>
 
-          <a
+          <Link
             href="/attendance/history"
-            className="rounded-xl border border-border px-5 py-3 text-center text-sm font-bold text-card-foreground transition-colors hover:bg-muted"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
           >
             Clear
-          </a>
+          </Link>
         </form>
       </section>
 
-      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-        <div className="mb-6">
-          <h2 className="text-lg font-bold text-card-foreground">
-            Attendance Records
-          </h2>
-
-          <p className="text-sm text-muted-foreground">
-            Showing {records.length} record(s)
-            {selectedDate ? ` for ${selectedDate}` : ""}.
-          </p>
+      <section className="space-y-5">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold text-foreground">
+              Gatherings
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {services.length} gathering(s) found
+              {isValidDate ? ` for ${selectedDate}` : ""}.
+            </p>
+          </div>
         </div>
 
-        {records.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border p-10 text-center">
-            <p className="font-semibold text-card-foreground">
-              No attendance records found
-            </p>
+        {services.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center">
+            <CalendarDays
+              size={32}
+              className="mx-auto text-muted-foreground"
+            />
+            <h3 className="mt-4 font-semibold text-card-foreground">
+              No gatherings found
+            </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Try another date or mark attendance first.
+              Try another date or check back after a gathering has been created.
             </p>
           </div>
         ) : (
-          <div className="space-y-8">
-            {Object.entries(groupedRecords).map(([date, gatherings]) => (
-              <div key={date} className="space-y-4">
-                <div className="rounded-2xl bg-muted px-5 py-4">
-                  <h3 className="text-lg font-bold text-card-foreground">{date}</h3>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {services.map((service) => (
+              <Link
+                key={service.id}
+                href={`/attendance/history/${service.id}`}
+                className="group rounded-2xl border border-border bg-card p-5 shadow-sm transition-colors hover:border-primary/50 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <CalendarDays size={21} />
+                  </div>
+
+                  <ChevronRight
+                    size={20}
+                    className="text-muted-foreground transition-transform group-hover:translate-x-1"
+                  />
                 </div>
 
-                {Object.entries(gatherings).map(([key, group]) => (
-                  <div
-                    key={key}
-                    className="overflow-hidden rounded-2xl border border-border"
-                  >
-                    <div className="flex items-center justify-between border-b border-border bg-card px-5 py-4">
-                      <div>
-                        <h4 className="font-bold text-card-foreground">
-                          {group.serviceTitle}
-                        </h4>
-                        <p className="text-sm text-muted-foreground">
-                          {group.departmentName} Department
-                        </p>
-                      </div>
+                <h3 className="mt-4 text-lg font-bold text-card-foreground">
+                  {service.title}
+                </h3>
 
-                      <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
-                        {group.records.length} record(s)
-                      </span>
-                    </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {formatDate(service.date)}
+                </p>
 
-                    <div className="w-full overflow-x-auto">
-                      <table className="w-full text-left text-sm border-collapse">
-                        <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-                          <tr>
-                            <th className="px-4 py-3 whitespace-nowrap">Worker</th>
-                            <th className="px-4 py-3 whitespace-nowrap">Status</th>
-                            <th className="px-4 py-3 whitespace-nowrap">Marked On</th>
-                          </tr>
-                        </thead>
+                <div className="mt-5 flex items-center gap-2 border-t border-border pt-4">
+                  <ClipboardCheck
+                    size={17}
+                    className="text-muted-foreground"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {service.attendance.length} attendance record(s)
+                  </span>
+                </div>
 
-                        <tbody className="divide-y divide-border bg-card">
-                          {group.records.map((record) => (
-                            <tr key={record.id} className="transition-colors hover:bg-muted/50">
-                              <td className="px-4 py-4 font-semibold text-card-foreground whitespace-nowrap">
-                                {record.worker.fullName}
-                              </td>
-
-                              <td className="px-4 py-4 whitespace-nowrap">
-                                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
-                                  {record.status}
-                                </span>
-                              </td>
-
-                              <td className="px-4 py-4 text-muted-foreground whitespace-nowrap">
-                                {record.createdAt.toDateString()}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                <p className="mt-4 text-sm font-semibold text-primary">
+                  View attendance details
+                </p>
+              </Link>
             ))}
           </div>
         )}

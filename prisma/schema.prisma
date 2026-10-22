@@ -138,6 +138,7 @@ model Service {
   date       DateTime
   createdAt  DateTime     @default(now())
   attendance Attendance[]
+   archivedAt DateTime?
 
   @@unique([title, date])
 }

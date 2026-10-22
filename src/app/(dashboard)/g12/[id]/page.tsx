@@ -205,7 +205,7 @@ export default async function G12DetailsPage({
                     </span>
                 </div>
 
-                <div className="overflow-hidden rounded-xl border border-border bg-card">
+                <div className="    ">
                     {group.members.length === 0 ? (
                         <div className="px-6 py-12 text-center">
                             <Users className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
@@ -256,16 +256,18 @@ export default async function G12DetailsPage({
                             </table>
                         </div>
                     )}
+
                 </div>
+
             </section>
             <div className="flex justify-end">
                 <Link
-                        href={`/g12/${group.id}/edit`}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-                    >
-                        <Pencil className="h-4 w-4" />
-                        Edit G12
-                </Link>
+                href={`/g12/${group.id}/edit`}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+                <Pencil className="h-4 w-4" />
+                Edit G12
+            </Link>
             </div>
         </div>
     );

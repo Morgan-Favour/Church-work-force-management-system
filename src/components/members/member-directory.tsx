@@ -12,6 +12,7 @@ import {
   UserX,
   Link as LinkIcon
 } from "lucide-react";
+
 type Department = {
   id: string;
   name: string;
@@ -89,7 +90,7 @@ export default function MemberDirectory({
   }, [members, search, status, departmentId, g12Id, departments, g12Groups]);
 
   return (
-    <div className="space-y-6">
+    <div className="w-full min-w-0 space-y-6">
       {/* Page Heading */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
@@ -140,7 +141,7 @@ export default function MemberDirectory({
 
       {/* Search and Filters */}
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-        <div className="flex flex-col gap-3 lg:flex-row">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <div className="relative flex-1">
             <Search
               size={18}
@@ -155,15 +156,16 @@ export default function MemberDirectory({
             />
           </div>
 
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 justify-center" >
-            <div className="flex items-center justify-self-end gap-2 text-sm font-medium text-muted-foreground">
+          {/* Fixed Flex-Wrap Filter Controls */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <SlidersHorizontal size={18} className="shrink-0 text-muted-foreground" />
             </div>
+
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as StatusFilter)}
-              className="min-w-32 rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
+              className="min-w-32 flex-1 sm:flex-none rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
               aria-label="Filter by member status"
             >
               <option value="ALL">All statuses</option>
@@ -174,7 +176,7 @@ export default function MemberDirectory({
             <select
               value={departmentId}
               onChange={(e) => setDepartmentId(e.target.value)}
-              className="min-w-36 rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
+              className="min-w-36 flex-1 sm:flex-none rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
               aria-label="Filter by department"
             >
               <option value="ALL">All departments</option>
@@ -188,7 +190,7 @@ export default function MemberDirectory({
             <select
               value={g12Id}
               onChange={(e) => setG12Id(e.target.value)}
-              className="min-w-32 rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
+              className="min-w-32 flex-1 sm:flex-none rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-card-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
               aria-label="Filter by G12"
             >
               <option value="ALL">All G12 groups</option>
@@ -207,111 +209,85 @@ export default function MemberDirectory({
       </div>
 
       {/* Members Table */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        {filteredMembers.length === 0 ? (
-          <div className="flex flex-col items-center px-6 py-16 text-center">
-            <div className="mb-4 rounded-full bg-primary/10 p-4 text-primary">
-              <Users size={28} />
+      <section className="w-full min-w-0">
+        <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          {filteredMembers.length === 0 ? (
+            <div className="flex flex-col items-center px-6 py-16 text-center">
+              <div className="mb-4 rounded-full bg-primary/10 p-4 text-primary">
+                <Users size={28} />
+              </div>
+
+              <h2 className="font-semibold text-card-foreground">
+                {members.length === 0 ? "No members yet" : "No members found"}
+              </h2>
+
+              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                {members.length === 0
+                  ? "Start building your church membership directory by adding your first member."
+                  : "Try changing your search or filters to find the member you're looking for."}
+              </p>
+
+              {members.length === 0 && (
+                <Link
+                  href="/members/new"
+                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
+                >
+                  <Plus size={17} />
+                  Add first member
+                </Link>
+              )}
             </div>
+          ) : (
+            /* Outer wrapper handles the scroll boundary safely */
+            <div className="overflow-x-auto">
 
-            <h2 className="font-semibold text-card-foreground">
-              {members.length === 0 ? "No members yet" : "No members found"}
-            </h2>
+              <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-border bg-card shadow-sm divide-y divide-border">
+                {filteredMembers.length === 0 ? (
+                  <div className="px-6 py-12 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      No members found.
+                    </p>
+                  </div>
+                ) : (
+                  filteredMembers.map((member) => (
+                    <Link
+                      key={member.id}
+                      href={`/members/${member.id}`}
+                      className="flex w-full min-w-0 items-center gap-3 px-4 py-4 transition hover:bg-muted/50 sm:px-5"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                        {member.fullName
+                          .split(" ")
+                          .filter(Boolean)
+                          .slice(0, 2)
+                          .map((part) => part[0])
+                          .join("")
+                          .toUpperCase()}
+                      </div>
 
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              {members.length === 0
-                ? "Start building your church membership directory by adding your first member."
-                : "Try changing your search or filters to find the member you're looking for."}
-            </p>
+                      <div className="min-w-0 flex-1">
+                        <p className="break-words text-sm font-semibold text-card-foreground">
+                          {member.fullName}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Joined{" "}
+                          {dateFormatter.format(new Date(member.dateJoined))}
+                        </p>
+                      </div>
 
-            {members.length === 0 && (
-              <Link
-                href="/members/new"
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
-              >
-                <Plus size={17} />
-                Add first member
-              </Link>
-            )}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-212.5 text-left text-sm">
-              <thead className="border-b border-border bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th className="px-5 py-4 font-medium">Member</th>
-                  <th className="px-5 py-4 font-medium">Contact</th>
-                  <th className="px-5 py-4 font-medium">Department</th>
-                  <th className="px-5 py-4 font-medium">G12</th>
-                  <th className="px-5 py-4 font-medium">Date joined</th>
-                  <th className="px-5 py-4 font-medium">Status</th>
-                  <th className="px-5 py-4 font-medium">
-                    <span className="sr-only">Actions</span>
-                  </th>
-                </tr>
-              </thead>
+                      <ChevronRight
+                        size={18}
+                        className="shrink-0 text-muted-foreground"
+                      />
+                    </Link>
+                  ))
+                )}
+              </div>
 
-              <tbody className="divide-y divide-border">
-                {filteredMembers.map((member) => (
-                  <tr key={member.id} className="transition hover:bg-muted/50">
-                    <td className="px-5 py-4">
-                      <Link
-                        href={`/members/${member.id}`}
-                        className="font-medium text-card-foreground transition hover:text-primary"
-                      >
-                        {member.fullName}
-                      </Link>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {member.gender}
-                      </p>
-                    </td>
-
-                    <td className="px-5 py-4">
-                      <p className="text-card-foreground">{member.phone}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {member.email || "No email"}
-                      </p>
-                    </td>
-
-                    <td className="px-5 py-4 text-muted-foreground">
-                      {member.department?.name || "Unassigned"}
-                    </td>
-
-                    <td className="px-5 py-4 text-muted-foreground">
-                      {member.g12?.name || "—"}
-                    </td>
-
-                    <td className="whitespace-nowrap px-5 py-4 text-muted-foreground">
-                      {dateFormatter.format(new Date(member.dateJoined))}
-                    </td>
-
-                    <td className="px-5 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${member.isActive
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                          : "bg-muted text-muted-foreground"
-                          }`}
-                      >
-                        {member.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-
-                    <td className="px-5 py-4 text-right">
-                      <Link
-                        href={`/members/${member.id}`}
-                        aria-label={`View ${member.fullName}`}
-                        className="inline-flex rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-card-foreground"
-                      >
-                        <ChevronRight size={18} />
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

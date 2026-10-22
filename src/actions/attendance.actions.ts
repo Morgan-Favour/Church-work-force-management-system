@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { AttendanceStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
+import { archiveExpiredGatherings } from "@/lib/archive-expired-gathering";
 export async function createService(formData: FormData) {
   const title = formData.get("title")?.toString().trim();
   const date = formData.get("date")?.toString();
@@ -18,8 +18,10 @@ export async function createService(formData: FormData) {
 
     const existingService = await prisma.service.findFirst({
       where: {
+        archivedAt: null,
         title,
-        date: serviceDate,
+        date: serviceDate
+
       },
     });
 
@@ -53,6 +55,8 @@ export async function createService(formData: FormData) {
 }
 
 export async function markAttendance(formData: FormData) {
+ await archiveExpiredGatherings();
+
   const serviceId = formData.get("serviceId")?.toString();
   const departmentId = formData.get("departmentId")?.toString();
   const markedBy = formData.get("markedBy")?.toString();
@@ -106,7 +110,7 @@ export async function markAttendance(formData: FormData) {
         description: `Attendance marked for ${department?.name || "a department"
           } during ${service?.title || "a gathering"}.`,
         actorId: markedBy || null,
-            departmentId,
+        departmentId,
 
       },
     });
