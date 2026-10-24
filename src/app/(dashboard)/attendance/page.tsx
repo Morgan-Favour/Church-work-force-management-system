@@ -1,14 +1,15 @@
+
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+
 import { PageHeader } from "@/components/ui/page-header";
 import { CreateGatheringForm } from "@/components/attendance/create-gathering-form";
 import { AttendanceTable } from "@/components/attendance/attendance-table";
 import AttendanceContextSelector from "./AttendanceContextSelector";
-import { archiveExpiredGatherings } from "@/lib/archive-expired-gathering";
-import Link from "next/link";
 
 export default async function AttendancePage({
   searchParams,
@@ -29,16 +30,23 @@ export default async function AttendancePage({
   const isAdmin = session.user.role === UserRole.ADMIN;
   const leaderDepartmentIds = session.user.departmentIds || [];
 
-  await archiveExpiredGatherings();
-
+  // Only active, non-archived gatherings are available
+  // for marking attendance.
   const services = await prisma.service.findMany({
     where: {
+      isActive: true,
       archivedAt: null,
     },
     orderBy: {
       date: "desc",
     },
+    select: {
+      id: true,
+      title: true,
+      date: true,
+    },
   });
+
 
   const departments = await prisma.department.findMany({
     where: isAdmin
@@ -50,15 +58,25 @@ export default async function AttendancePage({
     orderBy: { name: "asc" },
   });
 
-  const selectedServiceId = params.serviceId || services[0]?.id;
-  const selectedDepartmentId = params.departmentId || departments[0]?.id;
+  // Ignore a URL-selected gathering if it is no longer active.
+  const selectedServiceId = services.some(
+    (service) => service.id === params.serviceId
+  )
+    ? params.serviceId
+    : services[0]?.id;
+
+  const selectedDepartmentId = departments.some(
+    (department) => department.id === params.departmentId
+  )
+    ? params.departmentId
+    : departments[0]?.id;
 
   const departmentStatuses = await Promise.all(
     departments.map(async (department) => {
       if (!selectedServiceId) {
         return {
           id: department.id,
-          status: "Pending",
+          status: "Pending" as const,
         };
       }
 
@@ -161,16 +179,27 @@ export default async function AttendancePage({
             : "Mark attendance for the departments you lead."
         }
         action={
-          <Link
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
+            <Link
             href="/attendance/history"
             className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-bold text-card-foreground shadow-sm transition hover:bg-muted"
           >
             View History
           </Link>
+          {isAdmin && (
+          <Link
+            href="/attendance/gatherings"
+            className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-bold text-card-foreground shadow-sm transition hover:bg-muted"
+          >
+            Manage Gatherings
+          </Link>
+        )}
+          </div>
         }
       />
 
       {isAdmin && <CreateGatheringForm message={params.message} />}
+
 
       <AttendanceContextSelector
         services={services.map((service) => ({
@@ -186,7 +215,11 @@ export default async function AttendancePage({
           return {
             id: department.id,
             name: department.name,
-            status: (departmentStatus?.status || "Pending") as "Pending" | "No workers" | "Partial" | "Marked",
+            status: (departmentStatus?.status || "Pending") as
+              | "Pending"
+              | "No workers"
+              | "Partial"
+              | "Marked",
           };
         })}
         selectedServiceId={selectedServiceId}
