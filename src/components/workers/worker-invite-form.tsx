@@ -1,10 +1,26 @@
+
 "use client";
 
 import { completeWorkerRegistration } from "@/actions/worker.actions";
+import { useFormStatus } from "react-dom";
 
 type Props = {
   token: string;
 };
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {pending ? "Submitting..." : "Submit Registration"}
+    </button>
+  );
+}
 
 export function WorkerInviteForm({ token }: Props) {
   return (
@@ -22,7 +38,6 @@ export function WorkerInviteForm({ token }: Props) {
         <label className="mb-2 block text-sm font-semibold text-card-foreground">
           Full Name
         </label>
-
         <input
           name="fullName"
           required
@@ -35,7 +50,6 @@ export function WorkerInviteForm({ token }: Props) {
         <label className="mb-2 block text-sm font-semibold text-card-foreground">
           Phone Number
         </label>
-
         <input
           name="phone"
           required
@@ -50,7 +64,6 @@ export function WorkerInviteForm({ token }: Props) {
         <label className="mb-2 block text-sm font-semibold text-card-foreground">
           Gender
         </label>
-
         <select
           name="gender"
           required
@@ -60,23 +73,12 @@ export function WorkerInviteForm({ token }: Props) {
           <option value="" disabled>
             Select Gender
           </option>
-
-          <option value="Male">
-            Male
-          </option>
-
-          <option value="Female">
-            Female
-          </option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
         </select>
       </div>
 
-      <button
-        type="submit"
-        className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
-      >
-        Submit Registration
-      </button>
+      <SubmitButton />
     </form>
   );
 }

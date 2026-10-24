@@ -57,7 +57,7 @@ export default function Modal({
   >
     <div
       onClick={(e) => e.stopPropagation()}
-      className={`flex h-full w-full ${sizes[size]} flex-col overflow-hidden rounded-3xl border border-border bg-card text-card-foreground shadow-2xl`}
+      className={`flex h-[95%] w-full ${sizes[size]} flex-col overflow-hidden rounded-3xl border border-border bg-card text-card-foreground shadow-2xl`}
     >
       {children}
     </div>

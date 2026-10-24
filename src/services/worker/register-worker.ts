@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { validateInvite } from "@/lib/invite";
 import { logActivity } from "@/lib/activity-log";
+import { ApprovalStatus } from "@prisma/client";
 
 type RegisterWorkerInput = {
   token: string;
@@ -8,6 +9,7 @@ type RegisterWorkerInput = {
   phone: string;
   gender?: string;
 };
+
 
 export async function registerWorkerService({
   token,
@@ -27,31 +29,47 @@ export async function registerWorkerService({
     throw new Error("Invalid invite.");
   }
 
-  if (!invite.pendingWorker) {
-    throw new Error("Pending worker not found.");
+  const normalizedName = fullName.trim();
+  const normalizedPhone = phone.trim();
+
+  if (!normalizedName || !normalizedPhone) {
+    throw new Error("Please provide your full name and phone number.");
+  }
+
+  if (invite.departments.length === 0) {
+    throw new Error("This invite has no departments assigned.");
   }
 
   const existingWorker = await prisma.worker.findUnique({
-    where: {
-      phone,
-    },
+    where: { phone: normalizedPhone },
   });
 
-  if (
-    existingWorker &&
-    existingWorker.id !== invite.pendingWorker.id
-  ) {
+  if (existingWorker) {
     throw new Error("Phone number already exists.");
   }
 
-  const pendingWorker = await prisma.pendingWorker.update({
+  const existingPending = await prisma.pendingWorker.findFirst({
     where: {
-      id: invite.pendingWorker.id,
+      phone: normalizedPhone,
+      status: ApprovalStatus.PENDING,
     },
+  });
+
+  if (existingPending) {
+    throw new Error("This phone number already has a pending registration.");
+  }
+
+  const pendingWorker = await prisma.pendingWorker.create({
     data: {
-      fullName: fullName.trim(),
-      phone,
+      inviteId: invite.id,
+      fullName: normalizedName,
+      phone: normalizedPhone,
       gender: gender || null,
+      departments: {
+        create: invite.departments.map(({ departmentId }) => ({
+          departmentId,
+        })),
+      },
     },
   });
 

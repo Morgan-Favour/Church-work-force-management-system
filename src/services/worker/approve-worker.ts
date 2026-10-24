@@ -69,14 +69,6 @@ export async function approveWorkerService(
       },
     });
 
-    await tx.invite.update({
-      where: {
-        id: pending.inviteId,
-      },
-      data: {
-        used: true,
-      },
-    });
 
     await logActivity(tx, {
       action: "APPROVE_WORKER",
