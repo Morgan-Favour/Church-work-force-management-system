@@ -27,7 +27,7 @@ export default async function WorkerInvitePage({
     );
   }
 
-  if (!result.invite?.pendingWorker) {
+  if (!result.invite?.pendingWorkers) {
     notFound();
   }
 

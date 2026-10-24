@@ -177,10 +177,11 @@ model Invite {
   expiresAt     DateTime?
   used          Boolean            @default(false)
   createdAt     DateTime           @default(now())
+
   createdBy     User?              @relation(fields: [createdById], references: [id])
   departments   InviteDepartment[]
   pendingLeader PendingLeader?
-  pendingWorker PendingWorker?
+  pendingWorkers PendingWorker[]
 }
 
 model InviteDepartment {
@@ -216,17 +217,24 @@ model PendingLeaderDepartment {
   @@unique([pendingLeaderId, departmentId])
 }
 
+
+
+
 model PendingWorker {
-  id          String                    @id @default(cuid())
+  id          String                   @id @default(cuid())
   fullName    String
   phone       String?
   gender      String?
-  status      ApprovalStatus            @default(PENDING)
-  inviteId    String                    @unique
-  createdAt   DateTime                  @default(now())
-  invite      Invite                    @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+  status      ApprovalStatus           @default(PENDING)
+  inviteId    String
+  createdAt   DateTime                 @default(now())
+
+  invite      Invite                   @relation(fields: [inviteId], references: [id], onDelete: Cascade)
   departments PendingWorkerDepartment[]
+
+  @@index([inviteId])
 }
+
 
 model PendingWorkerDepartment {
   id              String        @id @default(cuid())

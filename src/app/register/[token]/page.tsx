@@ -1,6 +1,7 @@
 
 import { prisma } from "@/lib/prisma";
 import PublicRegistrationForm from "@/components/members/public-registration-form";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
@@ -54,15 +55,16 @@ export default async function PublicRegistrationPage({
     <main className="min-h-screen bg-background px-4 py-10 text-foreground sm:py-16">
       <div className="mx-auto max-w-3xl">
         <header className="mb-8 text-center">
-          <p className="text-sm font-medium text-muted-foreground">
-            GIC Egbelu Church
-          </p>
+          <Image
+            src="/logo.png"
+            alt="GIC Egbelu Church Logo"
+            width={100}
+            height={100}
+            className="mx-auto bg-accent-foreground rounded-2xl p-2"
+          />
           <h1 className="mt-2 text-3xl font-bold tracking-tight">
-            Member Registration
-          </h1>
-          <p className="mt-3 text-muted-foreground">
-            Please complete the form below to register as a church member.
-          </p>
+            Membership Registration
+          </h1> 
         </header>
 
         <div className="rounded-xl border border-border bg-card p-5 text-card-foreground shadow-sm sm:p-8">

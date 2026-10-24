@@ -1,6 +1,9 @@
+"use client";
+
 import { AttendanceStatus } from "@prisma/client";
 import { markAttendance } from "@/actions/attendance.actions";
 import { AttendanceRow } from "./attendance-row";
+import { useFormStatus } from "react-dom";
 
 type AttendanceTableProps = {
   selectedServiceId?: string;
@@ -18,6 +21,20 @@ type AttendanceTableProps = {
   }[];
 };
 
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {pending ? "Saving..." : "Save Attendance"}
+    </button>
+  );
+}
+
 export function AttendanceTable({
   selectedServiceId,
   selectedDepartmentId,
@@ -27,7 +44,7 @@ export function AttendanceTable({
   existingAttendance,
 }: AttendanceTableProps) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm p-4">
+    <section className="overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm">
       <div className="mb-6">
         <h2 className="text-base font-bold text-card-foreground sm:text-lg">
           Attendance Sheet
@@ -54,7 +71,11 @@ export function AttendanceTable({
       ) : (
         <form action={markAttendance} className="space-y-4">
           <input type="hidden" name="serviceId" value={selectedServiceId} />
-          <input type="hidden" name="departmentId" value={selectedDepartmentId} />
+          <input
+            type="hidden"
+            name="departmentId"
+            value={selectedDepartmentId}
+          />
           <input type="hidden" name="markedBy" value={markedBy} />
 
           {workers.map((worker) => {
@@ -92,12 +113,7 @@ export function AttendanceTable({
             );
           })}
 
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition hover:opacity-90"
-          >
-            Save Attendance
-          </button>
+          <SubmitButton />
         </form>
       )}
     </section>

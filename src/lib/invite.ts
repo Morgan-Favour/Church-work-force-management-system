@@ -29,7 +29,7 @@ export async function validateInvite(token: string) {
         },
       },
 
-      pendingWorker: {
+      pendingWorkers: {
         include: {
           departments: {
             include: {
@@ -55,7 +55,7 @@ export async function validateInvite(token: string) {
     };
   }
 
-  if (invite.used) {
+  if (invite.used && invite.type === "LEADER") {
     return {
       valid: false,
       message: "This invite has already been used.",
@@ -78,17 +78,6 @@ export async function validateInvite(token: string) {
     return {
       valid: false,
       message: "Pending leader registration not found.",
-      invite: null,
-    };
-  }
-
-  if (
-    invite.type === "WORKER" &&
-    !invite.pendingWorker
-  ) {
-    return {
-      valid: false,
-      message: "Pending worker registration not found.",
       invite: null,
     };
   }

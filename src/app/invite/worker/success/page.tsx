@@ -7,15 +7,11 @@ export default function LeaderRegistrationSuccessPage() {
         </div>
 
         <h1 className="text-3xl font-bold text-primary">
-          Registration Submitted
+          Congrats
         </h1>
 
         <p className="mt-5 text-muted-foreground">
           Your registration has been submitted successfully.
-        </p>
-
-        <p className="mt-3 text-muted-foreground">
-          An administrator or your department leader will review your request before your account becomes active.
         </p>
       </div>
     </div>

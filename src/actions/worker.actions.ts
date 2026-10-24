@@ -337,4 +337,4 @@ export async function rejectWorker(formData: FormData) {
   await rejectWorkerService(pendingWorkerId);
 
   revalidatePath("/approvals");
-}
+} 
