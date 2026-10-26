@@ -1,13 +1,16 @@
+
 "use client";
 
+import { useFormStatus } from "react-dom";
+
 import {
-    approveLeader,
-    rejectLeader,
+  approveLeader,
+  rejectLeader,
 } from "@/actions/leader.actions";
 
 import {
-    approveWorker,
-    rejectWorker,
+  approveWorker,
+  rejectWorker,
 } from "@/actions/worker.actions";
 
 type Department = {
@@ -21,7 +24,6 @@ export type ApprovalCardData = {
   fullName: string;
   phone: string | null;
   departments: Department[];
-
   username?: string;
   gender?: string | null;
 };
@@ -31,14 +33,52 @@ type Props = {
   approval: ApprovalCardData;
 };
 
-export function PendingApprovalCard({
-  type,
-  approval,
-}: Props) {
+function SubmitButton({
+  label,
+  loadingLabel,
+  className,
+}: {
+  label: string;
+  loadingLabel: string;
+  className: string;
+}) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className={`${className} disabled:cursor-not-allowed disabled:opacity-60`}
+    >
+      {pending ? (
+        <span className="flex items-center gap-2">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          {loadingLabel}
+        </span>
+      ) : (
+        label
+      )}
+    </button>
+  );
+}
+
+export function PendingApprovalCard({ type, approval }: Props) {
   const subtitle =
     type === "leader"
       ? `@${approval.username}`
       : approval.gender || "Not specified";
+
+  const idName =
+    type === "leader" ? "pendingLeaderId" : "pendingWorkerId";
+
+  const approveAction =
+    type === "leader" ? approveLeader : approveWorker;
+
+  const rejectAction =
+    type === "leader" ? rejectLeader : rejectWorker;
+
+  const buttonClass =
+    "rounded-lg px-5 py-2 font-semibold text-white transition";
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
@@ -47,9 +87,7 @@ export function PendingApprovalCard({
           {approval.fullName}
         </h3>
 
-        <p className="text-sm text-muted-foreground">
-          {subtitle}
-        </p>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
 
         <p className="text-sm text-muted-foreground">
           {approval.phone || "No phone number"}
@@ -59,7 +97,7 @@ export function PendingApprovalCard({
           {approval.departments.map((dept) => (
             <span
               key={dept.department.name}
-              className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary font-medium"
+              className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary"
             >
               {dept.department.name}
             </span>
@@ -68,54 +106,24 @@ export function PendingApprovalCard({
       </div>
 
       <div className="mt-6 flex gap-3">
-        <form
-          action={
-            type === "leader"
-              ? approveLeader
-              : approveWorker
-          }
-        >
-          <input
-            type="hidden"
-            name={
-              type === "leader"
-                ? "pendingLeaderId"
-                : "pendingWorkerId"
-            }
-            value={approval.id}
-          />
+        <form action={approveAction}>
+          <input type="hidden" name={idName} value={approval.id} />
 
-          <button
-            type="submit"
-            className="rounded-lg bg-emerald-600 px-5 py-2 font-semibold text-white transition hover:bg-emerald-700"
-          >
-            Approve
-          </button>
+          <SubmitButton
+            label="Approve"
+            loadingLabel="Approving..."
+            className={`${buttonClass} bg-emerald-600 hover:bg-emerald-700`}
+          />
         </form>
 
-        <form
-          action={
-            type === "leader"
-              ? rejectLeader
-              : rejectWorker
-          }
-        >
-          <input
-            type="hidden"
-            name={
-              type === "leader"
-                ? "pendingLeaderId"
-                : "pendingWorkerId"
-            }
-            value={approval.id}
-          />
+        <form action={rejectAction}>
+          <input type="hidden" name={idName} value={approval.id} />
 
-          <button
-            type="submit"
-            className="rounded-lg bg-destructive px-5 py-2 font-semibold text-destructive-foreground transition hover:opacity-90"
-          >
-            Reject
-          </button>
+          <SubmitButton
+            label="Reject"
+            loadingLabel="Rejecting..."
+            className={`${buttonClass} bg-destructive hover:opacity-90`}
+          />
         </form>
       </div>
     </div>
