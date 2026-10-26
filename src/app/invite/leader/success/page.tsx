@@ -11,7 +11,7 @@ export default function LeaderRegistrationSuccessPage() {
         </h1>
 
         <p className="mt-5 text-muted-foreground">
-          Your registration has been submitted successfully, YOu can now login to your account and mangage yourdepartment.
+          Your registration has been submitted successfully, You can now login to your account and manage your department.
         </p>
 
       </div>

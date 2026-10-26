@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { ApprovalStatus, UserRole } from "@prisma/client";
 import { logActivity } from "@/lib/activity-log";
 
+
 export async function approveLeaderService(
   pendingLeaderId: string,
   actorId?: string
@@ -38,7 +39,28 @@ export async function approveLeaderService(
     (d) => d.departmentId
   );
 
+  if (departmentIds.length === 0) {
+    throw new Error("The leader has no assigned departments.");
+  }
+
   await prisma.$transaction(async (tx) => {
+    // Create the worker profile first.
+    const worker = await tx.worker.create({
+      data: {
+        fullName: pending.fullName,
+        phone: pending.phone,
+        isActive: true,
+        departments: {
+          create: departmentIds.map((departmentId) => ({
+            departmentId,
+          })),
+        },
+      },
+      
+
+    });
+
+    // Create the leader's login account and link it to the worker.
     const user = await tx.user.create({
       data: {
         fullName: pending.fullName,
@@ -46,9 +68,11 @@ export async function approveLeaderService(
         password: pending.password!,
         role: UserRole.DEPARTMENT_LEADER,
         isActive: true,
+        workerId: worker.id,
       },
     });
 
+    // Assign the leader role to the invited departments.
     await tx.leaderDepartment.createMany({
       data: departmentIds.map((departmentId) => ({
         userId: user.id,
@@ -81,5 +105,8 @@ export async function approveLeaderService(
       actorId,
       departmentId: departmentIds[0],
     });
+  }, {
+    maxWait: 10000,
+    timeout: 15000,
   });
 }
