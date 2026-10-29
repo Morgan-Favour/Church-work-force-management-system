@@ -11,6 +11,7 @@
     "seed-admin": "tsx scripts/create-admin.ts"
   },
   "dependencies": {
+    "@eh1z/nigerian-locations": "^1.0.3",
     "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
