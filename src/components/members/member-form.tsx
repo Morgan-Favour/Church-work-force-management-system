@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { getAllStates, getLocalGovernments } from "@eh1z/nigerian-locations";
 
 export type MemberField =
   | "fullName"
@@ -12,6 +13,8 @@ export type MemberField =
   | "maritalStatus"
   | "occupation"
   | "address"
+  | "stateOfOrigin"
+  | "lga"
   | "dateJoined"
   | "departmentId"
   | "g12Id";
@@ -59,6 +62,8 @@ const initialValues: MemberValues = {
   dateOfBirth: "",
   maritalStatus: "",
   occupation: "",
+  stateOfOrigin: "",
+  lga: "",
   address: "",
   dateJoined: "",
   departmentId: "",
@@ -123,6 +128,18 @@ const sections: { title: string; fields: FieldConfig[] }[] = [
         rows: 3,
         placeholder: "Enter residential address",
         autoComplete: "street-address",
+      },
+      {
+        name: "stateOfOrigin",
+        label: "State of Origin",
+        required: true,
+        kind: "select",
+      },
+      {
+        name: "lga",
+        label: "Local Government Area (LGA)",
+        required: true,
+        kind: "select",
       },
     ],
   },
@@ -232,6 +249,14 @@ function validate(values: MemberValues): Partial<Record<MemberField, string>> {
     errors.occupation = "Please enter an occupation.";
   }
 
+  if (!values.stateOfOrigin) {
+    errors.stateOfOrigin = "Please select a state of origin.";
+  }
+
+  if (!values.lga) {
+    errors.lga = "Please select a local government area.";
+  }
+
   if (!values.address.trim()) {
     errors.address = "Please enter a residential address.";
   }
@@ -277,12 +302,27 @@ export default function MemberForm({
   const [success, setSuccess] = useState("");
   const [isPending, startTransition] = useTransition();
 
+  const states = getAllStates();
+
+  const lgas = values.stateOfOrigin
+    ? getLocalGovernments(values.stateOfOrigin)
+    : [];
+
   function updateField(field: MemberField, value: string) {
-    setValues((previous) => ({ ...previous, [field]: value }));
+    setValues((previous) => ({
+      ...previous,
+      [field]: value,
+      ...(field === "stateOfOrigin" ? { lga: "" } : {}),
+    }));
 
     setFieldErrors((previous) => {
       const next = { ...previous };
       delete next[field];
+
+      if (field === "stateOfOrigin") {
+        delete next.lga;
+      }
+
       return next;
     });
 
@@ -417,7 +457,9 @@ export default function MemberForm({
                   </label>
 
                   {field.kind === "select" ? (
-                    <select {...commonProps}>
+                    <select   {...commonProps}
+                      required={field.required}
+                      disabled={name === "lga" && !values.stateOfOrigin}>
                       <option value="">
                         {name === "departmentId"
                           ? "No department assigned"
@@ -425,7 +467,19 @@ export default function MemberForm({
                             ? "No G12 group assigned"
                             : `Select ${field.label.toLowerCase()}`}
                       </option>
+                      {name === "stateOfOrigin" &&
+                        states.map((state) => (
+                          <option key={state} value={state}>
+                            {state}
+                          </option>
+                        ))}
 
+                      {name === "lga" &&
+                        lgas.map((lga) => (
+                          <option key={lga} value={lga}>
+                            {lga}
+                          </option>
+                        ))}
                       {name === "departmentId" &&
                         departments.map((department) => (
                           <option key={department.id} value={department.id}>
@@ -463,7 +517,7 @@ export default function MemberForm({
                       inputMode={field.type === "tel" ? "tel" : undefined}
                       max={
                         field.type === "date" &&
-                        (name === "dateOfBirth" || name === "dateJoined")
+                          (name === "dateOfBirth" || name === "dateJoined")
                           ? today
                           : undefined
                       }
@@ -478,7 +532,7 @@ export default function MemberForm({
         </section>
       ))}
 
-       {error && (
+      {error && (
         <div
           role="alert"
           className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm font-medium text-destructive"
