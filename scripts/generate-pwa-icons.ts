@@ -1,3 +1,4 @@
+
 import sharp from "sharp";
 import path from "path";
 
@@ -5,21 +6,33 @@ const input = path.join(process.cwd(), "public/logo.png");
 const outputDir = path.join(process.cwd(), "public/icons");
 
 async function generateIcons() {
-  await sharp(input)
-    .resize(192, 192, {
-      fit: "contain",
-      background: "#000000",
-    })
-    .png()
-    .toFile(path.join(outputDir, "icon-192x192.png"));
+  const sizes = [192, 512];
 
-  await sharp(input)
-    .resize(512, 512, {
-      fit: "contain",
-      background: "#000000",
+  for (const size of sizes) {
+    await sharp({
+      create: {
+        width: size,
+        height: size,
+        channels: 4,
+        background: "#1e293b",
+      },
     })
-    .png()
-    .toFile(path.join(outputDir, "icon-512x512.png"));
+      .composite([
+        {
+          input: await sharp(input)
+            .resize({
+              width: Math.round(size * 0.75),
+              height: Math.round(size * 0.75),
+              fit: "contain",
+            })
+            .png()
+            .toBuffer(),
+          gravity: "centre",
+        },
+      ])
+      .png()
+      .toFile(path.join(outputDir, `icon-${size}x${size}.png`));
+  }
 
   console.log("PWA icons generated successfully!");
 }
