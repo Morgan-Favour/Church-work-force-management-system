@@ -8,7 +8,7 @@ async function generateIcons() {
   await sharp(input)
     .resize(192, 192, {
       fit: "contain",
-      background: "#ffffff",
+      background: "#000000",
     })
     .png()
     .toFile(path.join(outputDir, "icon-192x192.png"));
@@ -16,7 +16,7 @@ async function generateIcons() {
   await sharp(input)
     .resize(512, 512, {
       fit: "contain",
-      background: "#ffffff",
+      background: "#000000",
     })
     .png()
     .toFile(path.join(outputDir, "icon-512x512.png"));
