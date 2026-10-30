@@ -9,6 +9,11 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "GIC Egbelu Workforce",
   description: "Church workforce management system",
+  manifest: "/manifest.webmanifest",
+};
+
+export const viewport = {
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
