@@ -1,10 +1,11 @@
+
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck, UserRound } from "lucide-react";
 
 import { LeaderAccountActions } from "@/components/leaders/leader-account-actions";
-
+import { LeaderDepartmentActions } from "@/components/leaders/leader-department-actions";
 
 export default async function LeaderDetailsPage({
   params,
@@ -12,7 +13,6 @@ export default async function LeaderDetailsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
 
   const leader = await prisma.user.findUnique({
     where: { id },
@@ -31,6 +31,27 @@ export default async function LeaderDetailsPage({
   });
 
   if (!leader) notFound();
+
+  const [departments, occupiedDepartments] = await Promise.all([
+    prisma.department.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
+
+    prisma.leaderDepartment.findMany({
+      select: {
+        departmentId: true,
+      },
+    }),
+  ]);
+
+  const occupiedDepartmentIds = occupiedDepartments.map(
+    (item) => item.departmentId
+  );
 
   return (
     <div className="space-y-6">
@@ -56,7 +77,9 @@ export default async function LeaderDetailsPage({
               <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
                 {leader.fullName}
               </h1>
-              <p className="mt-1 text-sm text-primary-foreground/70">@{leader.username}</p>
+              <p className="mt-1 text-sm text-primary-foreground/70">
+                @{leader.username}
+              </p>
             </div>
           </div>
 
@@ -78,7 +101,9 @@ export default async function LeaderDetailsPage({
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">
               <ShieldCheck size={21} />
             </div>
-            <h2 className="font-bold text-card-foreground">Departments Led</h2>
+            <h2 className="font-bold text-card-foreground">
+              Departments Led
+            </h2>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
@@ -100,7 +125,9 @@ export default async function LeaderDetailsPage({
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
-          <h2 className="font-bold text-card-foreground">Linked Worker Profile</h2>
+          <h2 className="font-bold text-card-foreground">
+            Linked Worker Profile
+          </h2>
 
           <p className="mt-3 text-sm text-muted-foreground">
             {leader.worker?.phone || "No phone number"}
@@ -118,6 +145,14 @@ export default async function LeaderDetailsPage({
           </div>
         </div>
       </section>
+
+      <LeaderDepartmentActions
+        leaderId={leader.id}
+        leaderName={leader.fullName}
+        isActive={leader.isActive}
+        departments={departments}
+        occupiedDepartmentIds={occupiedDepartmentIds}
+      />
 
       <LeaderAccountActions
         leaderId={leader.id}

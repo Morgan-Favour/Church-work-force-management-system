@@ -3,7 +3,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AssignLeaderDepartmentModal } from "./assign-leader-department-modal";
 
 const PAGE_SIZE = 10;
 
@@ -34,14 +33,12 @@ type LeaderListProps = {
 
 export function LeaderList({
   leaders,
-  departments,
-  occupiedDepartmentIds,
 }: LeaderListProps) {
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("all");
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
-  const [selectedLeader, setSelectedLeader] = useState<Leader | null>(null);
+
 
   // Get all unique departments assigned to leaders
   const departmentNames = useMemo(() => {
@@ -217,18 +214,6 @@ export function LeaderList({
                     )}
                   </div>
                 </Link>
-
-                {/* Assign another department */}
-                <div className="mt-4 border-t border-border pt-3">
-                  <button
-                    type="button"
-                    disabled={!leader.isActive}
-                    onClick={() => setSelectedLeader(leader)}
-                    className="rounded-xl bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Assign Department
-                  </button>
-                </div>
               </div>
             ))}
           </div>
@@ -264,17 +249,7 @@ export function LeaderList({
         </>
       )}
 
-      {/* Assign Department Modal */}
-      {selectedLeader && (
-        <AssignLeaderDepartmentModal
-          open={true}
-          onClose={() => setSelectedLeader(null)}
-          leaderId={selectedLeader.id}
-          leaderName={selectedLeader.fullName}
-          departments={departments}
-          occupiedDepartmentIds={occupiedDepartmentIds}
-        />
-      )}
+      
     </div>
   );
 }

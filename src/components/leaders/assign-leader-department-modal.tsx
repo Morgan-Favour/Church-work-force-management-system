@@ -90,7 +90,13 @@ export function AssignLeaderDepartmentModal({
                     </p>
                 </div>
 
-                <form action={handleSubmit} className="space-y-4">
+                <form
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        void handleSubmit(new FormData(event.currentTarget));
+                    }}
+                    className="space-y-4"
+                >
                     <input type="hidden" name="leaderId" value={leaderId} />
 
                     <div>
