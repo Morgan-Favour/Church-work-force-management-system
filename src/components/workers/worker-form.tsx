@@ -157,7 +157,7 @@ export function WorkerForm({ isAdmin, departments }: WorkerFormProps) {
 
               const result = await createWorkerInvite(formData);
 
-              if (result?.inviteLink) {
+              if ("inviteLink" in result && result.inviteLink) {
                 setInviteLink(result.inviteLink);
               }
 

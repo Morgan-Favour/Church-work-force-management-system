@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { AssignLeaderDepartmentModal } from "./assign-leader-department-modal";
 
 const PAGE_SIZE = 10;
 
@@ -20,14 +21,30 @@ type Leader = {
   }[];
 };
 
-export function LeaderList({ leaders }: { leaders: Leader[] }) {
+type Department = {
+  id: string;
+  name: string;
+};
+
+type LeaderListProps = {
+  leaders: Leader[];
+  departments: Department[];
+  occupiedDepartmentIds: string[];
+};
+
+export function LeaderList({
+  leaders,
+  departments,
+  occupiedDepartmentIds,
+}: LeaderListProps) {
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("all");
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
+  const [selectedLeader, setSelectedLeader] = useState<Leader | null>(null);
 
   // Get all unique departments assigned to leaders
-  const departments = useMemo(() => {
+  const departmentNames = useMemo(() => {
     const names = leaders.flatMap((leader) =>
       leader.leaderDepartments.map((item) => item.department.name)
     );
@@ -40,7 +57,7 @@ export function LeaderList({ leaders }: { leaders: Leader[] }) {
     const value = search.trim().toLowerCase();
 
     return leaders.filter((leader) => {
-      const departmentNames = leader.leaderDepartments.map(
+      const leaderDepartmentNames = leader.leaderDepartments.map(
         (item) => item.department.name
       );
 
@@ -48,10 +65,11 @@ export function LeaderList({ leaders }: { leaders: Leader[] }) {
         !value ||
         leader.fullName.toLowerCase().includes(value) ||
         leader.username.toLowerCase().includes(value) ||
-        departmentNames.join(" ").toLowerCase().includes(value);
+        leaderDepartmentNames.join(" ").toLowerCase().includes(value);
 
       const matchesDepartment =
-        department === "all" || departmentNames.includes(department);
+        department === "all" ||
+        leaderDepartmentNames.includes(department);
 
       const matchesStatus =
         status === "all" ||
@@ -111,7 +129,7 @@ export function LeaderList({ leaders }: { leaders: Leader[] }) {
         >
           <option value="all">All departments</option>
 
-          {departments.map((name) => (
+          {departmentNames.map((name) => (
             <option key={name} value={name}>
               {name}
             </option>
@@ -152,50 +170,66 @@ export function LeaderList({ leaders }: { leaders: Leader[] }) {
           {/* Leader Cards */}
           <div className="space-y-3">
             {visibleLeaders.map((leader) => (
-              <Link
-                href={`/leaders/${leader.id}`}
+              <div
                 key={leader.id}
-                className="block rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:bg-muted/50"
+                className="rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:bg-muted/50"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-bold text-card-foreground">
-                      {leader.fullName}
-                    </h3>
+                <Link
+                  href={`/leaders/${leader.id}`}
+                  className="block"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="font-bold text-card-foreground">
+                        {leader.fullName}
+                      </h3>
 
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      @{leader.username}
-                    </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        @{leader.username}
+                      </p>
+                    </div>
+
+                    <span
+                      className={
+                        leader.isActive
+                          ? "rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                          : "rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive"
+                      }
+                    >
+                      {leader.isActive ? "Active" : "Inactive"}
+                    </span>
                   </div>
 
-                  <span
-                    className={
-                      leader.isActive
-                        ? "rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
-                        : "rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive"
-                    }
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {leader.leaderDepartments.map((item) => (
+                      <span
+                        key={item.id}
+                        className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
+                      >
+                        Leads {item.department.name}
+                      </span>
+                    ))}
+
+                    {leader.workerId && (
+                      <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        Worker Profile
+                      </span>
+                    )}
+                  </div>
+                </Link>
+
+                {/* Assign another department */}
+                <div className="mt-4 border-t border-border pt-3">
+                  <button
+                    type="button"
+                    disabled={!leader.isActive}
+                    onClick={() => setSelectedLeader(leader)}
+                    className="rounded-xl bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {leader.isActive ? "Active" : "Inactive"}
-                  </span>
+                    Assign Department
+                  </button>
                 </div>
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {leader.leaderDepartments.map((item) => (
-                    <span
-                      key={item.id}
-                      className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
-                    >
-                      Leads {item.department.name}
-                    </span>
-                  ))}
-
-                  {leader.workerId && (
-                    <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                      Worker Profile
-                    </span>
-                  )}
-                </div>
-              </Link>
+              </div>
             ))}
           </div>
 
@@ -228,6 +262,18 @@ export function LeaderList({ leaders }: { leaders: Leader[] }) {
             </button>
           </div>
         </>
+      )}
+
+      {/* Assign Department Modal */}
+      {selectedLeader && (
+        <AssignLeaderDepartmentModal
+          open={true}
+          onClose={() => setSelectedLeader(null)}
+          leaderId={selectedLeader.id}
+          leaderName={selectedLeader.fullName}
+          departments={departments}
+          occupiedDepartmentIds={occupiedDepartmentIds}
+        />
       )}
     </div>
   );
