@@ -47,7 +47,7 @@ export function WorkerInviteModal({
         return;
       }
 
-      if (result?.inviteLink) {
+      if ("inviteLink" in result && result.inviteLink) {
         setInviteLink(result.inviteLink);
       }
     });

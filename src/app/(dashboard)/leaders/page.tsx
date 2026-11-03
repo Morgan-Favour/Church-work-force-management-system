@@ -1,3 +1,4 @@
+
 import { prisma } from "@/lib/prisma";
 import { UserRole } from "@prisma/client";
 import { getServerSession } from "next-auth";
@@ -9,8 +10,6 @@ import { Pagination } from "@/components/ui/pagination";
 import { LeaderActions } from "@/components/leaders/leader-page-actions";
 
 const PAGE_SIZE = 10;
-
-  
 
 export default async function LeadersPage({
   searchParams,
@@ -42,7 +41,7 @@ export default async function LeadersPage({
     },
   });
 
-  const [leaders, totalLeaders] = await Promise.all([
+  const [leaders, totalLeaders, occupiedDepartments] = await Promise.all([
     prisma.user.findMany({
       where: {
         role: UserRole.DEPARTMENT_LEADER,
@@ -66,7 +65,17 @@ export default async function LeadersPage({
         role: UserRole.DEPARTMENT_LEADER,
       },
     }),
+
+    prisma.leaderDepartment.findMany({
+      select: {
+        departmentId: true,
+      },
+    }),
   ]);
+
+  const occupiedDepartmentIds = occupiedDepartments.map(
+    (item) => item.departmentId
+  );
 
   const totalPages = Math.ceil(totalLeaders / PAGE_SIZE);
 
@@ -77,13 +86,15 @@ export default async function LeadersPage({
         description="Create login accounts for department leaders and automatically add them as workers."
       />
 
-      <section className="grid gap-6 grid-cols-1">
-        <LeaderActions
-          departments={departments}
-        />
+      <section className="grid grid-cols-1 gap-6">
+        <LeaderActions departments={departments} />
 
         <div>
-          <LeaderList leaders={leaders} />
+          <LeaderList
+            leaders={leaders}
+            departments={departments}
+            occupiedDepartmentIds={occupiedDepartmentIds}
+          />
 
           <Pagination
             currentPage={page}

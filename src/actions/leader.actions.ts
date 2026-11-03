@@ -4,11 +4,11 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { Prisma, UserRole } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { generateInviteToken, generateExpiryDate } from "@/lib/invite";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { approveLeaderService, rejectLeaderService, registerLeaderService, createLeaderInviteService } from "@/services/leader";
+import { assignLeaderDepartmentService } from "@/services/leader/assign-leader-department.service";
 
 type ActionResult = {
   error?: string;
@@ -26,12 +26,12 @@ export async function createLeader(formData: FormData): Promise<ActionResult> {
     return { error: "Please fill in all required fields." };
   }
 
-  if(/^[a-zA-Z\s-]+$/.test(fullName) === false) {
+  if (/^[a-zA-Z\s-]+$/.test(fullName) === false) {
     return {
       error: "Full name can only contain letters, spaces, and hyphens.",
     };
   }
-  
+
   if (!/^\d{11,15}$/.test(phone)) {
     return {
       error: "Phone number must contain only numbers and must be 11 to 15 digits.",
@@ -370,3 +370,45 @@ export async function rejectLeader(formData: FormData) {
 
   revalidatePath("/approvals");
 }
+
+
+
+export async function assignLeaderDepartment(formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || session.user.role !== UserRole.ADMIN) {
+    return { error: "Unauthorized." };
+  }
+
+  const leaderId = formData.get("leaderId")?.toString();
+  const departmentId = formData.get("departmentId")?.toString();
+
+  if (!leaderId || !departmentId) {
+    return { error: "Please select a leader and department." };
+  }
+
+  try {
+    const result = await assignLeaderDepartmentService(
+      leaderId,
+      departmentId,
+      session.user.id
+    );
+
+    revalidatePath("/leaders");
+    revalidatePath(`/leaders/${leaderId}`);
+    revalidatePath("/workers");
+    revalidatePath("/dashboard");
+
+    return result;
+  } catch (error) {
+    console.error("Assign leader department error:", error);
+
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unable to assign department.",
+    };
+  }
+}
+

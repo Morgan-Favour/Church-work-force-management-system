@@ -47,7 +47,7 @@ export function LeaderInviteModal({
         return;
       }
 
-      if (result?.inviteLink) {
+      if ("inviteLink" in result && result.inviteLink) {
         setInviteLink(result.inviteLink);
       }
     });
@@ -63,7 +63,7 @@ export function LeaderInviteModal({
 
   return (
     <Modal open={open} onClose={closeModal} size="lg">
-      
+
       <form action={handleSubmit} className="flex flex-col h-full">
         <ModalHeader
           title="Invite Leader"
@@ -81,7 +81,7 @@ export function LeaderInviteModal({
               <DepartmentCheckboxDropdown
                 departments={departments}
                 name="departmentIds"
-                multiple={false}
+                multiple={true}
               />
             </div>
 
